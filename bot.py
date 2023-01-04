@@ -1,21 +1,28 @@
 import discord
-import discord.ext
 
 # setting up the bot
-intents = discord.Intents.all() 
-# if you don't want all intents you can do discord.Intents.default()
-client = discord.Client(intents=intents)
+intents = discord.Intents.all()
+
+class aclient(discord.Client):
+  def __init__(self):
+    super().__init__(intents = intents)
+    self.synced = False
+    self.added = False
+
+  async def on_ready(self):
+    await self.wait_until_ready()
+    if not self.synced:
+        await tree.sync()
+        self.synced = True
+    if not self.added:
+      self.added = True
+    print(f"Logged in {self.user}!")
+
+client = aclient()
 tree = discord.app_commands.CommandTree(client)
 
-# sync the slash command to your server
-@client.event
-async def on_ready():
-    await tree.sync(guild=discord.Object(id=284980887634837504)) #guild id = server id
-    # print "ready" in the console when the bot is ready to work
-    print("Ready")
-
 # make the slash command
-@tree.command(name="ping", description="my ping")
+@tree.command(name="ping", description="You can test your ping here!")
 async def slashing_commanding(int: discord.Interaction):    
     await int.response.send_message("Pong!")
 
