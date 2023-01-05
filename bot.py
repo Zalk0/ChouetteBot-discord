@@ -26,5 +26,9 @@ tree = discord.app_commands.CommandTree(client)
 async def slashing_commanding(int: discord.Interaction):
 	await int.response.send_message("Pong!")
 
+@tree.context_menu(name="Hello")
+async def hello(interaction: discord.Interaction, message: discord.message):
+	await interaction.response.send_message("Hey!")
+
 # run the bot
 client.run("MTA2MDI1MjY1MjI4MzM3OTg5NA.GIWIoq.U6SL91qCbXhsK06YnWoK30g9UP2ql881bRpVig")
