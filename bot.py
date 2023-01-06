@@ -42,7 +42,9 @@ async def poke_ping(ctx):
 	Dresseurs = get(ctx.guild.roles, id=791365470837800992)
 	await client.get_channel(768554688425492560).send(f"{Dresseurs.mention} C'est l'heure d'attraper des pokémons !")
 
+# Import token from file
+with open("token_discord", "r") as file:
+	token = file.read()
+
 # run the bot
-client.run("MTA2MDI1MjY1MjI4MzM3OTg5NA.GIWIoq.U6SL91qCbXhsK06YnWoK30g9UP2ql881bRpVig")
-
-
+client.run(token)
