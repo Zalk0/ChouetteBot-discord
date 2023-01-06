@@ -43,7 +43,11 @@ async def poke_ping(ctx):
 	await client.get_channel(768554688425492560).send(f"{Dresseurs.mention} C'est l'heure d'attraper des pokémons !")
 
 # Import token from file
-with open("token_discord", "r") as file:
+import inspect
+import os
+module_path = inspect.getfile(inspect.currentframe())
+module_dir = os.path.realpath(os.path.dirname(module_path))
+with open(f"{module_dir}/token_discord", "r") as file:
 	token = file.read()
 
 # run the bot
