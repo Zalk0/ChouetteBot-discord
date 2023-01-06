@@ -1,9 +1,9 @@
 import discord
 import datetime
 from discord.utils import get
-from discord.ext import tasks
+from discord.ext import tasks, commands
 
-# setting up the bot
+# setting up the client
 intents = discord.Intents.all()
 
 class aclient(discord.Client):
@@ -38,6 +38,7 @@ async def hello(interaction: discord.Interaction, message: discord.Message):
 @tree.command(name="pokehunt", description="Command to launch pings for pokemons hunters")
 async def poke(ctx):
 	poke_ping.start(ctx)
+	await ctx.send("La commande a bien été effectuée !", delete_after=5)
 
 @tasks.loop(minutes=1)
 async def poke_ping(ctx):
@@ -56,5 +57,5 @@ module_dir = os.path.realpath(os.path.dirname(module_path))
 with open(f"{module_dir}/token_discord", "r") as file:
 	token = file.read()
 
-# run the bot
-client.run(token)
+# run the client
+client.run(token, reconnect=True)
