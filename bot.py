@@ -47,8 +47,8 @@ async def poke_ping(ctx):
 	if time.hour in hours:
 		if time.minute == 0:
 			Dresseurs = get(ctx.guild.roles, id=791365470837800992)
-			Pokeball = get_emoji(id=697018415646507078)
-			await client.get_channel(768554688425492560).send(f"{Dresseurs.mention} C'est l'heure d'attraper des pokémons ! {Pokeball}")
+			Pokeball = client.get_emoji(697018415646507078)
+			await client.get_channel(768554688425492560).send(f"{Dresseurs.mention} C'est l'heure d'attraper des pokémons {Pokeball}")
 
 # Import token from file
 import inspect
