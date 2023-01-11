@@ -20,7 +20,7 @@ class AClient(discord.Client):
     async def on_ready(self):
         await self.wait_until_ready()
         activity = discord.Activity(type=discord.ActivityType.listening, name="Bring Me The Horizon")
-        await client.change_presence(activity=activity)
+        await client.change_presence(activity=activity, status=discord.Status.idle)
         if not self.synced:
             await tree.sync()
             self.synced = True
