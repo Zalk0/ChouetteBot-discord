@@ -7,6 +7,8 @@ from discord.ext import tasks, commands
 
 # setting up the client
 intents = discord.Intents.all()
+even_hours = [time(0), time(2), time(4), time(6), time(8), time(10),
+              time(12), time(14), time(16), time(18), time(20), time(22)]
 
 
 class AClient(discord.Client):
@@ -50,7 +52,7 @@ async def poke(ctx):
     await ctx.response.send_message("La commande a bien été effectuée !", ephemeral=True)
 
 
-@tasks.loop(time=[time(0), time(2), time(4), time(6), time(8), time(10), time(12), time(14), time(16), time(18), time(20), time(22)])
+@tasks.loop(time=even_hours)
 async def poke_ping(ctx):
     dresseurs = get(ctx.guild.roles, id=791365470837800992)
     pokeball = client.get_emoji(697018415646507078)
