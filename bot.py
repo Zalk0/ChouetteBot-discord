@@ -17,6 +17,8 @@ class AClient(discord.Client):
 
     async def on_ready(self):
         await self.wait_until_ready()
+        activity = discord.Activity(type=discord.ActivityType.listening, name="Bring Me The Horizon")
+        await client.change_presence(activity=activity)
         if not self.synced:
             await tree.sync()
             self.synced = True
@@ -45,7 +47,7 @@ async def hello(interaction: discord.Interaction, message: discord.Message):
 @tree.command(name="pokehunt", description="Command to launch pings for pokemons hunters")
 async def poke(ctx):
     poke_ping.start(ctx)
-    await ctx.send("La commande a bien été effectuée !", delete_after=5)
+    await ctx.response.send_message("La commande a bien été effectuée !", ephemeral=True)
 
 
 @tasks.loop(minutes=1)
