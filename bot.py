@@ -1,6 +1,6 @@
 import inspect
 import os
-import datetime
+from datetime import time
 import discord
 from discord.utils import get
 from discord.ext import tasks, commands
@@ -50,16 +50,12 @@ async def poke(ctx):
     await ctx.response.send_message("La commande a bien été effectuée !", ephemeral=True)
 
 
-@tasks.loop(minutes=1)
+@tasks.loop(time=[time(0), time(2), time(4), time(6), time(8), time(10), time(12), time(14), time(16), time(18), time(20), time(22)])
 async def poke_ping(ctx):
-    time = datetime.datetime.today()
-    hours = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23]
-    if time.hour in hours:
-        if time.minute == 0:
-            dresseurs = get(ctx.guild.roles, id=791365470837800992)
-            pokeball = client.get_emoji(697018415646507078)
-            msg_poke = f"{dresseurs.mention} C'est l'heure d'attraper des pokémons {pokeball}"
-            await client.get_channel(768554688425492560).send(msg_poke)
+    dresseurs = get(ctx.guild.roles, id=791365470837800992)
+    pokeball = client.get_emoji(697018415646507078)
+    msg_poke = f"{dresseurs.mention} C'est l'heure d'attraper des pokémons {pokeball}"
+    await client.get_channel(768554688425492560).send(msg_poke)
 
 
 # Import token from file
