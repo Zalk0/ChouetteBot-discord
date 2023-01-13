@@ -17,8 +17,11 @@ def commands_list(client, tree):
     # Make a cheh command
     @tree.command(name="cheh", description="Cheh somebody")
     async def cheh(interaction: discord.Interaction, user: discord.Member):
+        # Check if the user to cheh is the bot
         if user == client.user:
-            await interaction.response.send_message(f"Vous ne pouvez pas me **Cheh** !")
+            await interaction.response.send_message("Vous ne pouvez pas me **Cheh** !")
+        elif user == interaction.user:
+            await interaction.response.send_message("**FEUR**")
         else:
             cheh_gif = "https://tenor.com/view/cheh-true-cheh-gif-19162969"
             await interaction.response.send_message(f"Cheh {user.mention}")
