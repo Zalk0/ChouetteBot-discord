@@ -45,6 +45,8 @@ class ChouetteBot(discord.Client):
         # If the message is from the bot ignore
         if message.author == self.user:
             return
+        elif message.author.bot:
+            return
 
         # Stock the message's informations in variables
         username = str(message.author)
