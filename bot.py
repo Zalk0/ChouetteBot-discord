@@ -2,6 +2,7 @@ import commands
 import discord
 import inspect
 import os
+import responses
 import tasks
 
 
@@ -43,15 +44,17 @@ class ChouetteBot(discord.Client):
     # Event when the bot receives a message
     async def on_message(self, message):
         # If the message is from the bot ignore
-        if message.author == self.user:
-            return
-        elif message.author.bot:
+        if message.author == self.user or message.author.bot:
             return
 
         # Stock the message's informations in variables
         username = str(message.author)
         user_msg = str(message.content)
-        channel = str(message.channel)
+        channel = message.channel
+
+        # Call responses with message of the user and responds if necessary
+        response = responses.responses(user_msg)
+        await channel.send(response)
 
         # Do a log on the python console
         print(f'{username} said: "{user_msg}" ({channel})')
@@ -59,6 +62,7 @@ class ChouetteBot(discord.Client):
 
 # Function to run the bot
 def run_bot():
+
     # Import token from file
     module_path = inspect.getfile(inspect.currentframe())
     module_dir = os.path.realpath(os.path.dirname(module_path))
