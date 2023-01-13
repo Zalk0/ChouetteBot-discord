@@ -17,8 +17,12 @@ def commands_list(client, tree):
     # Make a cheh command
     @tree.command(name="cheh", description="Cheh somebody")
     async def cheh(interaction: discord.Interaction, user: discord.Member):
-        cheh_gif = "https://tenor.com/view/cheh-true-cheh-gif-19162969"
-        await interaction.response.send_message(f"Cheh {user.mention} {cheh_gif}")
+        if user == client.user:
+            await interaction.response.send_message(f"Vous ne pouvez pas me **Cheh** !")
+        else:
+            cheh_gif = "https://tenor.com/view/cheh-true-cheh-gif-19162969"
+            await interaction.response.send_message(f"Cheh {user.mention}")
+            await interaction.channel.send(cheh_gif)
 
     # Make a simple context menu application
     @tree.context_menu(name="Hello")
