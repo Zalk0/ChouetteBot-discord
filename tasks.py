@@ -15,7 +15,7 @@ def tasks_list(client):
         dresseurs = discord.Guild.get_role(client.get_guild(284980887634837504), 791365470837800992)
         pokeball = client.get_emoji(697018415646507078)
         msg_poke = f"{dresseurs.mention}C'est l'heure d'attraper des pokémons {pokeball}"
-        await client.get_channel(1063465494247657616).send(msg_poke)
+        await client.get_channel(768554688425492560).send(msg_poke)
 
     # Start loop
     poke_ping.start()

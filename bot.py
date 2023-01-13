@@ -21,6 +21,9 @@ class ChouetteBot(discord.Client):
         # Waits until internal cache is ready
         await self.wait_until_ready()
 
+        # Import tasks
+        tasks.tasks_list(self)
+
         # Import commands and sync
         command_tree = discord.app_commands.CommandTree(self)
         commands.commands_list(self, command_tree)
@@ -29,9 +32,6 @@ class ChouetteBot(discord.Client):
             self.synced = True
         if not self.added:
             self.added = True
-
-        # Import tasks
-        tasks.tasks_list(self)
 
         # Set activity of the bot
         activity = discord.Activity(type=discord.ActivityType.listening, name="Bring Me The Horizon")

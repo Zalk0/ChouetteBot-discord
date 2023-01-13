@@ -14,6 +14,12 @@ def commands_list(client, tree):
     async def ping(interaction: discord.Interaction):
         await interaction.response.send_message(f"Pong! In {round(client.latency * 1000)}ms")
 
+    # Make a cheh command
+    @tree.command(name="cheh", description="Cheh somebody")
+    async def cheh(interaction: discord.Interaction, user: discord.Member):
+        cheh_gif = "https://tenor.com/view/cheh-true-cheh-gif-19162969"
+        await interaction.response.send_message(f"Cheh {user.mention} {cheh_gif}")
+
     # Make a simple context menu application
     @tree.context_menu(name="Hello")
     async def hello(interaction: discord.Interaction, message: discord.Message):
