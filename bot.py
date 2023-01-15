@@ -43,8 +43,8 @@ class ChouetteBot(discord.Client):
 
     # Event when the bot receives a message
     async def on_message(self, message):
-        # If the message is from the bot ignore
-        if message.author == self.user or message.author.bot:
+        # If the message is from a bot, ignore
+        if message.author.bot:
             return
 
         # Stock the message's informations in variables
