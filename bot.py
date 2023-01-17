@@ -62,7 +62,7 @@ class ChouetteBot(discord.Client):
         response = responses.responses(user_msg)
         if not response == '':
             await channel.send(response)
-            print(f'{self.user} responded : {response}')
+            print(f'{self.user} responded : "{response}"')
 
 
 # Function to run the bot

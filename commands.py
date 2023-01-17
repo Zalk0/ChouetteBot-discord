@@ -35,8 +35,11 @@ def commands_list(client, tree):
     # Make a context menu command to delete messages
     # @tree.context_menu(name="Delete until here")
     # async def delete(interaction: discord.Interaction, message: discord.Message):
+    #     if not interaction.permissions.manage_messages:
+    #         await interaction.response.send_message(f"Vous n'avez pas la permission de gérer les messages !", ephemeral=True)
+    #         return
+    #     await interaction.response.send_message("En train de supprimer les messages...", ephemeral=True, delete_after=0)
     #     def is_msg(msg):
-    #         return msg.id == message.id
-    #     del_msg = await discord.TextChannel.purge(client, check=is_msg, bulk=True, reason="Admin used bulk delete")
-    #     await interaction.response.send_message(f"{del_msg} messages deleted!", ephemeral=True)
-    # exception: AttributeError: 'YoloBot' object has no attribute 'history'
+    #         return msg.id >= message.id
+    #     del_msg = await message.channel.purge(check=is_msg, reason="Admin used bulk delete")
+    #     await interaction.channel.send(f"{len(del_msg)} messages supprimés !", delete_after=10)
