@@ -38,6 +38,9 @@ class ChouetteBot(discord.Client):
         activity = discord.Activity(type=discord.ActivityType.listening, name="Bring Me The Horizon")
         await self.change_presence(activity=activity, status=discord.Status.idle)
 
+        # Check the number of servers the bot is a part of
+        print(f"Number of servers I'm in : {len(self.guilds)}")
+
         # Prints in the console that the bot is ready
         print(f'{self.user} is now online and ready!')
 
@@ -52,13 +55,14 @@ class ChouetteBot(discord.Client):
         user_msg = str(message.content)
         channel = message.channel
 
+        # Do a log on the python console
+        print(f'{username} said: "{user_msg}" ({channel})')
+
         # Call responses with message of the user and responds if necessary
         response = responses.responses(user_msg)
         if not response == '':
             await channel.send(response)
-
-        # Do a log on the python console
-        print(f'{username} said: "{user_msg}" ({channel})')
+            print(f'{self.user} responded : {response}')
 
 
 # Function to run the bot
