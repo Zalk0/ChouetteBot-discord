@@ -38,8 +38,10 @@ def commands_list(client, tree):
     #     if not interaction.permissions.manage_messages:
     #         await interaction.response.send_message(f"Vous n'avez pas la permission de gérer les messages !", ephemeral=True)
     #         return
-    #     await interaction.response.send_message("En train de supprimer les messages...", ephemeral=True, delete_after=0)
+    #     await interaction.response.defer(ephemeral=True, thinking=True)
+    #     last_id = interaction.channel.last_message_id
     #     def is_msg(msg):
-    #         return msg.id >= message.id
+    #         if msg.id <= last_id:
+    #             return msg.id >= message.id
     #     del_msg = await message.channel.purge(check=is_msg, reason="Admin used bulk delete")
-    #     await interaction.channel.send(f"{len(del_msg)} messages supprimés !", delete_after=10)
+    #     await interaction.followup.send(f"{len(del_msg)} messages supprimés !")
