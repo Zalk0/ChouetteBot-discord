@@ -1,5 +1,23 @@
-# bot-discord
+# ChouetteBot-discord
 
-Just some random project of doing a discord bot using discord.py
+Just some random project of doing a Discord bot using discord.py.  
+Be sure to have Python 3.8 or higher installed (required by discord.py) !
 
-Use pip to download discord.py
+Clone the projet and install the requirements :
+
+```
+git clone https://github.com/Zalk0/ChouetteBot-discord.git
+cd ChouetteBot-discord
+pip install -r requirements.txt
+```
+
+---
+Before launching the bot, you have to create the **`token_discord`** file and putting a Discord token inside.  
+It can be created and obtained in the [Discord Developer Portal](https://discord.com/developers).
+
+---
+After having done all this you can launch the bot :
+
+```
+python main.py
+```
