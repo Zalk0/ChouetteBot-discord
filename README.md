@@ -12,7 +12,7 @@ pip install -r requirements.txt
 ```
 
 ---
-Before launching the bot, you have to create the **`token_discord`** file and putting a Discord token inside.  
+Before launching the bot, you have to create the **`token_discord`** file and put a Discord bot token inside.  
 It can be created and obtained in the [Discord Developer Portal](https://discord.com/developers).
 
 ---
