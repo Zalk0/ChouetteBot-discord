@@ -76,7 +76,7 @@ def run_bot():
     with open(f"{module_dir}/token_discord", "r") as file:
         token = file.read()
 
-    # Create an instance of the YoloBot class
+    # Create an instance of the ChouetteBot class
     client = ChouetteBot()
 
     # Run the client with the token
