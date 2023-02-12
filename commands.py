@@ -1,7 +1,8 @@
-import discord
 import random
-import requests
-from io import BytesIO
+
+import discord
+
+from latex_render import latex_render
 
 
 def commands_list(client, tree):
@@ -48,12 +49,7 @@ def commands_list(client, tree):
     #     del_msg = await message.channel.purge(check=is_msg, reason="Admin used bulk delete")
     #     await interaction.followup.send(f"{len(del_msg)} messages supprimés !")
 
-    # Make a LaTeX rendering command using an online equation renderer : https://latex.codecogs.com/
-    # Then send the image as a file
+    # Make a LaTeX command
     @tree.command(name="latex", description="Renders LaTeX equation")
     async def latex(interaction: discord.Interaction, equation: str):
-        options = r"\bg_black \color[RGB]{240, 240, 240} \pagecolor[RGB]{54, 57, 63}"
-        url = f"https://latex.codecogs.com/png.latex?\dpi{{200}} {options} {equation}"
-        response = requests.get(url)
-        image = discord.File(BytesIO(response.content), filename='equation.png')
-        await interaction.response.send_message(file=image)
+        await interaction.response.send_message(file=await latex_render(equation))
