@@ -25,11 +25,9 @@ async def latex_process(message: str):
             word = next(parts)
             if word != '':
                 if word.count("\n") > 0:
-                    for i in word.split("\n"):
-                        if i != '':
-                            equation += rf" \textrm{{{i}}}"
-                        else:
-                            equation += r" \\"
+                    linebreak = r"} \\ \textrm{".join(word.split("\n"))
+                    # Not using splitlines method because I need to keep linebreaks at the end of the text
+                    equation += rf" \textrm{{{linebreak}}}"
                 else:
                     equation += rf" \textrm{{{word}}}"
             word = next(parts)
@@ -37,10 +35,11 @@ async def latex_process(message: str):
                 equation += f" {word}"
     except StopIteration:
         pass
-    return await latex_render(equation)
+    return await latex_render(equation.replace(r" \textrm{}", ''))
 
 
 # LaTeX replace accents and special characters to commands
+# TODO: Add all the symbols that may appear
 async def latex_replace(message: str) -> str:
     message = message.replace(r"ù", r"\`u") \
                      .replace(r"é", r"\'e") \
