@@ -61,7 +61,7 @@ class ChouetteBot(discord.Client):
         print(f'{username} said: "{user_msg}" ({channel})')
 
         # Call responses with message of the user and responds if necessary
-        response = responses(user_msg)
+        response = await responses(self, user_msg, channel)
         if not response == '':
             await channel.send(response)
             print(f'{self.user} responded : "{response}"')
