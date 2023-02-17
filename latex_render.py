@@ -15,26 +15,22 @@ async def latex_render(equation: str) -> discord.File:
     return discord.File(BytesIO(response.content), filename='equation.png')
 
 
-# Make a LaTeX process function to use when LaTeX is insertex in a message
+# Make a LaTeX process function to use when LaTeX maths is inserted in a message
 async def latex_process(message: str):
     message = await latex_replace(message)
-    parts = iter(message.split("$"))
+    parts = message.split("$")
     equation = r'\\'
-    try:
-        while True:
-            word = next(parts)
-            if word != '':
-                if word.count("\n") > 0:
-                    linebreak = r"} \\ \textrm{".join(word.split("\n"))
+    for i in range(len(parts)):
+        if i != '':
+            if i % 2:  # It's maths, so nothing to do
+                equation += f" {parts[i]}"
+            else:  # It's text
+                if parts[i].count("\n") > 0:
+                    linebreak = r"} \\ \textrm{".join(parts[i].split("\n"))
                     # Not using splitlines method because I need to keep linebreaks at the end of the text
                     equation += rf" \textrm{{{linebreak}}}"
                 else:
-                    equation += rf" \textrm{{{word}}}"
-            word = next(parts)
-            if word != '':
-                equation += f" {word}"
-    except StopIteration:
-        pass
+                    equation += rf" \textrm{{{parts[i]}}}"
     return await latex_render(equation.replace(r" \textrm{}", ''))
 
 
@@ -44,13 +40,18 @@ async def latex_replace(message: str) -> str:
     message = message.replace(r"ù", r"\`u") \
                      .replace(r"é", r"\'e") \
                      .replace(r"è", r"\`e") \
-                     .replace(r"à", r"\`a") \
-                     .replace(r"ç", r"\c c") \
                      .replace(r"ê", r"\^e") \
+                     .replace(r"à", r"\`a") \
                      .replace(r"ï", r"\"i") \
+                     .replace(r"î", r"\^i") \
                      .replace(r"œ", r"\oe") \
                      .replace(r"æ", r"\ae") \
-                     .replace(r"î", r"\^i") \
+                     .replace(r"Ï", r"\¨I") \
+                     .replace(r"Î", r"\^I") \
                      .replace(r"À", r"\`A") \
-                     .replace(r"É", r"\'E")
+                     .replace(r"É", r"\'E") \
+                     .replace(r"È", r"\`E") \
+                     .replace(r"Ê", r"\^E") \
+                     .replace(r"ç", r"\c c") \
+                     .replace(r"Ç", r"\c C")
     return message
