@@ -69,7 +69,6 @@ class ChouetteBot(discord.Client):
 
 # Function to run the bot
 def run_bot():
-
     # Import token from file
     module_path = inspect.getfile(inspect.currentframe())
     module_dir = os.path.realpath(os.path.dirname(module_path))

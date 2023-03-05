@@ -7,7 +7,6 @@ from latex_render import latex_render
 
 
 def commands_list(client, tree):
-
     # Make the roll command
     @tree.command(name="roll", description="Roll a die")
     async def die_roll(interaction: discord.Interaction):
@@ -40,7 +39,8 @@ def commands_list(client, tree):
     # @tree.context_menu(name="Delete until here")
     # async def delete(interaction: discord.Interaction, message: discord.Message):
     #     if not interaction.permissions.manage_messages:
-    #         await interaction.response.send_message(f"Vous n'avez pas la permission de gérer les messages !", ephemeral=True)
+    #         await interaction.response.send_message(f"Vous n'avez pas la permission de gérer les messages !",
+    #         ephemeral=True)
     #         return
     #     await interaction.response.defer(ephemeral=True, thinking=True)
     #     last_id = interaction.channel.last_message_id

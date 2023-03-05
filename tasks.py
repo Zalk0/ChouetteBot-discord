@@ -5,7 +5,6 @@ from discord.ext import tasks
 
 
 def tasks_list(client):
-
     # Hours for the loop
     even_hours = [time(0), time(2), time(4), time(6), time(8), time(10),
                   time(12), time(14), time(16), time(18), time(20), time(22)]
