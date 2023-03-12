@@ -36,19 +36,21 @@ def commands_list(client, tree):
         await interaction.response.send_message(f"Hey! {interaction.user.mention}")
 
     # Make a context menu command to delete messages
-    # @tree.context_menu(name="Delete until here")
-    # async def delete(interaction: discord.Interaction, message: discord.Message):
-    #     if not interaction.permissions.manage_messages:
-    #         await interaction.response.send_message(f"Vous n'avez pas la permission de gérer les messages !",
-    #         ephemeral=True)
-    #         return
-    #     await interaction.response.defer(ephemeral=True, thinking=True)
-    #     last_id = interaction.channel.last_message_id
-    #     def is_msg(msg):
-    #         if msg.id <= last_id:
-    #             return msg.id >= message.id
-    #     del_msg = await message.channel.purge(check=is_msg, reason="Admin used bulk delete")
-    #     await interaction.followup.send(f"{len(del_msg)} messages supprimés !")
+    @tree.context_menu(name="Delete until here")
+    async def delete(interaction: discord.Interaction, message: discord.Message):
+        if not interaction.permissions.manage_messages:
+            await interaction.response.send_message("Vous n'avez pas la permission de gérer les messages !",
+                                                    ephemeral=True)
+            return
+        await interaction.response.defer(ephemeral=True, thinking=True)
+        last_id = interaction.channel.last_message_id
+
+        def is_msg(msg):
+            if (message.id >> 22) <= (msg.id >> 22) <= (last_id >> 22):
+                return msg.id
+
+        del_msg = await message.channel.purge(bulk=True, reason="Admin used bulk delete", check=is_msg)
+        await interaction.followup.send(f"{len(del_msg)} messages supprimés !")
 
     # Make a LaTeX command
     @tree.command(name="latex", description="Renders LaTeX equation")
