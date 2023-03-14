@@ -1,5 +1,5 @@
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import discord
 import requests
@@ -73,22 +73,24 @@ def commands_list(client, tree):
                                                 f"SkyblockAddons : `{skyblockaddons['name'].replace('Patch v', '')}`\n"
                                                 f"Skytils : `{skytils['name'].replace('Skytils ', '')}`")
 
+    # Make a command to check if it's raining in Spider's Den in Hypixel Skyblock
     @tree.command(name="spider_rain", description="Shows time until next rain and thunderstorm")
     async def spider(interaction: discord.Interaction):
         utc_last_thunderstorm = datetime(2022, 11, 15, 1, 5, 56).timestamp()
-        base = datetime.utcnow().timestamp() - utc_last_thunderstorm
+        base = round(datetime.utcnow().timestamp() - utc_last_thunderstorm)
         thunderstorm = base % ((3850 + 1000) * 4)
         rain = thunderstorm % (3850 + 1000)
+        time_now = round(datetime.now().timestamp())
         if rain <= 3850:
-            next_rain = datetime.now() + timedelta(seconds=3850 - rain)
-            rain_msg = f"The next rain will be <t:{round(next_rain.timestamp())}:R>"
+            next_rain = time_now + 3850 - rain
+            rain_msg = f"The next rain will be <t:{next_rain}:R>"
         else:
-            rain_duration = datetime.now() + timedelta(seconds=3850 + 1000 - rain)
-            rain_msg = f"The rain will end <t:{round(rain_duration.timestamp())}:R>"
+            rain_duration = time_now + 3850 + 1000 - rain
+            rain_msg = f"The rain will end <t:{rain_duration}:R>"
         if thunderstorm <= (3850 * 4 + 1000 * 3):
-            next_thunderstorm = datetime.now() + timedelta(seconds=(3850 * 4 + 1000 * 3) - thunderstorm)
-            thunderstorm_msg = f"The next thunderstorm will be <t:{round(next_thunderstorm.timestamp())}:R>"
+            next_thunderstorm = time_now + (3850 * 4 + 1000 * 3) - thunderstorm
+            thunderstorm_msg = f"The next thunderstorm will be <t:{next_thunderstorm}:R>"
         else:
-            thunderstorm_duration = datetime.now() + timedelta(seconds=(3850 * 4 + 1000 * 4) - thunderstorm)
-            thunderstorm_msg = f"The thunderstorm will end <t:{round(thunderstorm_duration.timestamp())}:R>"
+            thunderstorm_duration = time_now + (3850 * 4 + 1000 * 4) - thunderstorm
+            thunderstorm_msg = f"The thunderstorm will end <t:{thunderstorm_duration}:R>"
         await interaction.response.send_message(f"{rain_msg}\n{thunderstorm_msg}")
