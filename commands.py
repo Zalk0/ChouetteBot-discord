@@ -1,4 +1,5 @@
 import random
+from datetime import datetime, timedelta
 
 import discord
 import requests
@@ -71,3 +72,23 @@ def commands_list(client, tree):
                                                 f"Not Enough Updates : `{notenoughupdates['name']}`\n"
                                                 f"SkyblockAddons : `{skyblockaddons['name'].replace('Patch v', '')}`\n"
                                                 f"Skytils : `{skytils['name'].replace('Skytils ', '')}`")
+
+    @tree.command(name="spider_rain", description="Shows time until next rain and thunderstorm")
+    async def spider(interaction: discord.Interaction):
+        utc_last_thunderstorm = datetime(2022, 11, 15, 1, 5, 56).timestamp()
+        base = datetime.utcnow().timestamp() - utc_last_thunderstorm
+        thunderstorm = base % ((3850 + 1000) * 4)
+        rain = thunderstorm % (3850 + 1000)
+        if rain <= 3850:
+            next_rain = datetime.now() + timedelta(seconds=3850 - rain)
+            rain_msg = f"The next rain will be <t:{round(next_rain.timestamp())}:R>"
+        else:
+            rain_duration = datetime.now() + timedelta(seconds=3850 + 1000 - rain)
+            rain_msg = f"The rain will end <t:{round(rain_duration.timestamp())}:R>"
+        if thunderstorm <= (3850 * 4 + 1000 * 3):
+            next_thunderstorm = datetime.now() + timedelta(seconds=(3850 * 4 + 1000 * 3) - thunderstorm)
+            thunderstorm_msg = f"The next thunderstorm will be <t:{round(next_thunderstorm.timestamp())}:R>"
+        else:
+            thunderstorm_duration = datetime.now() + timedelta(seconds=(3850 * 4 + 1000 * 4) - thunderstorm)
+            thunderstorm_msg = f"The thunderstorm will end <t:{round(thunderstorm_duration.timestamp())}:R>"
+        await interaction.response.send_message(f"{rain_msg}\n{thunderstorm_msg}")
