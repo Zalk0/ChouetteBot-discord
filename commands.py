@@ -43,6 +43,10 @@ def commands_list(client, tree):
             await interaction.response.send_message("Vous n'avez pas la permission de gérer les messages !",
                                                     ephemeral=True)
             return
+        if not interaction.app_permissions.manage_messages:
+            await interaction.response.send_message("Je n'ai pas la permission de gérer les messages !",
+                                                    ephemeral=True)
+            return
         await interaction.response.defer(ephemeral=True, thinking=True)
         last_id = interaction.channel.last_message_id
 
