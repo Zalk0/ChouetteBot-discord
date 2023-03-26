@@ -80,7 +80,7 @@ def commands_list(client, tree):
     # Make a command to check if it's raining in Spider's Den in Hypixel Skyblock
     @tree.command(name="spider_rain", description="Shows time until next rain and thunderstorm")
     async def spider(interaction: discord.Interaction):
-        utc_last_thunderstorm = datetime(2022, 11, 15, 1, 5, 56).timestamp()
+        utc_last_thunderstorm = datetime(2023, 3, 27, 1, 45, 56).timestamp()
         base = round(datetime.utcnow().timestamp() - utc_last_thunderstorm)
         thunderstorm = base % ((3850 + 1000) * 4)
         rain = thunderstorm % (3850 + 1000)
@@ -98,3 +98,4 @@ def commands_list(client, tree):
             thunderstorm_duration = time_now + (3850 * 4 + 1000 * 4) - thunderstorm
             thunderstorm_msg = f"The thunderstorm will end <t:{thunderstorm_duration}:R>"
         await interaction.response.send_message(f"{rain_msg}\n{thunderstorm_msg}")
+        
