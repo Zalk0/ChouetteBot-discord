@@ -98,4 +98,3 @@ def commands_list(client, tree):
             thunderstorm_duration = time_now + (3850 * 4 + 1000 * 4) - thunderstorm
             thunderstorm_msg = f"The thunderstorm will end <t:{thunderstorm_duration}:R>"
         await interaction.response.send_message(f"{rain_msg}\n{thunderstorm_msg}")
-        

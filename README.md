@@ -2,7 +2,7 @@
 
 [![Python lint](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/python-app.yml)
 
-Just some random project of doing a Discord bot using discord.py.  
+Just some random project of doing a Discord bot using [discord.py](https://github.com/Rapptz/discord.py).  
 Be sure to have Python 3.8 or higher installed (required by discord.py) !
 
 Clone the projet and install the requirements :
