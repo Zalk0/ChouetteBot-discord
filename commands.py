@@ -66,16 +66,17 @@ def commands_list(client, tree):
     @tree.command(name="mods_skyblock",
                   description="Checks the latest release of some of the most popular mods for the Hypixel Skyblock")
     async def skyblock(interaction: discord.Interaction):
+        await interaction.response.defer(thinking=True)
         api_github = "https://api.github.com/repos/"
         dungeonsguide = requests.get(f"{api_github}Dungeons-Guide/Skyblock-Dungeons-Guide/releases/latest").json()
         notenoughupdates = requests.get(f"{api_github}Moulberry/NotEnoughUpdates/releases/latest").json()
         skyblockaddons = requests.get(f"{api_github}BiscuitDevelopment/SkyblockAddons/releases/latest").json()
         skytils = requests.get(f"{api_github}Skytils/SkytilsMod/releases/latest").json()
-        await interaction.response.send_message(f"The latest releases are :\n"
-                                                f"Dungeons Guide : `{dungeonsguide['name'].replace('v', '')}`\n"
-                                                f"Not Enough Updates : `{notenoughupdates['name']}`\n"
-                                                f"SkyblockAddons : `{skyblockaddons['name'].replace('Patch v', '')}`\n"
-                                                f"Skytils : `{skytils['name'].replace('Skytils ', '')}`")
+        await interaction.followup.send(f"The latest releases are :\n"
+                                        f"Dungeons Guide : `{dungeonsguide['name'].replace('v', '')}`\n"
+                                        f"Not Enough Updates : `{notenoughupdates['name']}`\n"
+                                        f"SkyblockAddons : `{skyblockaddons['name'].replace('Patch v', '')}`\n"
+                                        f"Skytils : `{skytils['name'].replace('Skytils ', '')}`")
 
     # Make a command to check if it's raining in Spider's Den in Hypixel Skyblock
     @tree.command(name="spider_rain", description="Shows time until next rain and thunderstorm")
