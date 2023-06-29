@@ -1,3 +1,7 @@
-token_discord
+# Ignore the dotenv
+*.env
+# Ignore IDE folder
 .idea
+.vscode
+# Ignore Python's cache
 __pycache__

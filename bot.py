@@ -1,10 +1,8 @@
-import inspect
-import os
-
 import discord
+from dotenv import dotenv_values
 
-import commands
 import tasks
+from commands_list import commands_list
 from responses import responses
 
 
@@ -17,7 +15,9 @@ class ChouetteBot(discord.Client):
         intents = discord.Intents.all()
         super().__init__(intents=intents)
         self.synced = False
-        self.added = False
+
+        # Associate the config to the bot
+        self.config = dotenv_values()
 
     # Wait until bot is ready
     async def on_ready(self):
@@ -29,16 +29,23 @@ class ChouetteBot(discord.Client):
 
         # Import commands and sync
         command_tree = discord.app_commands.CommandTree(self)
-        commands.commands_list(self, command_tree)
+        commands_list(command_tree)
         if not self.synced:
             await command_tree.sync()
             self.synced = True
-        if not self.added:
-            self.added = True
 
         # Set activity of the bot
-        activity = discord.Activity(type=discord.ActivityType.listening, name="Bring Me The Horizon")
-        await self.change_presence(activity=activity, status=discord.Status.idle)
+        activity_type = {"playing": 0,
+                         "streaming": 1,
+                         "listening": 2,
+                         "watching": 3,
+                         "competing": 5}
+        activity = discord.Activity(type=activity_type.get(self.config['BOT_ACTIVITY_TYPE']),
+                                    name=self.config['BOT_ACTIVITY_NAME'])
+        await self.change_presence(activity=activity, status=self.config['BOT_STATUS'])
+
+        # Set up logging
+        discord.utils.setup_logging()
 
         # Check the number of servers the bot is a part of
         print(f"Number of servers I'm in : {len(self.guilds)}")
@@ -46,9 +53,9 @@ class ChouetteBot(discord.Client):
         # Prints in the console that the bot is ready
         print(f'{self.user} is now online and ready!')
 
-    # Event when the bot receives a message
+    # To react to messages sent in channels bot has access to
     async def on_message(self, message):
-        # If the message is from a bot, ignore
+        # Ignore messages from bots including self
         if message.author.bot:
             return
 
@@ -57,26 +64,11 @@ class ChouetteBot(discord.Client):
         user_msg = str(message.content)
         channel = message.channel
 
-        # Do a log on the python console
-        print(f'{username} said: "{user_msg}" ({channel})')
+        # Do a log on the Python console
+        print(f'{username} said: "{user_msg}" ({channel}) in {message.guild.name}')
 
         # Call responses with message of the user and responds if necessary
         response = await responses(self, user_msg, channel)
         if not response == '':
             await channel.send(response)
             print(f'{self.user} responded : "{response}"')
-
-
-# Function to run the bot
-def run_bot():
-    # Import token from file
-    module_path = inspect.getfile(inspect.currentframe())
-    module_dir = os.path.realpath(os.path.dirname(module_path))
-    with open(f"{module_dir}/token_discord", "r") as file:
-        token = file.read()
-
-    # Create an instance of the ChouetteBot class
-    client = ChouetteBot()
-
-    # Run the client with the token
-    client.run(token, reconnect=True)

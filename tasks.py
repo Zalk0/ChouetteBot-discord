@@ -12,10 +12,11 @@ def tasks_list(client):
     # Loop to send message every 2 hours for pokeroll
     @tasks.loop(time=even_hours)
     async def poke_ping():
-        dresseurs = discord.Guild.get_role(client.get_guild(284980887634837504), 791365470837800992)
-        pokeball = client.get_emoji(697018415646507078)
+        guild = client.get_guild(client.config['GUILD_ID'])
+        dresseurs = guild.get_role(client.config['POKE_ROLE'])
+        pokeball = client.get_emoji(client.config['POKEBALL_EMOJI'])
         msg_poke = f"{dresseurs.mention} C'est l'heure d'attraper des pokémons {pokeball}"
-        await client.get_channel(768554688425492560).send(msg_poke)
+        await client.get_channel(client.conifg['POKE_CHANNEL']).send(msg_poke)
 
     # Start loop
     poke_ping.start()
