@@ -1,9 +1,7 @@
-import discord
-
 from latex_render import latex_process
 
 
-async def responses(self, message: str, channel: discord.TextChannel) -> str:
+async def responses(self, message: str, channel) -> str:
     # Checks if a message ends with quoi
     if ''.join(filter(str.isalpha, message)).lower().endswith("quoi"):
         return "**FEUR**"
