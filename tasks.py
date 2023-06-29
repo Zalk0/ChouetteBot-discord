@@ -11,11 +11,11 @@ def tasks_list(client):
     # Loop to send message every 2 hours for pokeroll
     @tasks.loop(time=even_hours)
     async def poke_ping():
-        guild = client.get_guild(client.config['GUILD_ID'])
-        dresseurs = guild.get_role(client.config['POKE_ROLE'])
-        pokeball = client.get_emoji(client.config['POKEBALL_EMOJI'])
+        guild = client.get_guild(int(client.config['GUILD_ID']))
+        dresseurs = guild.get_role(int(client.config['POKE_ROLE']))
+        pokeball = client.get_emoji(int(client.config['POKEBALL_EMOJI']))
         msg_poke = f"{dresseurs.mention} C'est l'heure d'attraper des pokémons {pokeball}"
-        await client.get_channel(client.config['POKE_CHANNEL']).send(msg_poke)
+        await client.get_channel(int(client.config['POKE_CHANNEL'])).send(msg_poke)
 
     # Start loop
     poke_ping.start()

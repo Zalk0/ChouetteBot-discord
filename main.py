@@ -2,7 +2,7 @@ from bot import ChouetteBot
 
 
 def main():
-    # Create an instance of the SimpleBot
+    # Create an instance of the ChouetteBot
     client = ChouetteBot()
 
     # Run the client with the token
