@@ -65,7 +65,10 @@ class ChouetteBot(discord.Client):
         channel = message.channel
 
         # Do a log on the Python console
-        print(f'{username} said: "{user_msg}" ({channel}) in {message.guild.name}')
+        if message.guild is not None:
+            print(f'{username} said: "{user_msg}" #{channel} in {message.guild.name}')
+        else:
+            print(f'{username} said: "{user_msg}" in Direct Message')
 
         # Call responses with message of the user and responds if necessary
         response = await responses(self, user_msg, channel)
