@@ -1,6 +1,5 @@
 from datetime import time
 
-import discord.utils
 from discord.ext import tasks
 
 
@@ -16,7 +15,7 @@ def tasks_list(client):
         dresseurs = guild.get_role(client.config['POKE_ROLE'])
         pokeball = client.get_emoji(client.config['POKEBALL_EMOJI'])
         msg_poke = f"{dresseurs.mention} C'est l'heure d'attraper des pokémons {pokeball}"
-        await client.get_channel(client.conifg['POKE_CHANNEL']).send(msg_poke)
+        await client.get_channel(client.config['POKE_CHANNEL']).send(msg_poke)
 
     # Start loop
     poke_ping.start()
