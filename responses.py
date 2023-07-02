@@ -1,4 +1,4 @@
-from latex_render import latex_process
+from src.latex_render import latex_process
 
 
 async def responses(self, message: str, channel) -> str:

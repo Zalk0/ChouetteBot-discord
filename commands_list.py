@@ -3,7 +3,7 @@ from commands.utils import latex, die_roll, ping, cheh, pin, delete
 
 
 # List of commands to add to the command tree
-def commands_list(tree):
+def commands_list(tree, client):
     # Add the commands
     tree.add_command(latex)
     tree.add_command(die_roll)
@@ -13,4 +13,4 @@ def commands_list(tree):
     tree.add_command(delete)
 
     # Add the skyblock command group
-    tree.add_command(Skyblock())
+    tree.add_command(Skyblock(), guild=int(client.config['HYPIXEL_GUILD_ID']))

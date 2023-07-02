@@ -29,7 +29,7 @@ class ChouetteBot(discord.Client):
 
         # Import commands and sync
         command_tree = discord.app_commands.CommandTree(self)
-        commands_list(command_tree)
+        commands_list(command_tree, self)
         if not self.synced:
             await command_tree.sync()
             self.synced = True

@@ -3,7 +3,7 @@ import random
 import discord
 from discord import app_commands
 
-from latex_render import latex_render
+from src.latex_render import latex_render
 
 
 # Make a LaTeX command

@@ -4,6 +4,7 @@ import discord
 import requests
 from discord import app_commands
 
+from src.skyblock_guild import check
 
 # Define command group based on the Group class
 class Skyblock(app_commands.Group):
@@ -48,3 +49,15 @@ class Skyblock(app_commands.Group):
             thunderstorm_duration = time_now + (3850 * 4 + 1000 * 4) - thunderstorm
             thunderstorm_msg = f"The thunderstorm will end <t:{thunderstorm_duration}:R>"
         await interaction.response.send_message(f"{rain_msg}\n{thunderstorm_msg}")
+
+    # Make a command to check if the user is in the guild in-game
+    @app_commands.command(name="guild", description="Give a role if in the guild in-game")
+    @app_commands.rename(pseudo="pseudo_mc")
+    async def in_guild(self, interaction: discord.Interaction, pseudo: str):
+        checked = check(pseudo, interaction.client.config['HYPIXEL_GUILD_NAME'], interaction.user.global_name)
+        if checked:
+            role = interaction.guild.get_role(int(interaction.client.config['HYPIXEL_GUILD_ROLE']))
+            await interaction.user.add_roles(role)
+            await interaction.response.send_message("You have been assigned the member role!")
+        else:
+            await interaction.response.send_message(checked)
