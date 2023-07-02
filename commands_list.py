@@ -13,5 +13,5 @@ def commands_list(tree, client):
     tree.add_command(delete)
 
     # Add the skyblock command group to my Hypixel guild
-    hypixel_guild = client.get_guild(int(client.config['HYPIXEL_GUILD_ID']))
-    tree.add_command(Skyblock(), guild=hypixel_guild)
+    # hypixel_guild = client.get_guild(int(client.config['HYPIXEL_GUILD_ID']))
+    tree.add_command(Skyblock())

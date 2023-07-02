@@ -55,10 +55,11 @@ class Skyblock(app_commands.Group):
     @app_commands.command(name="guild", description="Give a role if in the guild in-game")
     @app_commands.rename(pseudo="pseudo_mc")
     async def in_guild(self, interaction: discord.Interaction, pseudo: str):
+        await interaction.response.defer(thinking=True)
         checked = check(pseudo, interaction.client.config['HYPIXEL_GUILD_NAME'], interaction.user.global_name)
         if checked:
             role = interaction.guild.get_role(int(interaction.client.config['HYPIXEL_GUILD_ROLE']))
             await interaction.user.add_roles(role)
-            await interaction.response.send_message("You have been assigned the member role!")
+            await interaction.followup.send("You have been assigned the member role!")
         else:
-            await interaction.response.send_message(checked)
+            await interaction.followup.send(checked)
