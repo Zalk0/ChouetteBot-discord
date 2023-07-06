@@ -1,9 +1,13 @@
+from commands.role_menu import RoleMenu
 from commands.skyblock import Skyblock
 from commands.utils import latex, die_roll, ping, cheh, pin, delete
 
 
 # List of commands to add to the command tree
 def commands_list(tree, hypixel_guild):
+    # Add the RoleMenu command group
+    tree.add_command(RoleMenu())
+
     # Add the commands
     tree.add_command(latex)
     tree.add_command(die_roll)
