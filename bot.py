@@ -14,7 +14,7 @@ class ChouetteBot(discord.Client):
         # Set intents for the bot
         intents = discord.Intents.all()
         super().__init__(intents=intents)
-        self.synced = False
+        self.first = True
 
         # Associate the config to the bot
         self.config = dotenv_values()
@@ -24,15 +24,13 @@ class ChouetteBot(discord.Client):
         # Waits until internal cache is ready
         await self.wait_until_ready()
 
-        # Import tasks
-        tasks.tasks_list(self)
-
-        # Import commands and sync
+        # Import and sync commands and import tasks
         command_tree = discord.app_commands.CommandTree(self)
         commands_list(command_tree, self)
-        if not self.synced:
+        if self.first:
             await command_tree.sync()
-            self.synced = True
+            tasks.tasks_list(self)
+            self.first = False
 
         # Set activity of the bot
         activity_type = {"playing": 0,
