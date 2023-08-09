@@ -24,11 +24,15 @@ class ChouetteBot(discord.Client):
         # Waits until internal cache is ready
         await self.wait_until_ready()
 
+        # Hypixel guild
+        hypixel_guild = self.get_guild(int(self.config['HYPIXEL_GUILD_ID']))
+
         # Import and sync commands and import tasks
         command_tree = discord.app_commands.CommandTree(self)
-        commands_list(command_tree, self)
+        commands_list(command_tree, hypixel_guild)
         if self.first:
             await command_tree.sync()
+            await command_tree.sync(guild=hypixel_guild)
             tasks.tasks_list(self)
             self.first = False
 
