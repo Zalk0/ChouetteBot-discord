@@ -1,3 +1,5 @@
+import logging
+
 import discord
 from dotenv import dotenv_values
 
@@ -46,14 +48,11 @@ class ChouetteBot(discord.Client):
                                     name=self.config['BOT_ACTIVITY_NAME'])
         await self.change_presence(activity=activity, status=self.config['BOT_STATUS'])
 
-        # Set up logging
-        discord.utils.setup_logging()
-
         # Check the number of servers the bot is a part of
-        print(f"Number of servers I'm in : {len(self.guilds)}")
+        logging.info(f"Number of servers I'm in : {len(self.guilds)}")
 
-        # Prints in the console that the bot is ready
-        print(f'{self.user} is now online and ready!')
+        # Log in the console that the bot is ready
+        logging.info(f"{self.user} is now online and ready!")
 
     # To react to messages sent in channels bot has access to
     async def on_message(self, message):
@@ -68,12 +67,12 @@ class ChouetteBot(discord.Client):
 
         # Do a log on the Python console
         if message.guild is not None:
-            print(f'{username} said: "{user_msg}" #{channel} in {message.guild.name}')
+            logging.info(f'{username} said: "{user_msg}" #{channel} in {message.guild.name}')
         else:
-            print(f'{username} said: "{user_msg}" in Direct Message')
+            logging.info(f'{username} said: "{user_msg}" in Direct Message')
 
         # Call responses with message of the user and responds if necessary
         response = await responses(self, user_msg, channel)
         if not response == '':
             await channel.send(response)
-            print(f'{self.user} responded : "{response}"')
+            logging.info(f'{self.user} responded : "{response}"')

@@ -1,3 +1,5 @@
+import logging
+
 from src.latex_render import latex_process
 
 
@@ -10,7 +12,7 @@ async def responses(self, message: str, channel) -> str:
     if message.count("$") > 1:
         if (message.count("$") % 2) == 0:
             await channel.send(file=await latex_process(message))
-            print(f'{self.user} responded : "equation.png"')
+            logging.info(f'{self.user} responded : "equation.png"')
             return ''
         return "Nombre de $ impair, " \
                "veuillez en mettre un nombre pair pour que je puisse afficher les équations LaTeX !"
