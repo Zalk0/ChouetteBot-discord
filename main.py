@@ -10,7 +10,7 @@ def main():
 
     # Setup the logging
     os.makedirs('logs', exist_ok=True)
-    handler = handlers.RotatingFileHandler(filename='logs\\bot.log', encoding='utf-8', backupCount=3)
+    handler = handlers.RotatingFileHandler(filename=os.path.join('logs', 'bot.log'), encoding='utf-8', backupCount=3)
     handler.doRollover()
 
     # Run the client with the token
