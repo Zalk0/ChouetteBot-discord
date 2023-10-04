@@ -15,7 +15,20 @@ class ChouetteBot(discord.Client):
     def __init__(self):
         # Set intents for the bot
         intents = discord.Intents.all()
-        super().__init__(intents=intents)
+
+        # Set activity of the bot
+        activity_type = {"playing": 0,
+                         "streaming": 1,
+                         "listening": 2,
+                         "watching": 3,
+                         "competing": 5}
+        activity = discord.Activity(type=activity_type.get(self.config['BOT_ACTIVITY_TYPE']),
+                                    name=self.config['BOT_ACTIVITY_NAME'])
+
+        # Apply intents, activity and status to the bot
+        super().__init__(intents=intents, activity=activity, status=self.config['BOT_STATUS'])
+
+        # Used to check the first time the bot does the on_ready event
         self.first = True
 
         # Associate the config to the bot
@@ -37,16 +50,6 @@ class ChouetteBot(discord.Client):
             await command_tree.sync(guild=hypixel_guild)
             tasks.tasks_list(self)
             self.first = False
-
-        # Set activity of the bot
-        activity_type = {"playing": 0,
-                         "streaming": 1,
-                         "listening": 2,
-                         "watching": 3,
-                         "competing": 5}
-        activity = discord.Activity(type=activity_type.get(self.config['BOT_ACTIVITY_TYPE']),
-                                    name=self.config['BOT_ACTIVITY_NAME'])
-        await self.change_presence(activity=activity, status=self.config['BOT_STATUS'])
 
         # Check the number of servers the bot is a part of
         logging.info(f"Number of servers I'm in : {len(self.guilds)}")
