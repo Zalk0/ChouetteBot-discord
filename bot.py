@@ -13,6 +13,9 @@ class ChouetteBot(discord.Client):
 
     # Initialization when class is called
     def __init__(self):
+        # Associate the config to the bot
+        self.config = dotenv_values()
+
         # Set intents for the bot
         intents = discord.Intents.all()
 
@@ -30,9 +33,6 @@ class ChouetteBot(discord.Client):
 
         # Used to check the first time the bot does the on_ready event
         self.first = True
-
-        # Associate the config to the bot
-        self.config = dotenv_values()
 
     # Wait until bot is ready
     async def on_ready(self):
