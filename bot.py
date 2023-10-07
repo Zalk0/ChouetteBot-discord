@@ -24,6 +24,7 @@ class ChouetteBot(discord.Client):
                          "streaming": 1,
                          "listening": 2,
                          "watching": 3,
+                         "custom": 4,  # Idk what it is
                          "competing": 5}
         activity = discord.Activity(type=activity_type.get(self.config['BOT_ACTIVITY_TYPE']),
                                     name=self.config['BOT_ACTIVITY_NAME'])
@@ -39,13 +40,14 @@ class ChouetteBot(discord.Client):
         # Waits until internal cache is ready
         await self.wait_until_ready()
 
-        # Hypixel guild
-        hypixel_guild = self.get_guild(int(self.config['HYPIXEL_GUILD_ID']))
-
-        # Import and sync commands and import tasks
-        command_tree = discord.app_commands.CommandTree(self)
-        commands_list(command_tree, hypixel_guild)
+        # Executed once when bot is ready
         if self.first:
+            # Hypixel guild
+            hypixel_guild = self.get_guild(int(self.config['HYPIXEL_GUILD_ID']))
+
+            # Import and sync commands and import tasks
+            command_tree = discord.app_commands.CommandTree(self)
+            commands_list(command_tree, hypixel_guild)
             await command_tree.sync()
             await command_tree.sync(guild=hypixel_guild)
             tasks.tasks_list(self)
