@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
+import aiohttp
 import discord
-import requests
 from discord import app_commands
 
 from src.skyblock_guild import check
@@ -19,10 +19,15 @@ class Skyblock(app_commands.Group):
     async def skyblock(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         api_github = "https://api.github.com/repos/"
-        dungeonsguide = requests.get(f"{api_github}Dungeons-Guide/Skyblock-Dungeons-Guide/releases/latest").json()
-        notenoughupdates = requests.get(f"{api_github}Moulberry/NotEnoughUpdates/releases/latest").json()
-        skyblockaddons = requests.get(f"{api_github}BiscuitDevelopment/SkyblockAddons/releases/latest").json()
-        skytils = requests.get(f"{api_github}Skytils/SkytilsMod/releases/latest").json()
+        async with aiohttp.ClientSession() as session:
+            async with session.get(f"{api_github}Dungeons-Guide/Skyblock-Dungeons-Guide/releases/latest") as response:
+                dungeonsguide = await response.json()
+            async with session.get(f"{api_github}Moulberry/NotEnoughUpdates/releases/latest") as response:
+                notenoughupdates = await response.json()
+            async with session.get(f"{api_github}BiscuitDevelopment/SkyblockAddons/releases/latest") as response:
+                skyblockaddons = await response.json()
+            async with session.get(f"{api_github}Skytils/SkytilsMod/releases/latest") as response:
+                skytils = await response.json()
         await interaction.followup.send(f"The latest releases are :\n"
                                         f"Dungeons Guide : `{dungeonsguide['name'].replace('v', '')}`\n"
                                         f"Not Enough Updates : `{notenoughupdates['name']}`\n"
