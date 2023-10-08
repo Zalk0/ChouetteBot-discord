@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 import discord
 import requests
@@ -32,11 +32,11 @@ class Skyblock(app_commands.Group):
     # Make a command to check if it's raining in Spider's Den in Hypixel Skyblock
     @app_commands.command(name="spider_rain", description="Show the time until the next rain and thunderstorm")
     async def spider(self, interaction: discord.Interaction):
-        utc_last_thunderstorm = datetime(2023, 3, 27, 1, 45, 56).timestamp()
-        base = round(datetime.utcnow().timestamp() - utc_last_thunderstorm)
+        utc_last_thunderstorm = round(datetime(2023, 3, 27, 1, 45, 56, tzinfo=timezone.utc).timestamp())
+        time_now = round(datetime.now(tz=timezone.utc).timestamp())
+        base = time_now - utc_last_thunderstorm
         thunderstorm = base % ((3850 + 1000) * 4)
         rain = thunderstorm % (3850 + 1000)
-        time_now = round(datetime.now().timestamp())
         if rain <= 3850:
             next_rain = time_now + 3850 - rain
             rain_msg = f"The next rain will be <t:{next_rain}:R>"
