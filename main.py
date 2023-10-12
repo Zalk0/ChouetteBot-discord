@@ -1,3 +1,4 @@
+import logging
 import logging.handlers as handlers
 import os
 
@@ -15,7 +16,8 @@ def main():
     handler.doRollover()
 
     # Run the client with the token
-    client.run(client.config['BOT_TOKEN'], reconnect=True, root_logger=True, log_handler=handler)
+    client.run(client.config['BOT_TOKEN'], reconnect=True, root_logger=True, log_handler=handler,
+               log_level=logging.getLevelNamesMapping().get(client.config['LOG_LEVEL']))
 
 
 if __name__ == '__main__':

@@ -13,6 +13,10 @@ class ChouetteBot(discord.Client):
 
     # Initialization when class is called
     def __init__(self):
+        # Define the bot debug log level
+        self.bot_debug = 15
+        logging.addLevelName(self.bot_debug, 'BOT_DEBUG')
+
         # Associate the config to the bot
         self.config = dotenv_values()
 
@@ -71,10 +75,10 @@ class ChouetteBot(discord.Client):
         channel = message.channel
 
         # Do a log on the Python console
-        # if message.guild is not None:
-        #     logging.info(f'{username} said: "{user_msg}" #{channel} in {message.guild.name}')
-        # else:
-        #     logging.info(f'{username} said: "{user_msg}" in Direct Message')
+        if message.guild is not None:
+            logging.log(self.bot_debug, f'{username} said: "{user_msg}" #{channel} in {message.guild.name}')
+        else:
+            logging.log(self.bot_debug, f'{username} said: "{user_msg}" in Direct Message')
 
         # Call responses with message of the user and responds if necessary
         response = await responses(self, user_msg, channel)
