@@ -45,12 +45,12 @@ def is_in_guild(uuid, g_name):
 
 
 def check(pseudo, guild, discord):
-
     uuid = return_uuid(pseudo)
     if uuid == 0:
         return f"Il n'y a pas de compte Minecraft avec ce pseudo : {pseudo}"
     elif uuid is None:
         return "Something wrong happened"
+
     discord_mc = return_discord_hypixel(uuid)
     if discord_mc == 0:
         return "Vous n'avez pas entré de pseudo Discord sur le serveur Hypixel"
@@ -58,6 +58,7 @@ def check(pseudo, guild, discord):
         return "Votre pseudo Discord ne correspond pas à celui entré sur le serveur Hypixel"
     elif discord_mc is None:
         return "Something wrong happened"
+
     test = is_in_guild(uuid, guild)
     if test:
         return True

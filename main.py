@@ -1,4 +1,3 @@
-import logging
 import logging.handlers as handlers
 import os
 
@@ -11,13 +10,12 @@ def main():
 
     # Setup the logging
     os.makedirs('logs', exist_ok=True)
-    handler = handlers.RotatingFileHandler(filename=os.path.join('logs', 'bot.log'), encoding='utf-8',
-                                           backupCount=3, delay=True)
+    handler = handlers.RotatingFileHandler(filename=os.path.join('logs', 'bot.log'), backupCount=3,
+                                           encoding='utf-8', delay=True)
     handler.doRollover()
 
     # Run the client with the token
-    client.run(client.config['BOT_TOKEN'], reconnect=True, root_logger=True, log_handler=handler,
-               log_level=logging.getLevelNamesMapping().get(client.config['LOG_LEVEL']))
+    client.run(client.config['BOT_TOKEN'], reconnect=True, log_handler=handler, root_logger=True)
 
 
 if __name__ == '__main__':
