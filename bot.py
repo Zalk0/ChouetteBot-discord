@@ -16,6 +16,10 @@ class ChouetteBot(discord.Client):
         # Associate the config to the bot
         self.config = dotenv_values()
 
+        # Define the bot debug log level
+        self.bot_logger = logging.getLogger('bot')
+        self.bot_logger.setLevel(logging.getLevelNamesMapping().get(self.config['LOG_LEVEL']) or logging.INFO)
+
         # Set intents for the bot
         intents = discord.Intents.all()
 
@@ -54,10 +58,10 @@ class ChouetteBot(discord.Client):
             self.first = False
 
         # Check the number of servers the bot is a part of
-        logging.info(f"Number of servers I'm in : {len(self.guilds)}")
+        self.bot_logger.info(f"Number of servers I'm in : {len(self.guilds)}")
 
         # Log in the console that the bot is ready
-        logging.info(f"{self.user} is now online and ready!")
+        self.bot_logger.info(f"{self.user} is now online and ready!")
 
     # To react to messages sent in channels bot has access to
     async def on_message(self, message):
@@ -71,13 +75,13 @@ class ChouetteBot(discord.Client):
         channel = message.channel
 
         # Do a log on the Python console
-        # if message.guild is not None:
-        #     logging.info(f'{username} said: "{user_msg}" #{channel} in {message.guild.name}')
-        # else:
-        #     logging.info(f'{username} said: "{user_msg}" in Direct Message')
+        if message.guild is not None:
+            self.bot_logger.debug(f'{username} said: "{user_msg}" #{channel} in {message.guild.name}')
+        else:
+            self.bot_logger.debug(f'{username} said: "{user_msg}" in Direct Message')
 
         # Call responses with message of the user and responds if necessary
-        response = await responses(self, user_msg, channel)
+        response = await responses(self, channel, user_msg, username)
         if not response == '':
             await channel.send(response)
-            logging.info(f'{self.user} responded : "{response}"')
+            self.bot_logger.info(f'{self.user} responded to {username}: "{response}"')
