@@ -16,7 +16,7 @@ class Skyblock(app_commands.Group):
     # Make a command to check the version of mods for Hypixel Skyblock
     @app_commands.command(name="mods",
                           description="Check the latest release of the most popular mods for the Hypixel Skyblock")
-    async def skyblock(self, interaction: discord.Interaction):
+    async def mods(self, interaction: discord.Interaction):
         await interaction.response.defer(thinking=True)
         api_github = "https://api.github.com/repos/"
         async with aiohttp.ClientSession() as session:

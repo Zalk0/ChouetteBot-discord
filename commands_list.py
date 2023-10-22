@@ -4,13 +4,19 @@ from commands.utils import latex, die_roll, ping, cheh, pin, delete
 
 # List of commands to add to the command tree
 def commands_list(tree, hypixel_guild):
+    # List the commands
+    commands = (
+        latex,
+        die_roll,
+        ping,
+        cheh,
+        pin,
+        delete
+    )
+
     # Add the commands
-    tree.add_command(latex)
-    tree.add_command(die_roll)
-    tree.add_command(ping)
-    tree.add_command(cheh)
-    tree.add_command(pin)
-    tree.add_command(delete)
+    for command in commands:
+        tree.add_command(command)
 
     # Add the skyblock command group to my Hypixel guild
     tree.add_command(Skyblock(), guild=hypixel_guild)

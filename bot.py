@@ -3,7 +3,6 @@ import os
 
 import discord
 
-
 import tasks
 from commands_list import commands_list
 from responses import responses
@@ -65,7 +64,7 @@ class ChouetteBot(discord.Client):
         self.bot_logger.info(f"{self.user} is now online and ready!")
 
     # To react to messages sent in channels bot has access to
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         # Ignore messages from bots including self
         if message.author.bot:
             return
