@@ -1,10 +1,15 @@
 import logging.handlers as handlers
 import os
 
+from dotenv import load_dotenv
+
 from bot import ChouetteBot
 
 
 def main():
+    # Load the .env values
+    load_dotenv()
+
     # Create an instance of the ChouetteBot
     client = ChouetteBot()
 

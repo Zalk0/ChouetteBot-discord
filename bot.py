@@ -1,7 +1,8 @@
 import logging
+import os
 
 import discord
-from dotenv import dotenv_values
+
 
 import tasks
 from commands_list import commands_list
@@ -13,8 +14,8 @@ class ChouetteBot(discord.Client):
 
     # Initialization when class is called
     def __init__(self):
-        # Associate the config to the bot
-        self.config = dotenv_values()
+        # Associate the env variables to the bot
+        self.config = os.environ
 
         # Define the bot debug log level
         self.bot_logger = logging.getLogger('bot')
