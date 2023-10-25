@@ -102,7 +102,7 @@ class ChouetteBot(discord.Client):
                 "X-Frame-Options": "DENY",
                 "X-Content-Type-Options": "nosniff",
                 "Content-Security-Policy": "default-src 'self'",
-                "Server": "Python"
+                "Server": self.user.name
             })
 
         app = web.Application()
