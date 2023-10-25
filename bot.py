@@ -95,6 +95,7 @@ class ChouetteBot(discord.Client):
     async def start_server(self):
         web_logger = logging.getLogger('web')
         logging.getLogger('aiohttp.access').setLevel(logging.ERROR)
+
         # This is the response
         async def handler(request):
             return web.Response(text=f"{self.user.name} is up")
