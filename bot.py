@@ -91,19 +91,22 @@ class ChouetteBot(discord.Client):
             await channel.send(response)
             self.bot_logger.info(f'{self.user} responded to {username}: "{response}"')
 
+    # Add a basic HTTP server to check if the bot is up
     async def start_server(self):
-        # Add a basic HTTP server to check if the bot is up
+        web_logger = logging.getLogger('web')
+        logging.getLogger('aiohttp.access').setLevel(logging.ERROR)
+        # This is the response
         async def handler(request):
-            return web.Response(text="ChouetteBot is up")
+            return web.Response(text=f"{self.user.name} is up")
 
         app = web.Application()
         app.add_routes([web.get('/', handler)])
         runner = web.AppRunner(app)
         await runner.setup()
-        site = web.TCPSite(runner, 'localhost', int(self.config['SERVER_PORT']))
+        site = web.TCPSite(runner, self.config['SERVER_HOST'], int(self.config['SERVER_PORT']))
         try:
             await site.start()
         except Exception as e:
-            self.bot_logger.warning(f"Error while starting the webserver: \n{e}")
+            web_logger.warning(f"Error while starting the webserver: \n{e}")
         else:
-            self.bot_logger.info("The webserver has successfully started")
+            web_logger.info("The webserver has successfully started")
