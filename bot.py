@@ -98,7 +98,12 @@ class ChouetteBot(discord.Client):
 
         # This is the response
         async def handler(request):
-            return web.Response(text=f"{self.user.name} is up")
+            return web.Response(text=f"{self.user.name} is up", headers={
+                "X-Frame-Options": "DENY",
+                "X-Content-Type-Options": "nosniff",
+                "Content-Security-Policy": "default-src 'self'",
+                "Server": "Python"
+            })
 
         app = web.Application()
         app.add_routes([web.get('/', handler)])
