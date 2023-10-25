@@ -2,6 +2,7 @@ import logging
 import os
 
 import discord
+from aiohttp import web
 
 import tasks
 from commands_list import commands_list
@@ -55,6 +56,10 @@ class ChouetteBot(discord.Client):
             await command_tree.sync()
             await command_tree.sync(guild=hypixel_guild)
             tasks.tasks_list(self)
+
+            # Start web server
+            await self.start_server()
+
             self.first = False
 
         # Check the number of servers the bot is a part of
@@ -85,3 +90,20 @@ class ChouetteBot(discord.Client):
         if not response == '':
             await channel.send(response)
             self.bot_logger.info(f'{self.user} responded to {username}: "{response}"')
+
+    async def start_server(self):
+        # Add a basic HTTP server to check if the bot is up
+        async def handler(request):
+            return web.Response(text="ChouetteBot is up")
+
+        app = web.Application()
+        app.add_routes([web.get('/', handler)])
+        runner = web.AppRunner(app)
+        await runner.setup()
+        site = web.TCPSite(runner, 'localhost', int(self.config['SERVER_PORT']))
+        try:
+            await site.start()
+        except Exception as e:
+            self.bot_logger.warning(f"Error while starting the webserver: \n{e}")
+        else:
+            self.bot_logger.info("The webserver has successfully started")
