@@ -96,13 +96,18 @@ class ChouetteBot(discord.Client):
         web_logger = logging.getLogger('web')
         logging.getLogger('aiohttp.access').setLevel(logging.ERROR)
 
-        # Set some basic headers for security and remove the Server header
+        # Set some basic headers for security
+        headers = {
+            "X-Frame-Options": "DENY",
+            "X-Content-Type-Options": "nosniff",
+            "Content-Security-Policy": "default-src 'self'; frame-ancestors 'none'"
+        }
+
+        # Remove the Server header and apply the headers
         async def _default_headers(req, res):
-            res.headers["X-Frame-Options"] = "DENY"
-            res.headers["X-Content-Type-Options"] = "nosniff"
-            res.headers["Content-Security-Policy"] = "default-src 'self'; frame-ancestors 'none'"
             if "Server" in res.headers:
                 del res.headers["Server"]
+            res.headers.update(headers)
 
         # This is the response
         async def handler(request):
