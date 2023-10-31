@@ -1,12 +1,15 @@
-# Ignore the dotenv
+# Dotenv file
 *.env
 
-# Ignore IDE folder
+# IDE folder
 .idea/
 .vscode/
 
-# Ignore Python's cache
+# Python's venv
+venv/
+
+# Python's cache
 __pycache__/
 
-# Ignore the logs folder
+# Logs folder
 logs/

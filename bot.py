@@ -19,7 +19,8 @@ class ChouetteBot(discord.Client):
 
         # Define the bot debug log level
         self.bot_logger = logging.getLogger('bot')
-        self.bot_logger.setLevel(logging.getLevelNamesMapping().get(self.config['LOG_LEVEL']) or logging.INFO)
+        log_level = logging.getLevelName(self.config['LOG_LEVEL'])
+        self.bot_logger.setLevel(log_level if isinstance(log_level, int) else logging.INFO)
 
         # Set intents for the bot
         intents = discord.Intents.all()
@@ -98,9 +99,8 @@ class ChouetteBot(discord.Client):
 
         # Set some basic headers for security
         headers = {
-            "X-Frame-Options": "DENY",
             "X-Content-Type-Options": "nosniff",
-            "Content-Security-Policy": "default-src 'self'; frame-ancestors 'none'"
+            "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'"
         }
 
         # Remove the Server header and apply the headers
