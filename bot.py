@@ -19,8 +19,9 @@ class ChouetteBot(discord.Client):
 
         # Define the bot debug log level
         self.bot_logger = logging.getLogger('bot')
-        log_level = logging.getLevelName(self.config['LOG_LEVEL'])
-        self.bot_logger.setLevel(log_level if isinstance(log_level, int) else logging.INFO)
+        log_level = logging.getLevelName(self.config.get('LOG_LEVEL', logging.INFO))
+        self.log_level = log_level if isinstance(log_level, int) else logging.INFO
+        self.bot_logger.setLevel(self.log_level)
 
         # Set intents for the bot
         intents = discord.Intents.all()
@@ -53,10 +54,10 @@ class ChouetteBot(discord.Client):
 
             # Import and sync commands and import tasks
             command_tree = discord.app_commands.CommandTree(self)
-            commands_list(command_tree, hypixel_guild)
+            await commands_list(command_tree, hypixel_guild)
             await command_tree.sync()
             await command_tree.sync(guild=hypixel_guild)
-            tasks.tasks_list(self)
+            await tasks.tasks_list(self)
 
             # Start web server
             await self.start_server()
@@ -94,8 +95,11 @@ class ChouetteBot(discord.Client):
 
     # Add a basic HTTP server to check if the bot is up
     async def start_server(self):
+        # Set a logger for the webserver
         web_logger = logging.getLogger('web')
-        logging.getLogger('aiohttp.access').setLevel(logging.ERROR)
+        # Don't want to spam logs with site access
+        if self.log_level >= logging.INFO:
+            logging.getLogger('aiohttp.access').setLevel(logging.ERROR)
 
         # Set some basic headers for security
         headers = {
@@ -104,13 +108,13 @@ class ChouetteBot(discord.Client):
         }
 
         # Remove the Server header and apply the headers
-        async def _default_headers(req, res):
+        async def _default_headers(req: web.Request, res: web.StreamResponse):
             if "Server" in res.headers:
                 del res.headers["Server"]
             res.headers.update(headers)
 
         # This is the response
-        async def handler(request):
+        async def handler(req: web.Request):
             return web.Response(text=f"{self.user.name} is up")
 
         app = web.Application()

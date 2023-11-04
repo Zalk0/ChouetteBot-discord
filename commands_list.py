@@ -1,11 +1,15 @@
+from typing import Tuple
+
+import discord
+
 from commands.skyblock import Skyblock
 from commands.utils import latex, die_roll, ping, cheh, pin, delete
 
 
 # List of commands to add to the command tree
-def commands_list(tree, hypixel_guild):
+async def commands_list(tree: discord.app_commands.CommandTree, hypixel_guild: discord.Guild):
     # List the commands
-    commands = (
+    commands: Tuple = (
         latex,
         die_roll,
         ping,
