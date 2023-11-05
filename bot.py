@@ -94,7 +94,7 @@ class ChouetteBot(discord.Client):
                 await channel.send(response[0], reference=message)
             else:
                 await channel.send(response[0])
-            self.bot_logger.info(f'{self.user} responded to {author}: "{response}"')
+            self.bot_logger.info(f'{self.user} responded to {author}: "{response[0]}"')
 
     async def is_team_member_or_owner(self, author: discord.User) -> bool:
         app_info = await self.application_info()
