@@ -39,6 +39,9 @@ class ChouetteBot(discord.Client):
         # Apply intents, activity and status to the bot
         super().__init__(intents=intents, activity=activity, status=self.config['BOT_STATUS'])
 
+        # Declare command tree
+        self.tree = discord.app_commands.CommandTree(self)
+
         # Used to check the first time the bot does the on_ready event
         self.first = True
 
@@ -53,7 +56,6 @@ class ChouetteBot(discord.Client):
             hypixel_guild = self.get_guild(int(self.config['HYPIXEL_GUILD_ID']))
 
             # Call commands and import tasks
-            self.tree = discord.app_commands.CommandTree(self)
             await commands(self.tree, hypixel_guild)
             await tasks.tasks_list(self)
 
