@@ -1,9 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import discord
 
 from src.latex_render import latex_process
 
+if TYPE_CHECKING:
+    from bot import ChouetteBot
 
-async def responses(client, channel: discord.abc.Messageable, message: str, username: str) -> str:
+
+async def responses(client: ChouetteBot, channel: discord.abc.Messageable, message: str, username: str) -> str:
     # Checks if a message ends with quoi
     if ''.join(filter(str.isalpha, message)).lower().endswith("quoi"):
         return "**FEUR**"

@@ -1,9 +1,15 @@
+from __future__ import annotations
+
 from datetime import time
+from typing import TYPE_CHECKING
 
 from discord.ext import tasks
 
+if TYPE_CHECKING:
+    from bot import ChouetteBot
 
-async def tasks_list(client):
+
+async def tasks_list(client: ChouetteBot):
     # Hours for the loop
     even_hours = [time(0), time(2), time(4), time(6), time(8), time(10),
                   time(12), time(14), time(16), time(18), time(20), time(22)]
