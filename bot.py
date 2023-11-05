@@ -5,7 +5,7 @@ import discord
 from aiohttp import web
 
 import tasks
-from commands_list import commands_list
+from commands_list import commands
 from responses import responses
 
 
@@ -52,11 +52,9 @@ class ChouetteBot(discord.Client):
             # Hypixel guild
             hypixel_guild = self.get_guild(int(self.config['HYPIXEL_GUILD_ID']))
 
-            # Import and sync commands and import tasks
-            command_tree = discord.app_commands.CommandTree(self)
-            await commands_list(command_tree, hypixel_guild)
-            await command_tree.sync()
-            await command_tree.sync(guild=hypixel_guild)
+            # Call commands and import tasks
+            self.tree = discord.app_commands.CommandTree(self)
+            await commands(self.tree, hypixel_guild)
             await tasks.tasks_list(self)
 
             # Start web server
@@ -77,21 +75,30 @@ class ChouetteBot(discord.Client):
             return
 
         # Stock the message's informations in variables
-        username = str(message.author)
+        author = message.author
         user_msg = str(message.content)
         channel = message.channel
 
         # Do a log on the Python console
         if message.guild is not None:
-            self.bot_logger.debug(f'{username} said: "{user_msg}" #{channel} in {message.guild.name}')
+            self.bot_logger.debug(f'{author} said: "{user_msg}" #{channel} in {message.guild.name}')
         else:
-            self.bot_logger.debug(f'{username} said: "{user_msg}" in Direct Message')
+            self.bot_logger.debug(f'{author} said: "{user_msg}" in Direct Message')
 
         # Call responses with message of the user and responds if necessary
-        response = await responses(self, channel, user_msg, username)
-        if not response == '':
-            await channel.send(response)
-            self.bot_logger.info(f'{self.user} responded to {username}: "{response}"')
+        response = await responses(self, channel, user_msg, author)
+        if not response[0] == '':
+            if response[1] == True:
+                await channel.send(response[0], reference=message)
+            else:
+                await channel.send(response[0])
+            self.bot_logger.info(f'{self.user} responded to {author}: "{response}"')
+
+    async def is_team_member_or_owner(self, author: discord.User) -> bool:
+        app_info = await self.application_info()
+        if app_info.team:
+            return any(author.id == member.id for member in app_info.team.members)
+        return True if author.id == app_info.owner.id else False
 
     # Add a basic HTTP server to check if the bot is up
     async def start_server(self):

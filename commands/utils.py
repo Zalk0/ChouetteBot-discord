@@ -39,6 +39,8 @@ async def cheh(interaction: discord.Interaction, user: discord.Member):
 
 
 # Make a simple context menu application to pin/unpin
+@app_commands.guild_only
+@app_commands.checks.bot_has_permissions(manage_messages=True)
 @app_commands.context_menu(name="Pin/Unpin")
 async def pin(interaction: discord.Interaction, message: discord.Message):
     if message.pinned:
@@ -50,23 +52,16 @@ async def pin(interaction: discord.Interaction, message: discord.Message):
 
 
 # Make a context menu command to delete messages
-# TODO Change permission management to use built-in discord.py
+@app_commands.guild_only
+@app_commands.checks.bot_has_permissions(manage_messages=True, read_message_history=True, read_messages=True)
+@app_commands.checks.has_permissions(manage_messages=True)
 @app_commands.context_menu(name="Delete until here")
 async def delete(interaction: discord.Interaction, message: discord.Message):
-    if not interaction.permissions.manage_messages:
-        await interaction.response.send_message("Vous n'avez pas la permission de gérer les messages !",
-                                                ephemeral=True)
-        return
-    if not interaction.app_permissions.manage_messages:
-        await interaction.response.send_message("Je n'ai pas la permission de gérer les messages !",
-                                                ephemeral=True)
-        return
     await interaction.response.defer(ephemeral=True, thinking=True)
     last_id = interaction.channel.last_message_id
 
-    def is_msg(msg):
-        if (message.id >> 22) <= (msg.id >> 22) <= (last_id >> 22):
-            return msg.id
+    def is_msg(msg: discord.Message) -> bool:
+        return (message.id >> 22) <= (msg.id >> 22) <= (last_id >> 22)
 
     del_msg = await message.channel.purge(bulk=True, reason="Admin used bulk delete", check=is_msg)
     await interaction.followup.send(f"{len(del_msg)} messages supprimés !")
