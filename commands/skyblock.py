@@ -1,10 +1,16 @@
+from __future__ import annotations
+
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 
 import aiohttp
 import discord
 from discord import app_commands
 
 from src.skyblock_guild import check
+
+if TYPE_CHECKING:
+    from bot import ChouetteBot
 
 
 # Define command group based on the Group class
@@ -16,7 +22,7 @@ class Skyblock(app_commands.Group):
     # Make a command to check the version of mods for Hypixel Skyblock
     @app_commands.command(name="mods",
                           description="Check the latest release of the most popular mods for the Hypixel Skyblock")
-    async def mods(self, interaction: discord.Interaction):
+    async def mods(self, interaction: discord.Interaction[ChouetteBot]):
         await interaction.response.defer(thinking=True)
         api_github = "https://api.github.com/repos/"
         async with aiohttp.ClientSession() as session:
@@ -36,7 +42,7 @@ class Skyblock(app_commands.Group):
 
     # Make a command to check if it's raining in Spider's Den in Hypixel Skyblock
     @app_commands.command(name="spider_rain", description="Show the time until the next rain and thunderstorm")
-    async def spider(self, interaction: discord.Interaction):
+    async def spider(self, interaction: discord.Interaction[ChouetteBot]):
         utc_last_thunderstorm = round(datetime(2023, 3, 27, 1, 45, 56, tzinfo=timezone.utc).timestamp())
         time_now = round(datetime.now(tz=timezone.utc).timestamp())
         base = time_now - utc_last_thunderstorm
@@ -59,7 +65,7 @@ class Skyblock(app_commands.Group):
     # Make a command to check if the user is in the guild in-game
     @app_commands.command(name="guild", description="Give a role if in the guild in-game")
     @app_commands.rename(pseudo="pseudo_mc")
-    async def in_guild(self, interaction: discord.Interaction, pseudo: str):
+    async def in_guild(self, interaction: discord.Interaction[ChouetteBot], pseudo: str):
         if interaction.user.get_role(int(interaction.client.config['HYPIXEL_GUILD_ROLE'])):
             await interaction.response.send_message("Vous avez déjà le rôle !")
             return
