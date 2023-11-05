@@ -88,7 +88,7 @@ class ChouetteBot(discord.Client):
         # Call responses with message of the user and responds if necessary
         response = await responses(self, channel, user_msg, author)
         if not response[0] == '':
-            if response[1] == True:
+            if response[1]:
                 await channel.send(response[0], reference=message)
             else:
                 await channel.send(response[0])
