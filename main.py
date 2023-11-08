@@ -1,5 +1,5 @@
 import logging.handlers as handlers
-import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -7,15 +7,16 @@ from bot import ChouetteBot
 
 
 def main():
-    # Load the .env values
-    load_dotenv()
+    # Load the .env values if a .env file exists
+    if Path('.env').is_file():
+        load_dotenv()
 
     # Create an instance of the ChouetteBot
     client = ChouetteBot()
 
     # Setup the logging
-    os.makedirs('logs', exist_ok=True)
-    handler = handlers.RotatingFileHandler(filename=os.path.join('logs', 'bot.log'), backupCount=3,
+    Path('logs').mkdir(exist_ok=True)
+    handler = handlers.RotatingFileHandler(filename=Path('logs', 'bot.log'), backupCount=3,
                                            encoding='utf-8', delay=True)
     handler.doRollover()
 
