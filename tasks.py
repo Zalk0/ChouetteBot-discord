@@ -10,12 +10,8 @@ if TYPE_CHECKING:
 
 
 async def tasks_list(client: ChouetteBot):
-    # Hours for the loop
-    even_hours = [time(0), time(2), time(4), time(6), time(8), time(10),
-                  time(12), time(14), time(16), time(18), time(20), time(22)]
-
     # Loop to send message every 2 hours for pokeroll
-    @tasks.loop(time=even_hours)
+    @tasks.loop(time=[time(t) for t in range(0, 24, 2)])
     async def poke_ping():
         guild = client.get_guild(int(client.config['GUILD_ID']))
         dresseurs = guild.get_role(int(client.config['POKE_ROLE']))
