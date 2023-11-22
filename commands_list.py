@@ -4,6 +4,7 @@ import discord
 
 from commands.skyblock import Skyblock
 from commands.utils import latex, die_roll, ping, cheh, pin, delete
+from commands.admin import wisper
 
 # List the commands
 commands_list: Tuple = (
@@ -12,7 +13,8 @@ commands_list: Tuple = (
     ping,
     cheh,
     pin,
-    delete
+    delete,
+    wisper
 )
 
 
