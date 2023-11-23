@@ -63,7 +63,7 @@ async def commands(tree: discord.app_commands.CommandTree, hypixel_guild: discor
         if isinstance(error, discord.app_commands.CheckFailure):
             interaction.client.bot_logger.error(f"{interaction.user} tried to do {interaction.command.name} "
                                                 f"in #{interaction.channel}\n{SPACES}{error}")
-            await interaction.response.send_message(f"You're not allowed to use this command!",
+            await interaction.response.send_message("You're not allowed to use this command!",
                                                     ephemeral=True)
             return
         await interaction.response.send_message(f"{error}\nThis error is not caught, please signal it!",
