@@ -32,7 +32,6 @@ async def responses(client: ChouetteBot, channel: Messageable, message: str, aut
                 await client.tree.sync()
                 for guild in client.guilds:
                     await client.tree.sync(guild=guild)
-                client.bot_logger.info(f"{author} synced the slash commands")
                 return "Successfully synced the slash commands!", True
             except discord.app_commands.CommandSyncFailure as e:
                 client.bot_logger.error(e)
