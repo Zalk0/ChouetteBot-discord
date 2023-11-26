@@ -42,6 +42,10 @@ class ChouetteBot(discord.Client):
         # Declare command tree
         self.tree = discord.app_commands.CommandTree(self)
 
+        # Variable for storing owners id
+        # If set manually, it will not fetch from the bot's application info
+        self.owners = []
+
         # Used to check the first time the bot does the on_ready event
         self.first = True
 
@@ -97,10 +101,13 @@ class ChouetteBot(discord.Client):
             self.bot_logger.info(f'{self.user} responded to {author}: "{response[0]}"')
 
     async def is_team_member_or_owner(self, author: discord.User) -> bool:
-        app_info = await self.application_info()
-        if app_info.team:
-            return any(author.id == member.id for member in app_info.team.members)
-        return True if author.id == app_info.owner.id else False
+        if not self.owners:
+            app_info = await self.application_info()
+            if app_info.team:
+                self.owners = [member.id for member in app_info.team.members]
+            else:
+                self.owners = [app_info.owner.id]
+        return author.id in self.owners
 
     # Add a basic HTTP server to check if the bot is up
     async def start_server(self):
