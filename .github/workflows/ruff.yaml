@@ -1,13 +1,6 @@
 name: Ruff
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-permissions:
-  contents: write
+on: [ pull_request, push ]
 
 jobs:
   ruff:
@@ -18,7 +11,7 @@ jobs:
       - name: Lint
         uses: chartboost/ruff-action@v1
         with:
-          args: "check --fix"
+          args: "check"
       - name: Format
         uses: chartboost/ruff-action@v1
         with:

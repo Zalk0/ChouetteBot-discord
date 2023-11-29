@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from bot import ChouetteBot
 
 # List the commands
-COMMANDS_LIST: Tuple = (  # noqa: E501
+COMMANDS_LIST: Tuple = (
     latex,
     die_roll,
     ping,

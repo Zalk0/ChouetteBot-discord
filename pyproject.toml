@@ -1,7 +1,11 @@
 [project]
 requires-python = ">=3.8"
 
-
 [tool.ruff]
-line-length = 79
 extend-exclude = ["venv38"]
+line-length = 79
+
+[tool.ruff.format]
+indent-style = "space"
+line-ending = "lf"
+quote-style = "double"
