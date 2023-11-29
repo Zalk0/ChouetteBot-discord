@@ -22,4 +22,4 @@ jobs:
       - name: Format
         uses: chartboost/ruff-action@v1
         with:
-          args: "format --fix"
+          args: "format"
