@@ -11,33 +11,44 @@ from responses import responses
 
 # Create a class of the bot
 class ChouetteBot(discord.Client):
-
     # Initialization when class is called
     def __init__(self):
         # Associate the env variables to the bot
         self.config = os.environ
 
         # Define the bot debug log level
-        self.bot_logger = logging.getLogger('bot')
-        log_level = logging.getLevelName(self.config.get('LOG_LEVEL', logging.INFO))
-        self.log_level = log_level if isinstance(log_level, int) else logging.INFO
+        self.bot_logger = logging.getLogger("bot")
+        log_level = logging.getLevelName(
+            self.config.get("LOG_LEVEL", logging.INFO)
+        )
+        self.log_level = (
+            log_level if isinstance(log_level, int) else logging.INFO
+        )
         self.bot_logger.setLevel(self.log_level)
 
         # Set intents for the bot
         intents = discord.Intents.all()
 
         # Set activity of the bot
-        activity_type = {"playing": 0,
-                         "streaming": 1,
-                         "listening": 2,
-                         "watching": 3,
-                         "custom": 4,  # Idk what it is
-                         "competing": 5}
-        activity = discord.Activity(type=activity_type.get(self.config['BOT_ACTIVITY_TYPE']),
-                                    name=self.config['BOT_ACTIVITY_NAME'])
+        activity_type = {
+            "playing": 0,
+            "streaming": 1,
+            "listening": 2,
+            "watching": 3,
+            "custom": 4,  # Idk what it is
+            "competing": 5,
+        }
+        activity = discord.Activity(
+            type=activity_type.get(self.config["BOT_ACTIVITY_TYPE"]),
+            name=self.config["BOT_ACTIVITY_NAME"],
+        )
 
         # Apply intents, activity and status to the bot
-        super().__init__(intents=intents, activity=activity, status=self.config['BOT_STATUS'])
+        super().__init__(
+            intents=intents,
+            activity=activity,
+            status=self.config["BOT_STATUS"],
+        )
 
         # Declare command tree
         self.tree = discord.app_commands.CommandTree(self)
@@ -57,7 +68,9 @@ class ChouetteBot(discord.Client):
         # Executed once when bot is ready
         if self.first:
             # Hypixel guild
-            hypixel_guild = self.get_guild(int(self.config['HYPIXEL_GUILD_ID']))
+            hypixel_guild = self.get_guild(
+                int(self.config["HYPIXEL_GUILD_ID"])
+            )
 
             # Call commands and import tasks
             await commands(self.tree, hypixel_guild)
@@ -87,18 +100,24 @@ class ChouetteBot(discord.Client):
 
         # Do a log on the Python console
         if message.guild is not None:
-            self.bot_logger.debug(f'{author} said: "{user_msg}" #{channel} in {message.guild.name}')
+            self.bot_logger.debug(
+                f'{author} said: "{user_msg}" #{channel} in {message.guild.name}'
+            )
         else:
-            self.bot_logger.debug(f'{author} said: "{user_msg}" in Direct Message')
+            self.bot_logger.debug(
+                f'{author} said: "{user_msg}" in Direct Message'
+            )
 
         # Call responses with message of the user and responds if necessary
         response = await responses(self, channel, user_msg, author)
-        if not response[0] == '':
+        if not response[0] == "":
             if response[1]:
                 await channel.send(response[0], reference=message)
             else:
                 await channel.send(response[0])
-            self.bot_logger.info(f'{self.user} responded to {author}: "{response[0]}"')
+            self.bot_logger.info(
+                f'{self.user} responded to {author}: "{response[0]}"'
+            )
 
     async def is_team_member_or_owner(self, author: discord.User) -> bool:
         if not self.owners:
@@ -112,15 +131,15 @@ class ChouetteBot(discord.Client):
     # Add a basic HTTP server to check if the bot is up
     async def start_server(self):
         # Set a logger for the webserver
-        web_logger = logging.getLogger('web')
+        web_logger = logging.getLogger("web")
         # Don't want to spam logs with site access
         if self.log_level >= logging.INFO:
-            logging.getLogger('aiohttp.access').setLevel(logging.ERROR)
+            logging.getLogger("aiohttp.access").setLevel(logging.ERROR)
 
         # Set some basic headers for security
         headers = {
             "X-Content-Type-Options": "nosniff",
-            "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'"
+            "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'",
         }
 
         # Remove the Server header and apply the headers
@@ -135,10 +154,12 @@ class ChouetteBot(discord.Client):
 
         app = web.Application()
         app.on_response_prepare.append(_default_headers)
-        app.add_routes([web.get('/', handler)])
+        app.add_routes([web.get("/", handler)])
         runner = web.AppRunner(app)
         await runner.setup()
-        site = web.TCPSite(runner, self.config['SERVER_HOST'], int(self.config['SERVER_PORT']))
+        site = web.TCPSite(
+            runner, self.config["SERVER_HOST"], int(self.config["SERVER_PORT"])
+        )
         try:
             await site.start()
         except Exception as e:

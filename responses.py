@@ -11,19 +11,29 @@ if TYPE_CHECKING:
     from bot import ChouetteBot
 
 
-async def responses(client: ChouetteBot, channel: Messageable, message: str, author: discord.User) -> tuple[str, bool]:
+async def responses(
+        client: ChouetteBot,
+        channel: Messageable,
+        message: str,
+        author: discord.User,
+) -> tuple[str, bool]:
     # Checks if a message ends with quoi
-    if ''.join(filter(str.isalpha, message)).lower().endswith("quoi"):
+    if "".join(filter(str.isalpha, message)).lower().endswith("quoi"):
         return "**FEUR**", False
 
     # Checks if a message contains $$ to signify LaTeX expression
     if message.count("$") > 1:
         if (message.count("$") % 2) == 0:
             await channel.send(file=await latex_process(message))
-            client.bot_logger.info(f'{client.user} responded to {author}: "equation.png"')
-            return '', False
-        return "Nombre de $ impair, " \
-               "veuillez en mettre un nombre pair pour que je puisse afficher les équations LaTeX !", False
+            client.bot_logger.info(
+                f'{client.user} responded to {author}: "equation.png"'
+            )
+            return "", False
+        return (
+            "Nombre de $ impair, "
+            "veuillez en mettre un nombre pair pour que je puisse afficher les équations LaTeX !",
+            False,
+        )
 
     # Add command to sync slash commands for team members and owner of the bot
     if message == f"{client.user.mention} sync":
@@ -36,7 +46,9 @@ async def responses(client: ChouetteBot, channel: Messageable, message: str, aut
             except discord.app_commands.CommandSyncFailure as e:
                 client.bot_logger.error(e)
                 return str(e), True
-        client.bot_logger.info(f"{author}, who isn't authorized, tried to sync the commands")
+        client.bot_logger.info(
+            f"{author}, who isn't authorized, tried to sync the commands"
+        )
 
     # Return empty string if no condition is checked
-    return '', False
+    return "", False

@@ -11,5 +11,8 @@ venv/
 # Python's cache
 __pycache__/
 
+# Ruff's cache
+.ruff_cache/
+
 # Logs folder
 logs/

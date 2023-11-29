@@ -19,5 +19,9 @@ async def is_admin(interaction: discord.Interaction[ChouetteBot]):
 @app_commands.check(is_admin)
 @app_commands.command(name="whisper", description="Whisper an admin message")
 async def whisper(interaction: discord.Interaction[ChouetteBot], message: str):
-    await interaction.channel.send(f"{interaction.client.user.name} wants to say this message: {message}")
-    await interaction.response.send_message("Commande réussie", ephemeral=True, delete_after=2)
+    await interaction.channel.send(
+        f"{interaction.client.user.name} wants to say this message: {message}"
+    )
+    await interaction.response.send_message(
+        "Commande réussie", ephemeral=True, delete_after=2
+    )
