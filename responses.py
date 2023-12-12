@@ -12,10 +12,10 @@ if TYPE_CHECKING:
 
 
 async def responses(
-        client: ChouetteBot,
-        channel: Messageable,
-        message: str,
-        author: discord.User,
+    client: ChouetteBot,
+    channel: Messageable,
+    message: str,
+    author: discord.User,
 ) -> tuple[str, bool]:
     # Checks if a message ends with quoi
     if "".join(filter(str.isalpha, message)).lower().endswith("quoi"):

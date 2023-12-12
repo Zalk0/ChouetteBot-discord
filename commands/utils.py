@@ -37,7 +37,7 @@ async def ping(interaction: discord.Interaction[ChouetteBot]):
 # Make a cheh command
 @app_commands.command(name="cheh", description="Cheh somebody")
 async def cheh(
-        interaction: discord.Interaction[ChouetteBot], user: discord.Member
+    interaction: discord.Interaction[ChouetteBot], user: discord.Member
 ):
     # Check if the user to cheh is the bot or the user sending the command
     if user == interaction.client.user:
@@ -57,7 +57,7 @@ async def cheh(
 @app_commands.checks.bot_has_permissions(manage_messages=True)
 @app_commands.context_menu(name="Pin/Unpin")
 async def pin(
-        interaction: discord.Interaction[ChouetteBot], message: discord.Message
+    interaction: discord.Interaction[ChouetteBot], message: discord.Message
 ):
     if message.pinned:
         await message.unpin()
@@ -79,7 +79,7 @@ async def pin(
 @app_commands.checks.has_permissions(manage_messages=True)
 @app_commands.context_menu(name="Delete until here")
 async def delete(
-        interaction: discord.Interaction[ChouetteBot], message: discord.Message
+    interaction: discord.Interaction[ChouetteBot], message: discord.Message
 ):
     await interaction.response.defer(ephemeral=True, thinking=True)
     last_id = interaction.channel.last_message_id

@@ -31,8 +31,8 @@ async def return_uuid(session, pseudo):
     except Exception:
         # This Minecraft pseudo doesn't exist
         if (
-                response["errorMessage"]
-                == f"Couldn't find any profile with name {pseudo}"
+            response["errorMessage"]
+            == f"Couldn't find any profile with name {pseudo}"
         ):
             return 0
         return

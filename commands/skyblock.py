@@ -31,19 +31,19 @@ class Skyblock(app_commands.Group):
         api_github = "https://api.github.com/repos/"
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                    f"{api_github}Dungeons-Guide/Skyblock-Dungeons-Guide/releases/latest"
+                f"{api_github}Dungeons-Guide/Skyblock-Dungeons-Guide/releases/latest"
             ) as response:
                 dungeonsguide = await response.json()
             async with session.get(
-                    f"{api_github}Moulberry/NotEnoughUpdates/releases/latest"
+                f"{api_github}Moulberry/NotEnoughUpdates/releases/latest"
             ) as response:
                 notenoughupdates = await response.json()
             async with session.get(
-                    f"{api_github}BiscuitDevelopment/SkyblockAddons/releases/latest"
+                f"{api_github}BiscuitDevelopment/SkyblockAddons/releases/latest"
             ) as response:
                 skyblockaddons = await response.json()
             async with session.get(
-                    f"{api_github}Skytils/SkytilsMod/releases/latest"
+                f"{api_github}Skytils/SkytilsMod/releases/latest"
             ) as response:
                 skytils = await response.json()
         await interaction.followup.send(
@@ -80,7 +80,7 @@ class Skyblock(app_commands.Group):
             )
         else:
             thunderstorm_duration = (
-                    time_now + (3850 * 4 + 1000 * 4) - thunderstorm
+                time_now + (3850 * 4 + 1000 * 4) - thunderstorm
             )
             thunderstorm_msg = (
                 f"The thunderstorm will end <t:{thunderstorm_duration}:R>"
@@ -95,10 +95,10 @@ class Skyblock(app_commands.Group):
     )
     @app_commands.rename(pseudo="pseudo_mc")
     async def in_guild(
-            self, interaction: discord.Interaction[ChouetteBot], pseudo: str
+        self, interaction: discord.Interaction[ChouetteBot], pseudo: str
     ):
         if interaction.user.get_role(
-                int(interaction.client.config["HYPIXEL_GUILD_ROLE"])
+            int(interaction.client.config["HYPIXEL_GUILD_ROLE"])
         ):
             await interaction.response.send_message("Vous avez déjà le rôle !")
             return

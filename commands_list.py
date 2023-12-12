@@ -27,7 +27,7 @@ SPACES = " " * 38
 
 # List of commands to add to the command tree
 async def commands(
-        tree: discord.app_commands.CommandTree, hypixel_guild: discord.Guild
+    tree: discord.app_commands.CommandTree, hypixel_guild: discord.Guild
 ):
     # Add the commands to the Tree
     for command in COMMANDS_LIST:
@@ -39,8 +39,8 @@ async def commands(
     # Create a global commands error handler
     @tree.error
     async def on_command_error(
-            interaction: discord.Interaction[ChouetteBot],
-            error: discord.app_commands.AppCommandError,
+        interaction: discord.Interaction[ChouetteBot],
+        error: discord.app_commands.AppCommandError,
     ):
         if isinstance(error, discord.app_commands.BotMissingPermissions):
             bot_perms = ", ".join(error.missing_permissions)
