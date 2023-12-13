@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
@@ -7,7 +8,7 @@ import aiohttp
 import discord
 from discord import app_commands
 
-from src.skyblock_guild import check
+from utils.skyblock_guild import check
 
 if TYPE_CHECKING:
     from bot import ChouetteBot
@@ -35,23 +36,46 @@ class Skyblock(app_commands.Group):
             ) as response:
                 dungeonsguide = await response.json()
             async with session.get(
-                f"{api_github}Moulberry/NotEnoughUpdates/releases/latest"
+                f"{api_github}NotEnoughUpdates/NotEnoughUpdates/releases"
             ) as response:
                 notenoughupdates = await response.json()
             async with session.get(
-                f"{api_github}BiscuitDevelopment/SkyblockAddons/releases/latest"
+                f"{api_github}Fix3dll/SkyblockAddons/contents/gradle.properties",
+                headers={"Accept": "application/vnd.github.raw"},
             ) as response:
-                skyblockaddons = await response.json()
+                content = await response.text()
+                sba_version = re.search(
+                    r"^version\s?=\s?(.*)$", content, re.MULTILINE
+                )
+            async with session.get(
+                f"{api_github}Fix3dll/SkyblockAddons/actions/runs"
+            ) as response:
+                content = await response.json()
+                for run in content["workflow_runs"]:
+                    if run["head_branch"] == "main":
+                        skyblockaddons = (
+                            f"{sba_version.group(1)}+{run['run_number']}"
+                        )
+                        artifact_url = run["artifacts_url"]
+                        check_id = run["check_suite_id"]
+                        break
+            async with session.get(artifact_url) as response:
+                resp = await response.json()
+                artifact_id = resp["artifacts"][0]["id"]
             async with session.get(
                 f"{api_github}Skytils/SkytilsMod/releases/latest"
             ) as response:
                 skytils = await response.json()
         await interaction.followup.send(
-            f"The latest releases are :\n"
-            f"Dungeons Guide : `{dungeonsguide['name'].replace('v', '')}`\n"
-            f"Not Enough Updates : `{notenoughupdates['name']}`\n"
-            f"SkyblockAddons : `{skyblockaddons['name'].replace('Patch v', '')}`\n"
-            f"Skytils : `{skytils['name'].replace('Skytils ', '')}`"
+            f"The latest releases are:\n"
+            f"- Dungeons-Guide: `{dungeonsguide['tag_name']}` "
+            f"[link]({dungeonsguide['assets'][0]['browser_download_url']})\n"
+            f"- NotEnoughUpdates: `{notenoughupdates[0]['tag_name'].replace('v', '')}` "
+            f"[link]({notenoughupdates[0]['assets'][0]['browser_download_url']})\n"
+            f"- SkyblockAddons (forked by Fix3dll): `{skyblockaddons}` "
+            f"[link](https://github.com/Fix3dll/SkyblockAddons/suites/{check_id}/artifacts/{artifact_id})\n"
+            f"- Skytils: `{skytils['tag_name'].replace('v', '')}` "
+            f"[link]({skytils['assets'][0]['browser_download_url']})"
         )
 
     # Make a command to check if it's raining in Spider's Den in Hypixel Skyblock

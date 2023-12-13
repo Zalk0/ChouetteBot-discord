@@ -5,8 +5,8 @@ from typing import Tuple, TYPE_CHECKING
 import discord
 
 from commands.admin import whisper
+from commands.misc import latex, die_roll, ping, cheh, pin, delete
 from commands.skyblock import Skyblock
-from commands.utils import latex, die_roll, ping, cheh, pin, delete
 
 if TYPE_CHECKING:
     from bot import ChouetteBot

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 import discord
 from discord.abc import Messageable
 
-from src.latex_render import latex_process
+from utils.latex_render import latex_process
 
 if TYPE_CHECKING:
     from bot import ChouetteBot

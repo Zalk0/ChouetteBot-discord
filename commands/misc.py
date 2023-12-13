@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import discord
 from discord import app_commands
 
-from src.latex_render import latex_render
+from utils.latex_render import latex_render
 
 if TYPE_CHECKING:
     from bot import ChouetteBot
