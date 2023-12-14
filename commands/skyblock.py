@@ -52,16 +52,11 @@ class Skyblock(app_commands.Group):
             ) as response:
                 content = await response.json()
                 for run in content["workflow_runs"]:
-                    if run["head_branch"] == "main":
+                    if run["head_branch"] == "main" && run["conclusion"] == "success":
                         skyblockaddons = (
                             f"{sba_version.group(1)}+{run['run_number']}"
                         )
-                        artifact_url = run["artifacts_url"]
-                        check_id = run["check_suite_id"]
                         break
-            async with session.get(artifact_url) as response:
-                resp = await response.json()
-                artifact_id = resp["artifacts"][0]["id"]
             async with session.get(
                 f"{api_github}Skytils/SkytilsMod/releases/latest"
             ) as response:
@@ -73,7 +68,7 @@ class Skyblock(app_commands.Group):
             f"- NotEnoughUpdates: `{notenoughupdates[0]['tag_name'].replace('v', '')}` "
             f"[link]({notenoughupdates[0]['assets'][0]['browser_download_url']})\n"
             f"- SkyblockAddons (forked by Fix3dll): `{skyblockaddons}` "
-            f"[link](https://github.com/Fix3dll/SkyblockAddons/suites/{check_id}/artifacts/{artifact_id})\n"
+            f"[link](https://nightly.link/Fix3dll/SkyblockAddons/workflows/build/main/build_artifacts.zip)\n"
             f"- Skytils: `{skytils['tag_name'].replace('v', '')}` "
             f"[link]({skytils['assets'][0]['browser_download_url']})"
         )
