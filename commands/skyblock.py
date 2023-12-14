@@ -52,7 +52,7 @@ class Skyblock(app_commands.Group):
             ) as response:
                 content = await response.json()
                 for run in content["workflow_runs"]:
-                    if run["head_branch"] == "main" && run["conclusion"] == "success":
+                    if run["head_branch"] == "main" and run["conclusion"] == "success":
                         skyblockaddons = (
                             f"{sba_version.group(1)}+{run['run_number']}"
                         )
