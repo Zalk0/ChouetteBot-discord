@@ -18,13 +18,14 @@ class ChouetteBot(discord.Client):
 
         # Define the bot debug log level
         self.bot_logger = logging.getLogger("bot")
-        log_level = logging.getLevelName(
-            self.config.get("LOG_LEVEL", logging.INFO)
-        )
-        self.log_level = (
-            log_level if isinstance(log_level, int) else logging.INFO
-        )
+        log_level = logging.getLevelName(self.config.get("LOG_LEVEL", logging.INFO))
+        self.log_level = log_level if isinstance(log_level, int) else logging.INFO
         self.bot_logger.setLevel(self.log_level)
+
+        # Ignore RESUMED session messages
+        logging.getLogger("discord.gateway").addFilter(
+            lambda record: "successfully RESUMED session" in record.msg
+        )
 
         # Set intents for the bot
         intents = discord.Intents.all()
@@ -68,9 +69,7 @@ class ChouetteBot(discord.Client):
         # Executed once when bot is ready
         if self.first:
             # Hypixel guild
-            hypixel_guild = self.get_guild(
-                int(self.config["HYPIXEL_GUILD_ID"])
-            )
+            hypixel_guild = self.get_guild(int(self.config["HYPIXEL_GUILD_ID"]))
 
             # Call commands and import tasks
             await commands(self.tree, hypixel_guild)
@@ -104,9 +103,7 @@ class ChouetteBot(discord.Client):
                 f'{author} said: "{user_msg}" #{channel} in {message.guild.name}'
             )
         else:
-            self.bot_logger.debug(
-                f'{author} said: "{user_msg}" in Direct Message'
-            )
+            self.bot_logger.debug(f'{author} said: "{user_msg}" in Direct Message')
 
         # Call responses with message of the user and responds if necessary
         response = await responses(self, channel, user_msg, author)
@@ -115,9 +112,7 @@ class ChouetteBot(discord.Client):
                 await channel.send(response[0], reference=message)
             else:
                 await channel.send(response[0])
-            self.bot_logger.info(
-                f'{self.user} responded to {author}: "{response[0]}"'
-            )
+            self.bot_logger.info(f'{self.user} responded to {author}: "{response[0]}"')
 
     async def is_team_member_or_owner(self, author: discord.User) -> bool:
         if not self.owners:
@@ -157,9 +152,7 @@ class ChouetteBot(discord.Client):
         app.add_routes([web.get("/", handler)])
         runner = web.AppRunner(app)
         await runner.setup()
-        site = web.TCPSite(
-            runner, self.config["SERVER_HOST"], int(self.config["SERVER_PORT"])
-        )
+        site = web.TCPSite(runner, self.config["SERVER_HOST"], int(self.config["SERVER_PORT"]))
         try:
             await site.start()
         except Exception as e:

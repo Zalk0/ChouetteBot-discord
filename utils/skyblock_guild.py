@@ -11,9 +11,7 @@ async def fetch(session, url, params=None):
 
 
 async def return_discord_hypixel(session, uuid):
-    response = await fetch(
-        session, f"{api_hypixel}player", {"key": token_hypixel, "uuid": uuid}
-    )
+    response = await fetch(session, f"{api_hypixel}player", {"key": token_hypixel, "uuid": uuid})
     try:
         return response["player"]["socialMedia"]["links"]["DISCORD"]
     except Exception:
@@ -23,25 +21,18 @@ async def return_discord_hypixel(session, uuid):
 
 
 async def return_uuid(session, pseudo):
-    response = await fetch(
-        session, f"https://api.mojang.com/users/profiles/minecraft/{pseudo}"
-    )
+    response = await fetch(session, f"https://api.mojang.com/users/profiles/minecraft/{pseudo}")
     try:
         return response["id"]
     except Exception:
         # This Minecraft pseudo doesn't exist
-        if (
-            response["errorMessage"]
-            == f"Couldn't find any profile with name {pseudo}"
-        ):
+        if response["errorMessage"] == f"Couldn't find any profile with name {pseudo}":
             return 0
         return
 
 
 async def return_guild(session, name):
-    response = await fetch(
-        session, f"{api_hypixel}guild", {"key": token_hypixel, "name": name}
-    )
+    response = await fetch(session, f"{api_hypixel}guild", {"key": token_hypixel, "name": name})
     try:
         return response["guild"]
     except Exception:
@@ -62,9 +53,7 @@ async def check(pseudo, guild, discord):
     async with aiohttp.ClientSession() as session:
         uuid = await return_uuid(session, pseudo)
         if uuid == 0:
-            return (
-                f"Il n'y a pas de compte Minecraft avec ce pseudo : {pseudo}"
-            )
+            return f"Il n'y a pas de compte Minecraft avec ce pseudo : {pseudo}"
         elif uuid is None:
             return "Something wrong happened"
 

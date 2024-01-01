@@ -18,9 +18,7 @@ if TYPE_CHECKING:
 class Skyblock(app_commands.Group):
     # Set command group name and description
     def __init__(self):
-        super().__init__(
-            name="skyblock", description="Hypixel Skyblock related commands"
-        )
+        super().__init__(name="skyblock", description="Hypixel Skyblock related commands")
 
     # Make a command to check the version of mods for Hypixel Skyblock
     @app_commands.command(
@@ -44,22 +42,14 @@ class Skyblock(app_commands.Group):
                 headers={"Accept": "application/vnd.github.raw"},
             ) as response:
                 content = await response.text()
-                sba_version = re.search(
-                    r"^version\s?=\s?(.*)$", content, re.MULTILINE
-                )
-            async with session.get(
-                f"{api_github}Fix3dll/SkyblockAddons/actions/runs"
-            ) as response:
+                sba_version = re.search(r"^version\s?=\s?(.*)$", content, re.MULTILINE)
+            async with session.get(f"{api_github}Fix3dll/SkyblockAddons/actions/runs") as response:
                 content = await response.json()
                 for run in content["workflow_runs"]:
                     if run["head_branch"] == "main" and run["conclusion"] == "success":
-                        skyblockaddons = (
-                            f"{sba_version.group(1)}+{run['run_number']}"
-                        )
+                        skyblockaddons = f"{sba_version.group(1)}+{run['run_number']}"
                         break
-            async with session.get(
-                f"{api_github}Skytils/SkytilsMod/releases/latest"
-            ) as response:
+            async with session.get(f"{api_github}Skytils/SkytilsMod/releases/latest") as response:
                 skytils = await response.json()
         await interaction.followup.send(
             f"The latest releases are:\n"
@@ -94,31 +84,17 @@ class Skyblock(app_commands.Group):
             rain_msg = f"The rain will end <t:{rain_duration}:R>"
         if thunderstorm <= (3850 * 4 + 1000 * 3):
             next_thunderstorm = time_now + (3850 * 4 + 1000 * 3) - thunderstorm
-            thunderstorm_msg = (
-                f"The next thunderstorm will be <t:{next_thunderstorm}:R>"
-            )
+            thunderstorm_msg = f"The next thunderstorm will be <t:{next_thunderstorm}:R>"
         else:
-            thunderstorm_duration = (
-                time_now + (3850 * 4 + 1000 * 4) - thunderstorm
-            )
-            thunderstorm_msg = (
-                f"The thunderstorm will end <t:{thunderstorm_duration}:R>"
-            )
-        await interaction.response.send_message(
-            f"{rain_msg}\n{thunderstorm_msg}"
-        )
+            thunderstorm_duration = time_now + (3850 * 4 + 1000 * 4) - thunderstorm
+            thunderstorm_msg = f"The thunderstorm will end <t:{thunderstorm_duration}:R>"
+        await interaction.response.send_message(f"{rain_msg}\n{thunderstorm_msg}")
 
     # Make a command to check if the user is in the guild in-game
-    @app_commands.command(
-        name="guild", description="Give a role if in the guild in-game"
-    )
+    @app_commands.command(name="guild", description="Give a role if in the guild in-game")
     @app_commands.rename(pseudo="pseudo_mc")
-    async def in_guild(
-        self, interaction: discord.Interaction[ChouetteBot], pseudo: str
-    ):
-        if interaction.user.get_role(
-            int(interaction.client.config["HYPIXEL_GUILD_ROLE"])
-        ):
+    async def in_guild(self, interaction: discord.Interaction[ChouetteBot], pseudo: str):
+        if interaction.user.get_role(int(interaction.client.config["HYPIXEL_GUILD_ROLE"])):
             await interaction.response.send_message("Vous avez déjà le rôle !")
             return
         await interaction.response.defer(thinking=True)
@@ -128,12 +104,8 @@ class Skyblock(app_commands.Group):
             interaction.user.global_name,
         )
         if checked:
-            role = interaction.guild.get_role(
-                int(interaction.client.config["HYPIXEL_GUILD_ROLE"])
-            )
+            role = interaction.guild.get_role(int(interaction.client.config["HYPIXEL_GUILD_ROLE"]))
             await interaction.user.add_roles(role)
-            await interaction.followup.send(
-                "Vous avez été assigné le rôle de membre !"
-            )
+            await interaction.followup.send("Vous avez été assigné le rôle de membre !")
         else:
             await interaction.followup.send(checked)

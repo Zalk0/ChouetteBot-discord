@@ -25,9 +25,7 @@ async def responses(
     if message.count("$") > 1:
         if (message.count("$") % 2) == 0:
             await channel.send(file=await latex_process(message))
-            client.bot_logger.info(
-                f'{client.user} responded to {author}: "equation.png"'
-            )
+            client.bot_logger.info(f'{client.user} responded to {author}: "equation.png"')
             return "", False
         return (
             "Nombre de $ impair, "
@@ -46,9 +44,7 @@ async def responses(
             except discord.app_commands.CommandSyncFailure as e:
                 client.bot_logger.error(e)
                 return str(e), True
-        client.bot_logger.info(
-            f"{author}, who isn't authorized, tried to sync the commands"
-        )
+        client.bot_logger.info(f"{author}, who isn't authorized, tried to sync the commands")
 
     # Return empty string if no condition is checked
     return "", False

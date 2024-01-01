@@ -3,7 +3,7 @@ requires-python = ">=3.8"
 
 [tool.ruff]
 extend-exclude = ["venv38"]
-line-length = 79
+line-length = 99
 
 [tool.ruff.format]
 indent-style = "space"

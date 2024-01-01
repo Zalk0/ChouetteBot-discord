@@ -22,6 +22,4 @@ async def whisper(interaction: discord.Interaction[ChouetteBot], message: str):
     await interaction.channel.send(
         f"{interaction.client.user.name} wants to say this message: {message}"
     )
-    await interaction.response.send_message(
-        "Commande réussie", ephemeral=True, delete_after=2
-    )
+    await interaction.response.send_message("Commande réussie", ephemeral=True, delete_after=2)

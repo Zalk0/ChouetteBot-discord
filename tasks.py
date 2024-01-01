@@ -17,9 +17,7 @@ async def tasks_list(client: ChouetteBot):
         dresseurs = guild.get_role(int(client.config["POKE_ROLE"]))
         pokeball = client.get_emoji(int(client.config["POKEBALL_EMOJI"]))
         msg_poke = f"{dresseurs.mention} C'est l'heure d'attraper des pokémons {pokeball}"
-        await client.get_channel(int(client.config["POKE_CHANNEL"])).send(
-            msg_poke
-        )
+        await client.get_channel(int(client.config["POKE_CHANNEL"])).send(msg_poke)
 
     # Start loop
     poke_ping.start()
