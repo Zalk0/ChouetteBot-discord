@@ -24,7 +24,7 @@ class ChouetteBot(discord.Client):
 
         # Ignore RESUMED session messages
         logging.getLogger("discord.gateway").addFilter(
-            lambda record: "successfully RESUMED session" in record.msg
+            lambda record: "successfully RESUMED session" not in record.msg
         )
 
         # Set intents for the bot
