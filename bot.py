@@ -36,7 +36,7 @@ class ChouetteBot(discord.Client):
             "streaming": 1,
             "listening": 2,
             "watching": 3,
-            "custom": 4,  # Idk what it is
+            "custom": 4,  # IDK what it is
             "competing": 5,
         }
         activity = discord.Activity(
@@ -92,9 +92,9 @@ class ChouetteBot(discord.Client):
         if message.author.bot:
             return
 
-        # Stock the message's informations in variables
+        # Store the message's information in variables
         author = message.author
-        user_msg = str(message.content)
+        user_msg = message.content
         channel = message.channel
 
         # Do a log on the Python console
