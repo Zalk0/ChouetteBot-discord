@@ -1,0 +1,8 @@
+version: "3.8"
+
+services:
+  bot:
+    image: chouettebot                                  # Name of the image you built
+    container_name: "chouette-bot"                      # Name of the container you want to display
+    volumes:
+      - /path/to/env/.env:/usr/src/chouettebot/.env     # Path to .env file
