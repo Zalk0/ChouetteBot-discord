@@ -26,4 +26,4 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: gylfirst/chouettebot:latest,gylfirst/chouettebot:${{ github.run_number }}
+          tags: gylfirst/chouettebot:latest,gylfirst/chouettebot:v0.0.${{ github.run_number }}
