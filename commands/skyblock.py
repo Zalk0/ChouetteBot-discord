@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
@@ -27,38 +26,27 @@ class Skyblock(app_commands.Group):
     )
     async def mods(self, interaction: discord.Interaction[ChouetteBot]):
         await interaction.response.defer(thinking=True)
-        api_github = "https://api.github.com/repos/"
+        api_github = "https://api.github.com/repos"
+        api_modrinth = "https://api.modrinth.com/v2"
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"{api_github}Dungeons-Guide/Skyblock-Dungeons-Guide/releases/latest"
+                f"{api_github}/Dungeons-Guide/Skyblock-Dungeons-Guide/releases/latest"
             ) as response:
                 dungeonsguide = await response.json()
-            async with session.get(
-                f"{api_github}NotEnoughUpdates/NotEnoughUpdates/releases"
-            ) as response:
-                notenoughupdates = await response.json()
-            async with session.get(
-                f"{api_github}Fix3dll/SkyblockAddons/contents/gradle.properties",
-                headers={"Accept": "application/vnd.github.raw"},
-            ) as response:
-                content = await response.text()
-                sba_version = re.search(r"^version\s?=\s?(.*)$", content, re.MULTILINE)
-            async with session.get(f"{api_github}Fix3dll/SkyblockAddons/actions/runs") as response:
-                content = await response.json()
-                for run in content["workflow_runs"]:
-                    if run["head_branch"] == "main" and run["conclusion"] == "success":
-                        skyblockaddons = f"{sba_version.group(1)}+{run['run_number']}"
-                        break
-            async with session.get(f"{api_github}Skytils/SkytilsMod/releases/latest") as response:
+            async with session.get(f"{api_modrinth}/project/GGamhqbw/version") as response:
+                notenoughupdates = (await response.json())[0]
+            async with session.get(f"{api_modrinth}/project/F35D4vTL/version") as response:
+                skyblockaddons = (await response.json())[0]
+            async with session.get(f"{api_github}/Skytils/SkytilsMod/releases/latest") as response:
                 skytils = await response.json()
         await interaction.followup.send(
-            f"The latest releases are:\n"
-            f"- Dungeons-Guide: `{dungeonsguide['tag_name']}` "
+            "The latest releases are:\n"
+            f"- Dungeons-Guide: `{dungeonsguide['tag_name'].replace('v', '')}` "
             f"[link]({dungeonsguide['assets'][0]['browser_download_url']})\n"
-            f"- NotEnoughUpdates: `{notenoughupdates[0]['tag_name'].replace('v', '')}` "
-            f"[link]({notenoughupdates[0]['assets'][0]['browser_download_url']})\n"
-            f"- SkyblockAddons (forked by Fix3dll): `{skyblockaddons}` "
-            f"[link](https://nightly.link/Fix3dll/SkyblockAddons/workflows/build/main/build_artifacts.zip)\n"
+            f"- NotEnoughUpdates: `{notenoughupdates['version_number']}` "
+            f"[link]({notenoughupdates['files'][0]['url']})\n"
+            f"- SkyblockAddons (forked by Fix3dll): `{skyblockaddons['name'].split('-')[1]}` "
+            f"[link]({skyblockaddons['files'][0]['url']})\n"
             f"- Skytils: `{skytils['tag_name'].replace('v', '')}` "
             f"[link]({skytils['assets'][0]['browser_download_url']})"
         )
