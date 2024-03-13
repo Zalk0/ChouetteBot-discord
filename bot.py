@@ -112,7 +112,7 @@ class ChouetteBot(discord.Client):
 
     async def is_team_member_or_owner(self, author: discord.User) -> bool:
         if self.application.team:
-            return author.id in self.application.team.members
+            return author.id in [member.id for member in self.application.team.members]
         else:
             return author.id == self.application.owner.id
 
