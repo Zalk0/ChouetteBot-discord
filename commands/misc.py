@@ -61,6 +61,7 @@ async def pin(interaction: discord.Interaction[ChouetteBot], message: discord.Me
 
 # Make a context menu command to delete messages
 @app_commands.guild_only
+@app_commands.default_permissions(manage_messages=True)
 @app_commands.checks.bot_has_permissions(
     manage_messages=True, read_message_history=True, read_messages=True
 )
