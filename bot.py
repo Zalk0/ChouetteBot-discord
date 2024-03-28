@@ -29,6 +29,9 @@ class ChouetteBot(discord.Client):
 
         # Set intents for the bot
         intents = discord.Intents.all()
+        intents.presences = False
+        intents.typing = False
+        intents.voice_states = False
 
         # Set activity of the bot
         activity_type = {
@@ -54,33 +57,28 @@ class ChouetteBot(discord.Client):
         # Declare command tree
         self.tree = discord.app_commands.CommandTree(self)
 
-        # Used to check the first time the bot does the on_ready event
-        self.first = True
+        # First declaration to be able to add commands to the guild
+        self.hypixel_guild = discord.Object(int(self.config["HYPIXEL_GUILD_ID"]))
+
+    async def setup_hook(self):
+        # Call commands and import tasks
+        await commands(self)
+        await tasks.tasks_list(self)
+
+        # Start web server
+        await self.start_server()
 
     # Wait until bot is ready
     async def on_ready(self):
         # Waits until internal cache is ready
         await self.wait_until_ready()
 
-        # Executed once when bot is ready
-        if self.first:
-            # Hypixel guild
-            hypixel_guild = self.get_guild(int(self.config["HYPIXEL_GUILD_ID"]))
+        # Hypixel guild with all information
+        self.hypixel_guild = self.get_guild(int(self.config["HYPIXEL_GUILD_ID"]))
 
-            # Call commands and import tasks
-            await commands(self.tree, hypixel_guild)
-            await tasks.tasks_list(self)
-
-            # Start web server
-            await self.start_server()
-
-            self.first = False
-
-        # Check the number of servers the bot is a part of
-        self.bot_logger.info(f"Number of servers I'm in : {len(self.guilds)}")
-
-        # Log in the console that the bot is ready
+        # Log that the bot is ready and the number of guilds the bot is in
         self.bot_logger.info(f"{self.user} is now online and ready!")
+        self.bot_logger.info(f"Number of servers I'm in : {len(self.guilds)}")
 
     # To react to messages sent in channels bot has access to
     async def on_message(self, message: discord.Message):
