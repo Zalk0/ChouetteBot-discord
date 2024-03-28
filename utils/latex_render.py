@@ -8,8 +8,9 @@ import discord
 # Then send the image as a file
 async def latex_render(equation: str) -> discord.File:
     options = r"\dpi{200} \bg_black \color[RGB]{240, 240, 240} \pagecolor[RGB]{49, 51, 56}"
-    # bg_black is for putting a black background (custom command of the site) instead of a transparent one
-    # only then a custom background color can be used with pagecolor. color is for the text color
+    # bg_black is for putting a black background (custom command of the site)
+    # instead of the transparent one. Then a custom background color can be used with pagecolor.
+    # color is for the text color
     url = f"https://latex.codecogs.com/png.latex?{options} {equation}".replace(" ", "%20")
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
@@ -29,7 +30,8 @@ async def latex_process(message: str):
             else:  # It's text
                 if parts[i].count("\n") > 0:
                     linebreak = r"} \\ \textrm{".join(parts[i].split("\n"))
-                    # Not using splitlines method because I need to keep linebreaks at the end of the text
+                    # Not using splitlines method
+                    # Because I need to keep linebreaks at the end of the text
                     equation += rf" \textrm{{{linebreak}}}"
                 else:
                     equation += rf" \textrm{{{parts[i]}}}"

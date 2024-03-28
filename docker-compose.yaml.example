@@ -2,6 +2,7 @@ version: "3.8"
 
 services:
   bot:
+    build: .
     image: chouettebot                                  # Name of the image you built
     container_name: "chouette-bot"                      # Name of the container you want to display
     volumes:

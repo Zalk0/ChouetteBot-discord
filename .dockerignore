@@ -1,6 +1,5 @@
-.github
-.env
-.env.example
-.gitignore
-LICENSE
-README.md
+*
+!commands/
+!utils/
+!*.py
+!requirements.txt

@@ -26,16 +26,16 @@ SPACES = " " * 38
 
 
 # List of commands to add to the command tree
-async def commands(tree: discord.app_commands.CommandTree, hypixel_guild: discord.Guild):
+async def commands(client: ChouetteBot):
     # Add the commands to the Tree
     for command in COMMANDS_LIST:
-        tree.add_command(command)
+        client.tree.add_command(command)
 
     # Add the Skyblock command group to my Hypixel guild
-    tree.add_command(Skyblock(), guild=hypixel_guild)
+    client.tree.add_command(Skyblock(), guild=client.hypixel_guild)
 
     # Create a global commands error handler
-    @tree.error
+    @client.tree.error
     async def on_command_error(
         interaction: discord.Interaction[ChouetteBot],
         error: discord.app_commands.AppCommandError,
