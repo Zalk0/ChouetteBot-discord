@@ -38,6 +38,6 @@ python main.py
 ### Docker
 [![Docker Image](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yml)
 
-You can use the docker image to deploy the bot. It currently supports adm64 and armv6 architectures. We provide deployement informations on the docker hub repository.
+You can use the docker image to deploy the bot. It's currently supporting amd64 and armv6 architectures. We provide deployement informations on the docker hub repository.
 
 [Docker Hub](https://hub.docker.com/r/gylfirst/chouettebot)
