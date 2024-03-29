@@ -33,3 +33,10 @@ After having done all this you can launch the bot :
 ```
 python main.py
 ```
+
+---
+### Docker
+
+You can use the docker image to deploy the bot. It currently supports all architectures that alpine-python used supports. We provide deployement informations on the docker hub repository.
+
+[Docker Hub](https://hub.docker.com/r/gylfirst/chouettebot)
