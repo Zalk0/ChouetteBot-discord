@@ -1,6 +1,6 @@
 # ChouetteBot-discord
 
-[![Ruff](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml/badge.svg)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml)
+[![Ruff](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml/badge.svg?branch=main)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml)
 
 Just some random project of doing a Discord bot
 using [discord.py](https://github.com/Rapptz/discord.py).  
@@ -36,7 +36,8 @@ python main.py
 
 ---
 ### Docker
+[![Docker Image](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yml)
 
-You can use the docker image to deploy the bot. It currently supports all architectures that alpine-python used supports. We provide deployement informations on the docker hub repository.
+You can use a Docker image to deploy the bot. It's currently supporting amd64, armv6 and armv7 architectures. We provide deployment information on the Docker Hub repository.
 
 [Docker Hub](https://hub.docker.com/r/gylfirst/chouettebot)
