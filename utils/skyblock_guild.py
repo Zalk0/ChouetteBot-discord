@@ -1,8 +1,8 @@
 import aiohttp
-from dotenv import dotenv_values
+from os import getenv
 
 api_hypixel = "https://api.hypixel.net/"
-token_hypixel = dotenv_values()["HYPIXEL_KEY"]
+token_hypixel = getenv("HYPIXEL_KEY")
 
 
 async def fetch(session, url, params=None):
