@@ -75,4 +75,4 @@ async def delete(interaction: discord.Interaction[ChouetteBot], message: discord
         return (message.id >> 22) <= (msg.id >> 22) <= (last_id >> 22)
 
     del_msg = await message.channel.purge(bulk=True, reason="Admin used bulk delete", check=is_msg)
-    await interaction.followup.send(f"{len(del_msg)} messages supprimés !", ephemeral=True, delete_after=5)
+    await interaction.followup.send(f"{len(del_msg)} messages supprimés !", delete_after=5)
