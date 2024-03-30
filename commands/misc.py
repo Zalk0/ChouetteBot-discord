@@ -78,6 +78,7 @@ async def delete(interaction: discord.Interaction[ChouetteBot], message: discord
     del_msg = await message.channel.purge(bulk=True, reason="Admin used bulk delete", check=is_msg)
     await interaction.followup.send(f"{len(del_msg)} messages supprimés !", delete_after=5)
 
+
 # Make a bot informations command
 @app_commands.command(name="info", description="Display bot infos")
 async def info(interaction: discord.Interaction[ChouetteBot]):
