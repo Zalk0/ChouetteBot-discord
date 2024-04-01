@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING
 import discord
 from discord import app_commands
 
-from utils.latex_render import latex_render
 from utils.github_api import get_last_update
+from utils.latex_render import latex_render
 
 if TYPE_CHECKING:
     from bot import ChouetteBot
