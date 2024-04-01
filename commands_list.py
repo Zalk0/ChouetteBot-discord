@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-from typing import Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import discord
 
 from commands.admin import whisper
-from commands.misc import latex, die_roll, ping, cheh, pin, delete, info
+from commands.misc import cheh, delete, die_roll, info, latex, pin, ping
 from commands.skyblock import Skyblock
 
 if TYPE_CHECKING:
     from bot import ChouetteBot
 
 # List the commands
-COMMANDS_LIST: Tuple = (
+COMMANDS_LIST: tuple = (
     latex,
     die_roll,
     ping,
