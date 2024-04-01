@@ -1,21 +1,21 @@
-version: "3.8"                                          # Version of docker-compose
+version: "3.8"                                              # Version of docker-compose
 
 services:
-  bot:
-    # If you want to build yourself
-    build: .
-    image: chouettebot                                  # Name of the image you built
+    bot:
+        # If you want to build yourself
+        build: .
+        image: chouettebot                                  # Name of the image you built
 
-    # If you want to get the image from docker hub
-    image: gylfirst/chouettebot:tag                     # Change tag to get a specitic version
+        # If you want to get the image from docker hub
+        image: gylfirst/chouettebot:tag                     # Change tag to get a specitic version
 
-    container_name: "chouette-bot"                      # Name of the container you want to display
-    env_file: /path/to/.env                             # Path to your .env file
+        container_name: "chouette-bot"                      # Name of the container you want to display
+        env_file: /path/to/.env                             # Path to your .env file
 
-    ports:                                              # Expose port for web service
-      - "8080:8080"                                     # Exposed port:Inner port
-    volumes:
-      - /path/to/logs:/usr/src/chouettebot/logs         # Path to logs
+        ports:                                              # Expose port for web service
+            -   "8080:8080"                                 # Exposed port:Inner port
+        volumes:
+            -   /path/to/logs:/usr/src/chouettebot/logs     # Path to logs
 
-    restart: unless-stopped                             # Restart policy (here it will always restart unless you stopped it)
-    pull_policy: always                                 # Pull the image before the application start
+        restart: unless-stopped                             # Restart policy (here it will always restart unless you stopped it)
+        pull_policy: always                                 # Pull the image before the application start
