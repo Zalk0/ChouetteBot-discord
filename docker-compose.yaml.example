@@ -7,7 +7,7 @@ services:
         image: chouettebot                                  # Name of the image you built
 
         # If you want to get the image from docker hub
-        image: gylfirst/chouettebot:tag                     # Change tag to get a specitic version
+        image: gylfirst/chouettebot:tag                     # Change tag to get a specific version
 
         container_name: "chouette-bot"                      # Name of the container you want to display
         env_file: /path/to/.env                             # Path to your .env file
