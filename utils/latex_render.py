@@ -12,9 +12,8 @@ async def latex_render(equation: str) -> discord.File:
     # instead of the transparent one. Then a custom background color can be used with pagecolor.
     # color is for the text color
     url = f"https://latex.codecogs.com/png.latex?{options} {equation}".replace(" ", "%20")
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            response_content = await response.read()
+    async with aiohttp.ClientSession() as session, session.get(url) as response:
+        response_content = await response.read()
     return discord.File(BytesIO(response_content), filename="equation.png")
 
 
@@ -41,7 +40,7 @@ async def latex_process(message: str):
 # LaTeX replace accents and special characters to commands
 # TODO: Add all the symbols that may appear
 async def latex_replace(message: str) -> str:
-    message = (
+    return (
         message.replace(r"ù", r"\`u")
         .replace(r"é", r"\'e")
         .replace(r"è", r"\`e")
@@ -60,4 +59,3 @@ async def latex_replace(message: str) -> str:
         .replace(r"ç", r"\c c")
         .replace(r"Ç", r"\c C")
     )
-    return message

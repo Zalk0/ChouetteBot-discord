@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 import discord
 from discord import app_commands
 
+from utils.github_api import get_last_update
 from utils.latex_render import latex_render
 
 if TYPE_CHECKING:
@@ -75,4 +76,20 @@ async def delete(interaction: discord.Interaction[ChouetteBot], message: discord
         return (message.id >> 22) <= (msg.id >> 22) <= (last_id >> 22)
 
     del_msg = await message.channel.purge(bulk=True, reason="Admin used bulk delete", check=is_msg)
-    await interaction.followup.send(f"{len(del_msg)} messages supprimés !", delete_after=5)
+    await interaction.followup.send(f"{len(del_msg)} messages supprimés !")
+
+
+# Make a bot information command
+@app_commands.command(name="info", description="Display bot infos")
+async def info(interaction: discord.Interaction[ChouetteBot]):
+    creators = "Zalko & Gylfirst"
+    last_update = await get_last_update()
+    github_link = "https://github.com/Zalk0/ChouetteBot-discord"
+    dockerhub_link = "https://hub.docker.com/r/gylfirst/chouettebot"
+    await interaction.response.send_message(
+        f"Discord Bot created by: {creators}\n\n"
+        f"Project developed in our free time. You can ask for features on GitHub.\n"
+        f"[Source code](<{github_link}>)\n"
+        f"[Docker image](<{dockerhub_link}>)\n\n"
+        f"Last update: {last_update}"
+    )

@@ -101,7 +101,7 @@ class ChouetteBot(discord.Client):
 
         # Call responses with message of the user and responds if necessary
         response = await responses(self, channel, user_msg, author)
-        if not response[0] == "":
+        if response[0] != "":
             if response[1]:
                 await channel.send(response[0], reference=message)
             else:
@@ -111,8 +111,7 @@ class ChouetteBot(discord.Client):
     async def is_team_member_or_owner(self, author: discord.User) -> bool:
         if self.application.team:
             return author.id in [member.id for member in self.application.team.members]
-        else:
-            return author.id == self.application.owner.id
+        return author.id == self.application.owner.id
 
     # Add a basic HTTP server to check if the bot is up
     async def start_server(self):
