@@ -8,12 +8,8 @@ extend-exclude = ["venv38"]
 line-length = 99
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "RET", "SIM", "PT", "RUF", "T20", "ERA", "ASYNC"]
+select = ["E", "F", "I", "UP", "B", "RET", "SIM", "RUF", "T20", "ERA", "ASYNC"]
 ignore = ["E501"]
-
-[tool.ruff.lint.flake8-pytest-style]
-fixture-parentheses = false
-mark-parentheses = false
 
 [tool.ruff.format]
 indent-style = "space"
