@@ -12,6 +12,7 @@ from utils.birthdays import load_birthdays, save_birthdays
 if TYPE_CHECKING:
     from bot import ChouetteBot
 
+
 # Define command group based on the Group class
 class Birthday(app_commands.Group):
     # Set command group name and description
@@ -23,7 +24,13 @@ class Birthday(app_commands.Group):
         name="add",
         description="Permit the user to register his birthday",
     )
-    async def add(self, interaction: discord.Interaction[ChouetteBot], day: int, month: int, year: Optional[int]):
+    async def add(
+        self,
+        interaction: discord.Interaction[ChouetteBot],
+        day: int,
+        month: int,
+        year: Optional[int],
+    ):
         if not year:
             year = 1
         try:
@@ -37,7 +44,7 @@ class Birthday(app_commands.Group):
             user_info = table()
             user_info["name"] = user_name
             user_info["birthday"] = birth_date
-            birthdays.update({user_id:user_info})
+            birthdays.update({user_id: user_info})
             save_birthdays(birthdays)
             await interaction.response.send_message("Anniversaire enregistré !", ephemeral=True)
         else:
@@ -48,19 +55,24 @@ class Birthday(app_commands.Group):
                 ephemeral=True,
             )
 
-
     # Commande pour modifier un anniversaire
     @app_commands.command(
         name="modify",
         description="Permit the user to modify his birthday",
     )
-    async def modify(self, interaction: discord.Interaction[ChouetteBot], day: int, month: int, year: Optional[int]):
+    async def modify(
+        self,
+        interaction: discord.Interaction[ChouetteBot],
+        day: int,
+        month: int,
+        year: Optional[int],
+    ):
         if not year:
             year = 1
         try:
             birth_date = date(year, month, day)
         except ValueError:
-            pass 
+            pass
         user_name = str(interaction.user.name)
         user_id = str(interaction.user.id)
         birthdays = load_birthdays()
@@ -68,7 +80,7 @@ class Birthday(app_commands.Group):
             user_info = table()
             user_info["name"] = user_name
             user_info["birthday"] = birth_date
-            birthdays.update({user_id:user_info})
+            birthdays.update({user_id: user_info})
             save_birthdays(birthdays)
             await interaction.response.send_message("Anniversaire modifié !", ephemeral=True)
         else:
@@ -92,4 +104,6 @@ async def remove_birthday(interaction: discord.Interaction[ChouetteBot]):
         save_birthdays(birthdays)
         await interaction.response.send_message("Anniversaire supprimé !")
     else:
-        await interaction.response.send_message("Vous n'avez pas d'anniversaire enregistré.", ephemeral=True)
+        await interaction.response.send_message(
+            "Vous n'avez pas d'anniversaire enregistré.", ephemeral=True
+        )
