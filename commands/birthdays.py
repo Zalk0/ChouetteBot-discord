@@ -40,4 +40,6 @@ async def remove_birthday(interaction: discord.Interaction[ChouetteBot]):
         save_birthdays(birthdays)
         await interaction.response.send_message("Anniversaire supprimé !")
     else:
-        await interaction.response.send_message("Vous n'avez pas d'anniversaire enregistré.", ephemeral=True)
+        await interaction.response.send_message(
+            "Vous n'avez pas d'anniversaire enregistré.", ephemeral=True
+        )
