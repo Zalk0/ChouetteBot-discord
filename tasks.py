@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from datetime import date, time
 from typing import TYPE_CHECKING
+from zoneinfo import ZoneInfo
 
 from discord.ext import tasks
-from zoneinfo import ZoneInfo
 
 from utils import birthdays
 
@@ -30,7 +30,11 @@ async def tasks_list(client: ChouetteBot):
         for user_id, birthday in birthdays.load_birthdays():
             if birthday == date.today():
                 user = client.get_user(user_id)
-                msg_birthday = f"\N{PARTY POPPER} {user.mention} is a year older now! Wish them a happy birthday! \N{PARTY POPPER}"
+                # TODO: add age if user has given year of birth
+                msg_birthday = (
+                    f"\N{PARTY POPPER} {user.mention} is a year older now!"
+                    "Wish them a happy birthday! \N{PARTY POPPER}"
+                )
                 await client.get_channel(int(client.config["BIRTHDAY_CHANNEL"])).send(msg_birthday)
 
     # Start loop

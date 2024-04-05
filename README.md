@@ -5,7 +5,7 @@
 
 Just some random project of doing a Discord bot using
 [discord.py](https://github.com/Rapptz/discord.py).  
-You need to have Python 3.8 or higher installed (required by discord.py)!
+You need to have Python 3.9 or higher installed!
 
 Clone the projet and install the requirements (preferably in a
 [venv](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments)):
