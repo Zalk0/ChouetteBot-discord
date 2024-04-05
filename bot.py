@@ -60,6 +60,9 @@ class ChouetteBot(discord.Client):
         # First declaration to be able to add commands to the guild
         self.hypixel_guild = discord.Object(int(self.config["HYPIXEL_GUILD_ID"]))
 
+        # First declaration to be able to add commands to the guild
+        self.my_guild = discord.Object(int(self.config["GUILD_ID"]))
+
     async def setup_hook(self):
         # Call commands and import tasks
         await commands(self)
@@ -75,6 +78,9 @@ class ChouetteBot(discord.Client):
 
         # Hypixel guild with all information
         self.hypixel_guild = self.get_guild(int(self.config["HYPIXEL_GUILD_ID"]))
+
+        # My guild with all information
+        self.my_guild = self.get_guild(int(self.config["GUILD_ID"]))
 
         # Log that the bot is ready and the number of guilds the bot is in
         self.bot_logger.info(f"{self.user} is now online and ready!")

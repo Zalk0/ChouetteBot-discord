@@ -1,30 +1,82 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING
+from datetime import date
+from typing import TYPE_CHECKING, Optional
 
 import discord
 from discord import app_commands
+from tomlkit import table
 
 from utils.birthdays import load_birthdays, save_birthdays
 
 if TYPE_CHECKING:
     from bot import ChouetteBot
 
+# Define command group based on the Group class
+class Birthday(app_commands.Group):
+    # Set command group name and description
+    def __init__(self):
+        super().__init__(name="birthday", description="Birthday management related commands")
 
-# Commande pour ajouter un anniversaire
-@app_commands.command(
-    name="add_birthday",
-    description="Permit the user to register his birthday",
-)
-async def add_birthday(interaction: discord.Interaction[ChouetteBot]):
-    date = datetime.now(tz=timezone.utc)
-    user_id = str(interaction.user.id)
-    birthdays = load_birthdays()
-    birthdays.table[user_id]
-    birthdays[user_id][interaction.user.name] = date
-    save_birthdays(birthdays)
-    await interaction.response.send_message("Anniversaire enregistré !", ephemeral=True)
+    # Commande pour ajouter un anniversaire
+    @app_commands.command(
+        name="add",
+        description="Permit the user to register his birthday",
+    )
+    async def add(self, interaction: discord.Interaction[ChouetteBot], day: int, month: int, year: Optional[int]):
+        if not year:
+            year = 1
+        try:
+            birth_date = date(year, month, day)
+        except ValueError:
+            pass
+        user_name = str(interaction.user.name)
+        user_id = str(interaction.user.id)
+        birthdays = load_birthdays()
+        if user_id not in birthdays:
+            user_info = table()
+            user_info["name"] = user_name
+            user_info["birthday"] = birth_date
+            birthdays.update({user_id:user_info})
+            save_birthdays(birthdays)
+            await interaction.response.send_message("Anniversaire enregistré !", ephemeral=True)
+        else:
+            await interaction.response.send_message(
+                "Vous avez déjà un anniversaire enregistré.\n"
+                "Vous pouvez le supprimer avec la commande `/birthday remove`\n"
+                "Vous pouvez aussi le modifier avec la commande `/birthday modify`",
+                ephemeral=True,
+            )
+
+
+    # Commande pour modifier un anniversaire
+    @app_commands.command(
+        name="modify",
+        description="Permit the user to modify his birthday",
+    )
+    async def modify(self, interaction: discord.Interaction[ChouetteBot], day: int, month: int, year: Optional[int]):
+        if not year:
+            year = 1
+        try:
+            birth_date = date(year, month, day)
+        except ValueError:
+            pass 
+        user_name = str(interaction.user.name)
+        user_id = str(interaction.user.id)
+        birthdays = load_birthdays()
+        if user_id in birthdays:
+            user_info = table()
+            user_info["name"] = user_name
+            user_info["birthday"] = birth_date
+            birthdays.update({user_id:user_info})
+            save_birthdays(birthdays)
+            await interaction.response.send_message("Anniversaire modifié !", ephemeral=True)
+        else:
+            await interaction.response.send_message(
+                "Vous n'avez pas d'anniversaire enregistré.\n"
+                "Vous pouvez l'ajouter avec la commande `/birthday add`",
+                ephemeral=True,
+            )
 
 
 # Commande pour supprimer un anniversaire
@@ -40,6 +92,4 @@ async def remove_birthday(interaction: discord.Interaction[ChouetteBot]):
         save_birthdays(birthdays)
         await interaction.response.send_message("Anniversaire supprimé !")
     else:
-        await interaction.response.send_message(
-            "Vous n'avez pas d'anniversaire enregistré.", ephemeral=True
-        )
+        await interaction.response.send_message("Vous n'avez pas d'anniversaire enregistré.", ephemeral=True)

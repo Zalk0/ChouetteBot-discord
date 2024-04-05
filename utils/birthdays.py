@@ -1,6 +1,9 @@
+from pathlib import Path
+
 import tomlkit
 
-birthday_file_path = "data/birthdays.toml"
+Path("data").mkdir(exist_ok=True)
+birthday_file_path = Path("data", "birthdays.toml")
 
 
 # Charge les anniversaires depuis un fichier TOML

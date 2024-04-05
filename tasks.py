@@ -22,6 +22,7 @@ async def tasks_list(client: ChouetteBot):
     # Loop to check if it's 8:00 and send a message if it's someone's birthday
     @tasks.loop(hours=24)
     async def check_birthdays():
+<<<<<<< HEAD
         now = time.now()
         if now.hour == 8 and now.minute == 0:
             today = now.strftime("%d/%m")
@@ -32,6 +33,11 @@ async def tasks_list(client: ChouetteBot):
                     await client.get_channel(int(client.config["BIRTHDAY_CHANNEL"])).send(
                         msg_birthday
                     )
+=======
+        user = "todo"
+        msg_birthday = f"\N{PARTY POPPER} {user.mention} is a year older now! Wish them a happy birthday! \N{PARTY POPPER}"
+        await client.get_channel(int(client.config["BIRTHDAY_CHANNEL"])).send(msg_birthday)
+>>>>>>> 3435db9 (fix birthday commands)
 
     # Start loop
     poke_ping.start()
