@@ -1,6 +1,7 @@
 # ChouetteBot-discord
 
-[![Ruff](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml/badge.svg?branch=main)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml)
+[![Ruff status](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml/badge.svg?branch=main)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Zalk0/ChouetteBot-discord/main.svg)](https://results.pre-commit.ci/latest/github/Zalk0/ChouetteBot-discord/main)
 
 Just some random project of doing a Discord bot using
 [discord.py](https://github.com/Rapptz/discord.py).  
