@@ -1,12 +1,17 @@
 from __future__ import annotations
 
-from datetime import time
+from datetime import date, time
 from typing import TYPE_CHECKING
 
 from discord.ext import tasks
+from zoneinfo import ZoneInfo
+
+from utils import birthdays
 
 if TYPE_CHECKING:
     from bot import ChouetteBot
+
+TIMEZONE = ZoneInfo("localtime")
 
 
 async def tasks_list(client: ChouetteBot):
@@ -20,24 +25,13 @@ async def tasks_list(client: ChouetteBot):
         await client.get_channel(int(client.config["POKE_CHANNEL"])).send(msg_poke)
 
     # Loop to check if it's 8:00 and send a message if it's someone's birthday
-    @tasks.loop(hours=24)
+    @tasks.loop(time=time(8, tzinfo=TIMEZONE))
     async def check_birthdays():
-<<<<<<< HEAD
-        now = time.now()
-        if now.hour == 8 and now.minute == 0:
-            today = now.strftime("%d/%m")
-            for user_id, birthday in birthdays.items():
-                if birthday == today:
-                    user = await bot.fetch_user(int(user_id))
-                    msg_birthday = f":tada: {user.mention} is a year older now! Wish them a happy birthday! :tada:"
-                    await client.get_channel(int(client.config["BIRTHDAY_CHANNEL"])).send(
-                        msg_birthday
-                    )
-=======
-        user = "todo"
-        msg_birthday = f"\N{PARTY POPPER} {user.mention} is a year older now! Wish them a happy birthday! \N{PARTY POPPER}"
-        await client.get_channel(int(client.config["BIRTHDAY_CHANNEL"])).send(msg_birthday)
->>>>>>> 3435db9 (fix birthday commands)
+        for user_id, birthday in birthdays.load_birthdays():
+            if birthday == date.today():
+                user = client.get_user(user_id)
+                msg_birthday = f"\N{PARTY POPPER} {user.mention} is a year older now! Wish them a happy birthday! \N{PARTY POPPER}"
+                await client.get_channel(int(client.config["BIRTHDAY_CHANNEL"])).send(msg_birthday)
 
     # Start loop
     poke_ping.start()
