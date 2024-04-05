@@ -16,6 +16,7 @@ services:
             -   "8080:8080"                                 # Exposed port:Inner port
         volumes:
             -   /path/to/logs:/usr/src/chouettebot/logs     # Path to logs
+            -   /path/to/data:/usr/src/chouettebot/data     # Path to data storage
 
         restart: unless-stopped                             # Restart policy (here it will always restart unless you stopped it)
         pull_policy: always                                 # Pull the image before the application start

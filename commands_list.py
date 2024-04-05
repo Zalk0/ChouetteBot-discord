@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 import discord
 
 from commands.admin import whisper
+from commands.birthdays import add_birthday, remove_birthday
 from commands.misc import cheh, delete, die_roll, info, latex, pin, ping
 from commands.skyblock import Skyblock
 
@@ -13,14 +14,16 @@ if TYPE_CHECKING:
 
 # List the commands
 COMMANDS_LIST: tuple = (
-    latex,
-    die_roll,
-    ping,
+    add_birthday,
     cheh,
-    pin,
     delete,
-    whisper,
+    die_roll,
     info,
+    latex,
+    pin,
+    ping,
+    remove_birthday,
+    whisper,
 )
 
 SPACES = " " * 38
