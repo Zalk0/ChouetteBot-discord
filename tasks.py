@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 
 from discord.ext import tasks
 
-from utils.birthdays import load_birthdays
+from utils.birthdays import calculate_age, load_birthdays
 
 if TYPE_CHECKING:
     from bot import ChouetteBot
@@ -27,16 +27,24 @@ async def tasks_list(client: ChouetteBot):
     # Loop to check if it's 8:00 and send a message if it's someone's birthday
     @tasks.loop(time=time(8, tzinfo=TIMEZONE))
     async def check_birthdays():
+        guild = client.get_guild(int(client.config["GUILD_ID"]))
         birthdays = load_birthdays()
         for user_id in birthdays:
-            birthday = birthdays.get(user_id).get("birthday")
+            birthday: date = birthdays.get(user_id).get("birthday")
             if birthday == date.today().replace(birthday.year):
-                user = client.get_user(int(user_id))
-                # TODO: add age if user has given year of birth
-                msg_birthday = (
-                    f"\N{PARTY POPPER} {user.mention} is a year older now!\n"
-                    "Wish them a happy birthday! \N{PARTY POPPER}"
-                )
+                user = guild.get_member(int(user_id))
+                age = calculate_age(birthday.year)
+                if age:
+                    msg_birthday = (
+                        f"\N{PARTY POPPER} {user.mention} is a year older now!\n"
+                        f"{user.display_name} is now {age}\n"
+                        "Wish them a happy birthday! \N{PARTY POPPER}"
+                    )
+                else:
+                    msg_birthday = (
+                        f"\N{PARTY POPPER} {user.mention} is a year older now!\n"
+                        "Wish them a happy birthday! \N{PARTY POPPER}"
+                    )
                 await client.get_channel(int(client.config["BIRTHDAY_CHANNEL"])).send(msg_birthday)
 
     # Start loop

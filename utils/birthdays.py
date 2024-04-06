@@ -1,3 +1,4 @@
+from datetime import date
 from pathlib import Path
 
 import tomlkit
@@ -19,3 +20,17 @@ def load_birthdays():
 def save_birthdays(birthdays):
     with open(birthday_file_path, "w") as f:
         tomlkit.dump(birthdays, f)
+
+
+# Permet de vérifier si la valeur est correcte
+async def check_year_value(year):
+    if not year:
+        return 1
+    if year not in [1900, date.today().year]:
+        raise ValueError
+    return year
+
+
+# Permet de calculer l'âge
+async def calculate_age(year: int):
+    return date.today(year) - year if year != 1 else None

@@ -7,7 +7,7 @@ import discord
 from discord import app_commands
 from tomlkit import table
 
-from utils.birthdays import load_birthdays, save_birthdays
+from utils.birthdays import check_year_value, load_birthdays, save_birthdays
 
 if TYPE_CHECKING:
     from bot import ChouetteBot
@@ -31,9 +31,8 @@ class Birthday(app_commands.Group):
         month: int,
         year: int | None,
     ):
-        if not year:
-            year = 1
         try:
+            year = check_year_value(year)
             birth_date = date(year, month, day)
         except ValueError:
             pass
@@ -67,9 +66,8 @@ class Birthday(app_commands.Group):
         month: int,
         year: int | None,
     ):
-        if not year:
-            year = 1
         try:
+            year = check_year_value(year)
             birth_date = date(year, month, day)
         except ValueError:
             pass
@@ -104,7 +102,9 @@ class Birthday(app_commands.Group):
             await interaction.response.send_message("Anniversaire supprimé !")
         else:
             await interaction.response.send_message(
-                "Vous n'avez pas d'anniversaire enregistré.", ephemeral=True
+                "Vous n'avez pas d'anniversaire enregistré."
+                "Vous pouvez l'ajouter avec la commande `/birthday add`",
+                ephemeral=True,
             )
 
     @app_commands.command(
@@ -115,9 +115,10 @@ class Birthday(app_commands.Group):
         msg = "```"
         birthdays = load_birthdays()
         for birthday in birthdays:
+            birth_date: date = birthdays.get(birthday).get("birthday")
             msg += (
                 f"{birthdays.get(birthday).get('name')}: "
-                f"{birthdays.get(birthday).get('birthday')}\n"
+                f"{birth_date.day}/{birth_date.month}\n"
             )
         msg += "```"
         await interaction.response.send_message(msg)
