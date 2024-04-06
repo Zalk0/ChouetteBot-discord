@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from datetime import date, time
 from typing import TYPE_CHECKING
 
@@ -11,13 +10,13 @@ from utils.birthdays import calculate_age, load_birthdays
 if TYPE_CHECKING:
     from bot import ChouetteBot
 
-# Local timezone for tasks at precise time
-if os.name != "nt":
-    from zoneinfo import ZoneInfo
+# Get local timezone for tasks
+try:
+    from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
     TIMEZONE = ZoneInfo("localtime")
-# If on Windows use timezone UTC as a fallback
-else:
+# Use timezone UTC as a fallback
+except ZoneInfoNotFoundError:
     from datetime import timezone
 
     TIMEZONE = timezone.utc
