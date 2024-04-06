@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import date
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import discord
 from discord import app_commands
@@ -29,7 +29,7 @@ class Birthday(app_commands.Group):
         interaction: discord.Interaction[ChouetteBot],
         day: int,
         month: int,
-        year: Optional[int],
+        year: int | None,
     ):
         if not year:
             year = 1
@@ -65,7 +65,7 @@ class Birthday(app_commands.Group):
         interaction: discord.Interaction[ChouetteBot],
         day: int,
         month: int,
-        year: Optional[int],
+        year: int | None,
     ):
         if not year:
             year = 1
