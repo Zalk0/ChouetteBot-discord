@@ -117,8 +117,7 @@ class Birthday(app_commands.Group):
         for birthday in birthdays:
             birth_date: date = birthdays.get(birthday).get("birthday")
             msg += (
-                f"{birthdays.get(birthday).get('name')}: "
-                f"{birth_date.day}/{birth_date.month}\n"
+                f"{birthdays.get(birthday).get('name')}: " f"{birth_date.day}/{birth_date.month}\n"
             )
         msg += "```"
         await interaction.response.send_message(msg)
