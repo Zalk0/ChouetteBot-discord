@@ -90,20 +90,34 @@ class Birthday(app_commands.Group):
                 ephemeral=True,
             )
 
+    # Commande pour supprimer un anniversaire
+    @app_commands.command(
+        name="remove",
+        description="Permit the user to delete his birthday",
+    )
+    async def remove(self, interaction: discord.Interaction[ChouetteBot]):
+        user_id = str(interaction.user.id)
+        birthdays = load_birthdays()
+        if user_id in birthdays:
+            del birthdays[user_id]
+            save_birthdays(birthdays)
+            await interaction.response.send_message("Anniversaire supprimé !")
+        else:
+            await interaction.response.send_message(
+                "Vous n'avez pas d'anniversaire enregistré.", ephemeral=True
+            )
 
-# Commande pour supprimer un anniversaire
-@app_commands.command(
-    name="remove_birthday",
-    description="Permit the user to delte his birthday",
-)
-async def remove_birthday(interaction: discord.Interaction[ChouetteBot]):
-    user_id = str(interaction.user.id)
-    birthdays = load_birthdays()
-    if user_id in birthdays:
-        del birthdays[user_id]
-        save_birthdays(birthdays)
-        await interaction.response.send_message("Anniversaire supprimé !")
-    else:
-        await interaction.response.send_message(
-            "Vous n'avez pas d'anniversaire enregistré.", ephemeral=True
-        )
+    @app_commands.command(
+        name="list",
+        description="List saved birthdays",
+    )
+    async def list(self, interaction: discord.Interaction[ChouetteBot]):
+        msg = "```"
+        birthdays = load_birthdays()
+        for birthday in birthdays:
+            msg += (
+                f"{birthdays.get(birthday).get('name')}: "
+                f"{birthdays.get(birthday).get('birthday')}\n"
+            )
+        msg += "```"
+        await interaction.response.send_message(msg)
