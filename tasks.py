@@ -33,11 +33,11 @@ async def tasks_list(client: ChouetteBot):
             birthday: date = birthdays.get(user_id).get("birthday")
             if birthday == date.today().replace(birthday.year):
                 user = guild.get_member(int(user_id))
-                age = calculate_age(birthday.year)
+                age = await calculate_age(birthday.year)
                 if age:
                     msg_birthday = (
                         f"\N{PARTY POPPER} {user.mention} is a year older now!\n"
-                        f"{user.display_name} is now {age}\n"
+                        f"{user.display_name} is now {age} \N{BIRTHDAY CAKE}\n"
                         "Wish them a happy birthday! \N{PARTY POPPER}"
                     )
                 else:

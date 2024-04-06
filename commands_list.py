@@ -42,9 +42,10 @@ async def commands(client: ChouetteBot):
     # Create a global commands error handler
     @client.tree.error
     async def on_command_error(
-        interaction: discord.Interaction[ChouetteBot],
-        error: discord.app_commands.AppCommandError,
+        interaction: discord.Interaction[ChouetteBot], error: discord.app_commands.AppCommandError
     ):
+        if interaction.response.is_done():
+            return
         if isinstance(error, discord.app_commands.BotMissingPermissions):
             bot_perms = ", ".join(error.missing_permissions)
             interaction.client.bot_logger.error(
