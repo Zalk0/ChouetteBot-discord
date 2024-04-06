@@ -15,7 +15,7 @@ TIMEZONE = ZoneInfo("localtime")
 
 
 async def tasks_list(client: ChouetteBot):
-    # Loop to send message every 2 hours for pokeroll
+    # Loop to send message every 2 hours for pokeroll in utc time (default)
     @tasks.loop(time=[time(t) for t in range(0, 24, 2)])
     async def poke_ping():
         guild = client.get_guild(int(client.config["GUILD_ID"]))
@@ -24,13 +24,12 @@ async def tasks_list(client: ChouetteBot):
         msg_poke = f"{dresseurs.mention} C'est l'heure d'attraper des pokémons {pokeball}"
         await client.get_channel(int(client.config["POKE_CHANNEL"])).send(msg_poke)
 
-    # Loop to check if it's 8:00 and send a message if it's someone's birthday
+    # Loop to check if it's someone's birthday every day at 8am in local time
     @tasks.loop(time=time(8, tzinfo=TIMEZONE))
     async def check_birthdays():
         guild = client.get_guild(int(client.config["GUILD_ID"]))
-        birthdays = load_birthdays()
-        for user_id in birthdays:
-            birthday: date = birthdays.get(user_id).get("birthday")
+        for user_id, info in load_birthdays().items():
+            birthday: date = info.get("birthday")
             if birthday == date.today().replace(birthday.year):
                 user = guild.get_member(int(user_id))
                 age = await calculate_age(birthday.year)

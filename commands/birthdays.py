@@ -103,7 +103,7 @@ class Birthday(app_commands.Group):
         user_id = str(interaction.user.id)
         birthdays = load_birthdays()
         if user_id in birthdays:
-            del birthdays[user_id]
+            birthdays.pop(user_id)
             save_birthdays(birthdays)
             await interaction.response.send_message("Anniversaire supprimé !")
         else:
@@ -118,13 +118,12 @@ class Birthday(app_commands.Group):
         description="List saved birthdays",
     )
     async def list(self, interaction: Interaction[ChouetteBot]):
-        msg = "```"
-        birthdays = load_birthdays()
-        for user_id in birthdays:
-            birth_date: date = birthdays.get(user_id).get("birthday")
+        msg = f"Voici les anniversaires de {interaction.guild.name}\n```"
+        for user_id, info in load_birthdays().items():
+            birthday: date = info.get("birthday")
             msg += (
                 f"{interaction.guild.get_member(int(user_id)).display_name}: "
-                f"{birth_date.day}/{birth_date.month}\n"
+                f"{birthday.day}/{birthday.month}\n"
             )
         msg += "```"
         await interaction.response.send_message(msg)
