@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from discord import Interaction, app_commands
 from tomlkit import table
 
-from utils.birthdays import check_year_value, load_birthdays, save_birthdays
+from utils.birthdays import check_date, load_birthdays, save_birthdays
 
 if TYPE_CHECKING:
     from bot import ChouetteBot
@@ -42,8 +42,7 @@ class Birthday(app_commands.Group):
         self, interaction: Interaction[ChouetteBot], day: int, month: int, year: int | None
     ):
         try:
-            year = await check_year_value(year)
-            birth_date = date(year, month, day)
+            birth_date = await check_date(day, month, year)
         except ValueError as e:
             raise InvalidBirthdayDate() from e
         user_name = str(interaction.user.name)
@@ -73,8 +72,7 @@ class Birthday(app_commands.Group):
         self, interaction: Interaction[ChouetteBot], day: int, month: int, year: int | None
     ):
         try:
-            year = await check_year_value(year)
-            birth_date = date(year, month, day)
+            birth_date = await check_date(day, month, year)
         except ValueError as e:
             raise InvalidBirthdayDate() from e
         user_name = str(interaction.user.name)
@@ -105,7 +103,7 @@ class Birthday(app_commands.Group):
         if user_id in birthdays:
             birthdays.pop(user_id)
             save_birthdays(birthdays)
-            await interaction.response.send_message("Anniversaire supprimé !")
+            await interaction.response.send_message("Anniversaire supprimé !", ephemeral=True)
         else:
             await interaction.response.send_message(
                 "Vous n'avez pas d'anniversaire enregistré."

@@ -23,12 +23,12 @@ def save_birthdays(birthdays: dict):
 
 
 # Permet de vérifier si la valeur est correcte
-async def check_year_value(year: int) -> int:
+async def check_date(day: int, month: int, year: int) -> date:
     if not year:
-        return 1
+        year = 1
     if year < 1900 or year > date.today().year:
         raise ValueError
-    return year
+    return date(year, month, day)
 
 
 # Permet de calculer l'âge
