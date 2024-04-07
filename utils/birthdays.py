@@ -37,7 +37,7 @@ def _file_write(birthdays: dict):
 # Permet de vérifier si la valeur est correcte
 async def check_date(day: int, month: int, year: int) -> date:
     if not year:
-        return date(1, month, day)
+        return date(4, month, day)
     if year < 1900 or year > date.today().year:
         raise ValueError
     return date(year, month, day)
@@ -45,4 +45,4 @@ async def check_date(day: int, month: int, year: int) -> date:
 
 # Permet de calculer l'âge
 async def calculate_age(year: int) -> int:
-    return date.today().year - year if year != 1 else None
+    return date.today().year - year if year != 4 else None
