@@ -37,7 +37,7 @@ def _file_write(birthdays: dict):
 # Permet de vérifier si la valeur est correcte
 async def check_date(day: int, month: int, year: int) -> date:
     if not year:
-        year = 1
+        return date(1, month, day)
     if year < 1900 or year > date.today().year:
         raise ValueError
     return date(year, month, day)

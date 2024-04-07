@@ -37,10 +37,14 @@ async def tasks_list(client: ChouetteBot):
     @tasks.loop(time=time(8, tzinfo=TIMEZONE))
     async def check_birthdays():
         guild = client.get_guild(int(client.config["GUILD_ID"]))
+        role = guild.get_role(int(client.config["BIRTHDAY_ROLE"]))
+        for member in role.members:
+            await member.remove_roles(role)
         for user_id, info in (await load_birthdays()).items():
             birthday: date = info.get("birthday")
             if birthday == date.today().replace(birthday.year):
                 user = guild.get_member(int(user_id))
+                await user.add_roles(role, reason="Birthday")
                 age = await calculate_age(birthday.year)
                 if age:
                     msg_birthday = (
