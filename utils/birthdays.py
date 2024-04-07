@@ -1,3 +1,4 @@
+import asyncio
 from datetime import date
 from pathlib import Path
 
@@ -5,10 +6,16 @@ import tomlkit
 
 Path("data").mkdir(exist_ok=True)
 BIRTHDAY_FILE = Path("data", "birthdays.toml")
+FILE_LOCK = asyncio.Lock()
 
 
 # Charge les anniversaires depuis un fichier TOML
-def load_birthdays() -> dict:
+async def load_birthdays() -> dict:
+    async with FILE_LOCK:
+        return await asyncio.get_event_loop().run_in_executor(None, _file_read)
+
+
+def _file_read():
     try:
         with open(BIRTHDAY_FILE) as f:
             return tomlkit.load(f)
@@ -17,7 +24,12 @@ def load_birthdays() -> dict:
 
 
 # Enregistre les anniversaires dans le fichier TOML
-def save_birthdays(birthdays: dict):
+async def save_birthdays(birthdays: dict):
+    async with FILE_LOCK:
+        await asyncio.get_event_loop().run_in_executor(None, _file_write, birthdays)
+
+
+def _file_write(birthdays: dict):
     with open(BIRTHDAY_FILE, "w") as f:
         tomlkit.dump(birthdays, f)
 

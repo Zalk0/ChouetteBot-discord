@@ -45,15 +45,14 @@ class Birthday(app_commands.Group):
             birth_date = await check_date(day, month, year)
         except ValueError as e:
             raise InvalidBirthdayDate() from e
-        user_name = str(interaction.user.name)
         user_id = str(interaction.user.id)
-        birthdays = load_birthdays()
+        birthdays = await load_birthdays()
         if user_id not in birthdays:
             user_info = table()
-            user_info["name"] = user_name
+            user_info["name"] = interaction.user.name
             user_info["birthday"] = birth_date
             birthdays.update({user_id: user_info})
-            save_birthdays(birthdays)
+            await save_birthdays(birthdays)
             await interaction.response.send_message("Anniversaire enregistré !", ephemeral=True)
         else:
             await interaction.response.send_message(
@@ -75,15 +74,14 @@ class Birthday(app_commands.Group):
             birth_date = await check_date(day, month, year)
         except ValueError as e:
             raise InvalidBirthdayDate() from e
-        user_name = str(interaction.user.name)
         user_id = str(interaction.user.id)
-        birthdays = load_birthdays()
+        birthdays = await load_birthdays()
         if user_id in birthdays:
             user_info = table()
-            user_info["name"] = user_name
+            user_info["name"] = interaction.user.name
             user_info["birthday"] = birth_date
             birthdays.update({user_id: user_info})
-            save_birthdays(birthdays)
+            await save_birthdays(birthdays)
             await interaction.response.send_message("Anniversaire modifié !", ephemeral=True)
         else:
             await interaction.response.send_message(
@@ -99,10 +97,10 @@ class Birthday(app_commands.Group):
     )
     async def remove(self, interaction: Interaction[ChouetteBot]):
         user_id = str(interaction.user.id)
-        birthdays = load_birthdays()
+        birthdays = await load_birthdays()
         if user_id in birthdays:
             birthdays.pop(user_id)
-            save_birthdays(birthdays)
+            await save_birthdays(birthdays)
             await interaction.response.send_message("Anniversaire supprimé !", ephemeral=True)
         else:
             await interaction.response.send_message(
@@ -117,7 +115,7 @@ class Birthday(app_commands.Group):
     )
     async def list(self, interaction: Interaction[ChouetteBot]):
         msg = f"Voici les anniversaires de {interaction.guild.name}\n```"
-        for user_id, info in load_birthdays().items():
+        for user_id, info in (await load_birthdays()).items():
             birthday: date = info.get("birthday")
             msg += (
                 f"{interaction.guild.get_member(int(user_id)).display_name}: "
