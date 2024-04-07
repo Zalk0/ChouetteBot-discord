@@ -48,14 +48,14 @@ async def tasks_list(client: ChouetteBot):
                 age = await calculate_age(birthday.year)
                 if age:
                     msg_birthday = (
-                        f"\N{PARTY POPPER} {user.mention} is a year older now!\n"
-                        f"{user.display_name} is now {age} \N{BIRTHDAY CAKE}\n"
-                        "Wish them a happy birthday! \N{PARTY POPPER}"
+                        f"\N{PARTY POPPER} {user.display_name} a maintenant un an de plus !\n"
+                        f"Il/Elle a maintenant {age} ans \N{BIRTHDAY CAKE}\n"
+                        "Souhaitez-lui un joyeux anniversaire ! \N{PARTY POPPER}"
                     )
                 else:
                     msg_birthday = (
-                        f"\N{PARTY POPPER} {user.mention} is a year older now!\n"
-                        "Wish them a happy birthday! \N{PARTY POPPER}"
+                        f"\N{PARTY POPPER} {user.display_name} a maintenant un an de plus !\n"
+                        "Souhaitez-lui un joyeux anniversaire ! \N{PARTY POPPER}"
                     )
                 await client.get_channel(int(client.config["BIRTHDAY_CHANNEL"])).send(msg_birthday)
 

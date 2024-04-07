@@ -120,9 +120,11 @@ class Birthday(app_commands.Group):
         )
         for user_id, info in birthdays:
             birthday: date = info.get("birthday")
-            msg += (
-                f"{interaction.guild.get_member(int(user_id)).display_name}: "
-                f"{birthday.day}/{birthday.month}\n"
-            )
+            name = interaction.guild.get_member(int(user_id)).display_name
+            if len(name) > 25:
+                name = name[:22] + "..."
+            if len(name) < 25:
+                name = name + (25 - len(name)) * " "
+            msg += f"{name} : {birthday.day}/{birthday.month}\n"
         msg += "```"
         await interaction.response.send_message(msg)
