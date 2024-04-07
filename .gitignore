@@ -17,5 +17,8 @@ __pycache__/
 # Logs folder
 logs/
 
+# Data folder
+data/
+
 # Docker compose file
 docker-compose.yaml

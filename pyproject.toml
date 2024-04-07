@@ -1,10 +1,10 @@
 [project]
 name = "ChouetteBot"
 license = "MIT"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 [tool.ruff]
-extend-exclude = ["venv38"]
+extend-exclude = ["venv39"]
 line-length = 99
 
 [tool.ruff.lint]

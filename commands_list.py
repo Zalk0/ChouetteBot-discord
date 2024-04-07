@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 import discord
 
 from commands.admin import whisper
+from commands.birthdays import Birthday
 from commands.misc import cheh, delete, die_roll, info, latex, pin, ping
 from commands.skyblock import Skyblock
 
@@ -13,14 +14,14 @@ if TYPE_CHECKING:
 
 # List the commands
 COMMANDS_LIST: tuple = (
-    latex,
-    die_roll,
-    ping,
     cheh,
-    pin,
     delete,
-    whisper,
+    die_roll,
     info,
+    latex,
+    pin,
+    ping,
+    whisper,
 )
 
 SPACES = " " * 38
@@ -35,12 +36,16 @@ async def commands(client: ChouetteBot):
     # Add the Skyblock command group to my Hypixel guild
     client.tree.add_command(Skyblock(), guild=client.hypixel_guild)
 
+    # Add the Birthday command group to my guild
+    client.tree.add_command(Birthday(), guild=client.my_guild)
+
     # Create a global commands error handler
     @client.tree.error
     async def on_command_error(
-        interaction: discord.Interaction[ChouetteBot],
-        error: discord.app_commands.AppCommandError,
+        interaction: discord.Interaction[ChouetteBot], error: discord.app_commands.AppCommandError
     ):
+        if interaction.response.is_done():
+            return
         if isinstance(error, discord.app_commands.BotMissingPermissions):
             bot_perms = ", ".join(error.missing_permissions)
             interaction.client.bot_logger.error(
