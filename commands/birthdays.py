@@ -20,7 +20,7 @@ class InvalidBirthdayDate(app_commands.AppCommandError):
 class Birthday(app_commands.Group):
     # Set command group name and description
     def __init__(self):
-        super().__init__(name="birthday", description="Birthday management related commands")
+        super().__init__(name="birthday", description="Commandes pour gérer les anniversaires")
 
     async def on_error(
         self, interaction: Interaction[ChouetteBot], error: app_commands.AppCommandError
@@ -30,14 +30,15 @@ class Birthday(app_commands.Group):
                 f"{interaction.user} entered an invalid date as his birthday"
             )
             await interaction.response.send_message(
-                "You did not enter a valid birthday", ephemeral=True
+                "Vous n'avez pas entré une date d'anniversaire valide", ephemeral=True
             )
 
     # Commande pour ajouter un anniversaire
     @app_commands.command(
         name="add",
-        description="Permit the user to register his birthday",
+        description="Permet d'enregistrer son anniversaire",
     )
+    @app_commands.describe(day="Nombre entier", month="Nombre entier", year="Nombre entier")
     async def add(
         self, interaction: Interaction[ChouetteBot], day: int, month: int, year: int | None
     ):
@@ -65,8 +66,9 @@ class Birthday(app_commands.Group):
     # Commande pour modifier un anniversaire
     @app_commands.command(
         name="modify",
-        description="Permit the user to modify his birthday",
+        description="Permet de modifier son anniversaire enregistré",
     )
+    @app_commands.describe(day="Nombre entier", month="Nombre entier", year="Nombre entier")
     async def modify(
         self, interaction: Interaction[ChouetteBot], day: int, month: int, year: int | None
     ):
@@ -93,7 +95,7 @@ class Birthday(app_commands.Group):
     # Commande pour supprimer un anniversaire
     @app_commands.command(
         name="remove",
-        description="Permit the user to delete his birthday",
+        description="Permet de supprimer son anniversaire enregistré",
     )
     async def remove(self, interaction: Interaction[ChouetteBot]):
         user_id = str(interaction.user.id)
@@ -111,7 +113,7 @@ class Birthday(app_commands.Group):
 
     @app_commands.command(
         name="list",
-        description="List saved birthdays",
+        description="Liste les anniversaires enregistrés",
     )
     async def list(self, interaction: Interaction[ChouetteBot]):
         msg = f"Voici les anniversaires de {interaction.guild.name}\n```"
