@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date, time
+from os import getenv
 from typing import TYPE_CHECKING
 
 from discord.ext import tasks
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
 try:
     from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-    TIMEZONE = ZoneInfo("localtime")
+    TIMEZONE = ZoneInfo(getenv("TZ", "localtime"))
 # Use timezone UTC as a fallback
 except ZoneInfoNotFoundError:
     from datetime import timezone
@@ -33,7 +34,7 @@ async def tasks_list(client: ChouetteBot):
         await client.get_channel(int(client.config["POKE_CHANNEL"])).send(msg_poke)
 
     # Loop to check if it's someone's birthday every day at 8am in local time
-    @tasks.loop(time=time(8, tzinfo=TIMEZONE))
+    @tasks.loop(time=time(14, 26, tzinfo=TIMEZONE))
     async def check_birthdays():
         guild = client.get_guild(int(client.config["GUILD_ID"]))
         for user_id, info in load_birthdays().items():
