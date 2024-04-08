@@ -15,10 +15,9 @@ async def load_birthdays() -> dict:
         return await asyncio.get_event_loop().run_in_executor(None, _file_read)
 
 
-def _file_read():
+def _file_read() -> dict:
     try:
-        with open(BIRTHDAY_FILE) as f:
-            return tomlkit.load(f)
+        tomlkit.parse(BIRTHDAY_FILE.read_bytes())
     except FileNotFoundError:
         return {}
 

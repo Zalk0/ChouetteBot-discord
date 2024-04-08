@@ -116,10 +116,14 @@ class Birthday(app_commands.Group):
         description="Liste les anniversaires enregistrés",
     )
     async def list(self, interaction: Interaction[ChouetteBot]):
-        msg = f"Voici les anniversaires de {interaction.guild.name}\n```"
+        msg = f"Voici les anniversaires de {interaction.guild.name}\n"
         birthdays = sorted(
             (await load_birthdays()).items(), key=lambda x: x[1].get("birthday").replace(4)
         )
+        if not birthdays:
+            await interaction.response.send_message(msg + "\nListe des anniversaires vide")
+            return
+        msg += "```"
         for user_id, info in birthdays:
             birthday: date = info.get("birthday")
             name = interaction.guild.get_member(int(user_id)).display_name
