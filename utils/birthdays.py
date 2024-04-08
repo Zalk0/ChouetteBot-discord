@@ -12,12 +12,12 @@ FILE_LOCK = asyncio.Lock()
 # Charge les anniversaires depuis un fichier TOML
 async def load_birthdays() -> dict:
     async with FILE_LOCK:
-        return await asyncio.get_event_loop().run_in_executor(None, _file_read)
+        return await asyncio.to_thread(_file_read)
 
 
 def _file_read() -> dict:
     try:
-        tomlkit.parse(BIRTHDAY_FILE.read_bytes())
+        return tomlkit.parse(BIRTHDAY_FILE.read_bytes())
     except FileNotFoundError:
         return {}
 
@@ -25,7 +25,7 @@ def _file_read() -> dict:
 # Enregistre les anniversaires dans le fichier TOML
 async def save_birthdays(birthdays: dict):
     async with FILE_LOCK:
-        await asyncio.get_event_loop().run_in_executor(None, _file_write, birthdays)
+        await asyncio.to_thread(_file_write, birthdays)
 
 
 def _file_write(birthdays: dict):
