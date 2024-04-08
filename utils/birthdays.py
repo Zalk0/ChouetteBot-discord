@@ -1,5 +1,5 @@
 import asyncio
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 import tomlkit
@@ -45,3 +45,10 @@ async def check_date(day: int, month: int, year: int) -> date:
 # Permet de calculer l'âge
 async def calculate_age(year: int) -> int:
     return date.today().year - year if year != 4 else None
+
+
+# Permet de convertir un objet date vers un timestamp relatif Discord
+async def datetime_to_timestamp(birthday: date) -> str:
+    birthday_dt = datetime.fromisoformat(str(birthday))
+    unix_timestamp = birthday_dt.timestamp()
+    return f"<t:{int(unix_timestamp)}:R>"

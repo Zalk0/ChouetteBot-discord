@@ -6,7 +6,12 @@ from typing import TYPE_CHECKING
 from discord import Interaction, app_commands
 from tomlkit import table
 
-from utils.birthdays import check_date, load_birthdays, save_birthdays
+from utils.birthdays import (
+    check_date,
+    datetime_to_timestamp,
+    load_birthdays,
+    save_birthdays,
+)
 
 if TYPE_CHECKING:
     from bot import ChouetteBot
@@ -124,13 +129,27 @@ class Birthday(app_commands.Group):
             await interaction.response.send_message(msg + "\nListe des anniversaires vide")
             return
         msg += "```"
+        next_birthday: date = None
         for user_id, info in birthdays:
             birthday: date = info.get("birthday")
+            if not next_birthday and date.today().replace(birthday.year) < birthday:
+                next_birthday = birthday
             name = interaction.guild.get_member(int(user_id)).display_name
             if len(name) > 25:
                 name = name[:22] + "..."
             if len(name) < 25:
                 name = name + (25 - len(name)) * " "
             msg += f"{name} : {birthday.day}/{birthday.month}\n"
+        if not next_birthday:
+            if (
+                birthdays[0][1].get("birthday").day == 29
+                and birthdays[0][1].get("birthday").month == 2
+            ):
+                next_birthday = (
+                    birthdays[0][1].get("birthday").replace(date.today().year + 1, 3, 1)
+                )
+            else:
+                next_birthday = birthdays[0][1].get("birthday").replace(date.today().year + 1)
         msg += "```"
+        msg += f"Le prochain anniversaire est {await datetime_to_timestamp(next_birthday)}."
         await interaction.response.send_message(msg)
