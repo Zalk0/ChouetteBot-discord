@@ -6,7 +6,12 @@ from typing import TYPE_CHECKING
 from discord import Interaction, app_commands
 from tomlkit import table
 
-from utils.birthdays import check_date, load_birthdays, save_birthdays
+from utils.birthdays import (
+    check_date,
+    datetime_to_timestamp,
+    load_birthdays,
+    save_birthdays,
+)
 
 if TYPE_CHECKING:
     from bot import ChouetteBot
@@ -20,7 +25,7 @@ class InvalidBirthdayDate(app_commands.AppCommandError):
 class Birthday(app_commands.Group):
     # Set command group name and description
     def __init__(self):
-        super().__init__(name="birthday", description="Birthday management related commands")
+        super().__init__(name="birthday", description="Commandes pour gérer les anniversaires")
 
     async def on_error(
         self, interaction: Interaction[ChouetteBot], error: app_commands.AppCommandError
@@ -30,14 +35,15 @@ class Birthday(app_commands.Group):
                 f"{interaction.user} entered an invalid date as his birthday"
             )
             await interaction.response.send_message(
-                "You did not enter a valid birthday", ephemeral=True
+                "Vous n'avez pas entré une date d'anniversaire valide", ephemeral=True
             )
 
     # Commande pour ajouter un anniversaire
     @app_commands.command(
         name="add",
-        description="Permit the user to register his birthday",
+        description="Permet d'enregistrer son anniversaire",
     )
+    @app_commands.describe(day="Nombre entier", month="Nombre entier", year="Nombre entier")
     async def add(
         self, interaction: Interaction[ChouetteBot], day: int, month: int, year: int | None
     ):
@@ -65,8 +71,9 @@ class Birthday(app_commands.Group):
     # Commande pour modifier un anniversaire
     @app_commands.command(
         name="modify",
-        description="Permit the user to modify his birthday",
+        description="Permet de modifier son anniversaire enregistré",
     )
+    @app_commands.describe(day="Nombre entier", month="Nombre entier", year="Nombre entier")
     async def modify(
         self, interaction: Interaction[ChouetteBot], day: int, month: int, year: int | None
     ):
@@ -93,7 +100,7 @@ class Birthday(app_commands.Group):
     # Commande pour supprimer un anniversaire
     @app_commands.command(
         name="remove",
-        description="Permit the user to delete his birthday",
+        description="Permet de supprimer son anniversaire enregistré",
     )
     async def remove(self, interaction: Interaction[ChouetteBot]):
         user_id = str(interaction.user.id)
@@ -111,15 +118,38 @@ class Birthday(app_commands.Group):
 
     @app_commands.command(
         name="list",
-        description="List saved birthdays",
+        description="Liste les anniversaires enregistrés",
     )
     async def list(self, interaction: Interaction[ChouetteBot]):
-        msg = f"Voici les anniversaires de {interaction.guild.name}\n```"
-        for user_id, info in (await load_birthdays()).items():
-            birthday: date = info.get("birthday")
-            msg += (
-                f"{interaction.guild.get_member(int(user_id)).display_name}: "
-                f"{birthday.day}/{birthday.month}\n"
-            )
+        msg = f"Voici les anniversaires de {interaction.guild.name}\n"
+        birthdays = sorted(
+            (await load_birthdays()).items(), key=lambda x: x[1].get("birthday").replace(4)
+        )
+        if not birthdays:
+            await interaction.response.send_message(msg + "\nListe des anniversaires vide")
+            return
         msg += "```"
+        next_birthday: date = None
+        for user_id, info in birthdays:
+            birthday: date = info.get("birthday")
+            if not next_birthday and date.today().replace(birthday.year) < birthday:
+                next_birthday = birthday.replace(date.today().year)
+            name = interaction.guild.get_member(int(user_id)).display_name
+            if len(name) > 25:
+                name = name[:22] + "..."
+            if len(name) < 25:
+                name = name + (25 - len(name)) * " "
+            msg += f"{name} : {birthday.day}/{birthday.month}\n"
+        if not next_birthday:
+            if (
+                birthdays[0][1].get("birthday").day == 29
+                and birthdays[0][1].get("birthday").month == 2
+            ):
+                next_birthday = (
+                    birthdays[0][1].get("birthday").replace(date.today().year + 1, 3, 1)
+                )
+            else:
+                next_birthday = birthdays[0][1].get("birthday").replace(date.today().year + 1)
+        msg += "```"
+        msg += f"Le prochain anniversaire est {await datetime_to_timestamp(next_birthday)}."
         await interaction.response.send_message(msg)

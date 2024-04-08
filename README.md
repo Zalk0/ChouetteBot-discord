@@ -17,7 +17,7 @@ pip install -r requirements.txt
 ```
 
 ---
-Before launching the bot, you need to fill in a **`.env`** file (using the
+Before launching the bot, you need to fill in a `.env` file (using the
 [template](https://github.com/Zalk0/ChouetteBot-discord/blob/main/.env.example)
 I provide in the repo) and put a Discord bot token inside.  
 To have one, go to the
@@ -38,7 +38,20 @@ python main.py
 
 ---
 
-### Docker
+## Contribution
+
+To contribute, you can install the dev requirements after having cloned the repository:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+I have set up some pre-commit hooks mainly to run ruff automatically and to format project files.
+You can also run ruff manually with the commands `ruff check` and `ruff format`.
+
+---
+
+## Docker
 
 [![Docker Image](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yaml/badge.svg?branch=main)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yaml)
 
