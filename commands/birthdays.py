@@ -133,7 +133,7 @@ class Birthday(app_commands.Group):
         for user_id, info in birthdays:
             birthday: date = info.get("birthday")
             if not next_birthday and date.today().replace(birthday.year) < birthday:
-                next_birthday = birthday
+                next_birthday = birthday.replace(date.today().year)
             name = interaction.guild.get_member(int(user_id)).display_name
             if len(name) > 25:
                 name = name[:22] + "..."
