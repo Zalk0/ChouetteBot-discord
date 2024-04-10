@@ -14,10 +14,10 @@ COPY . .
 # Tell the bot that it's running inside a docker image
 ENV DOCKER_RUNNING=true
 
-# Permit to get the image tag inside it
-# build the image with `docker build  --build-arg tag="tag" -t app:tag`
-ARG tag
-ENV IMAGE_TAG=$tag
+# Permit to get the image tag inside of it
+# Build the image with `docker build  --build-arg version=tag -t app:tag`
+ARG version
+ENV IMAGE_TAG=$version
 
 EXPOSE 8080
 CMD ["python3", "main.py"]
