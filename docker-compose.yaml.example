@@ -2,9 +2,8 @@ version: "3.8"                                              # Version of docker-
 
 services:
     bot:
-        # If you want to build yourself
-        build: .
-        image: chouettebot                                  # Name of the image you built
+        # If you want to build yourself (check README Docker section)
+        image: chouettebot:tag                              # Name of the image you built
 
         # If you want to get the image from docker hub
         image: gylfirst/chouettebot:tag                     # Change tag to get a specific version

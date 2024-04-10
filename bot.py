@@ -7,6 +7,7 @@ from aiohttp import web
 import tasks
 from commands_list import commands
 from responses import responses
+from utils.version import get_version
 
 
 # Create a class of the bot
@@ -64,6 +65,9 @@ class ChouetteBot(discord.Client):
         self.my_guild = discord.Object(int(self.config["GUILD_ID"]))
 
     async def setup_hook(self):
+        # Log the current running version
+        self.bot_logger.info(await get_version())
+
         # Call commands and import tasks
         await commands(self)
         await tasks.tasks_list(self)
