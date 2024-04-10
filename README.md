@@ -60,6 +60,8 @@ architectures. We provide deployment information on the [Docker Hub repository](
 
 You can build it from source with:
 ```bash
-docker build --build-arg version=tag -t app:tag
+docker build .
+# or
+docker build --build-arg version=tag -t app:tag .
 ```
-where `tag` and `app:tag` can be changed (tag must be the same).
+(see [Docker Build CLI Options](https://docs.docker.com/reference/cli/docker/image/build/#options) to get more info)

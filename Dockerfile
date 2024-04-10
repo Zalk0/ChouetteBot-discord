@@ -14,9 +14,8 @@ COPY . .
 # Tell the bot that it's running inside a docker image
 ENV DOCKER_RUNNING=true
 
-# Permit to get the image tag inside of it
-# Build the image with `docker build --build-arg version=tag -t app:tag`
-ARG version
+# Permit to get the image tag inside of it (default version=local)
+ARG version=local
 ENV IMAGE_TAG=$version
 
 EXPOSE 8080
