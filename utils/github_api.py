@@ -1,6 +1,7 @@
 import aiohttp
 
 
+# Function to get the last information about main commit with GitHub API
 async def get_last_update():
     async with (
         aiohttp.ClientSession() as session,

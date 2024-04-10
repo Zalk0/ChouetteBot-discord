@@ -11,5 +11,12 @@ RUN if [ $(uname -m | cut -c 1-3) = "arm" ]; then \
 
 COPY . .
 
+# Tell the bot that it's running inside a docker image
+ENV DOCKER_RUNNING=true
+
+# Permit to get the image tag inside of it (default version=local)
+ARG version=local
+ENV IMAGE_TAG=$version
+
 EXPOSE 8080
 CMD ["python3", "main.py"]
