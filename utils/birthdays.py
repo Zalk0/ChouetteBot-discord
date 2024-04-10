@@ -9,12 +9,13 @@ BIRTHDAY_FILE = Path("data", "birthdays.toml")
 FILE_LOCK = asyncio.Lock()
 
 
-# Charge les anniversaires depuis un fichier TOML
+# Function to load the birthday file
 async def load_birthdays() -> dict:
     async with FILE_LOCK:
         return await asyncio.to_thread(_file_read)
 
 
+# Function to read the TOML file
 def _file_read() -> dict:
     try:
         return tomlkit.parse(BIRTHDAY_FILE.read_bytes())
@@ -22,18 +23,19 @@ def _file_read() -> dict:
         return {}
 
 
-# Enregistre les anniversaires dans le fichier TOML
+# Save birthdays in a TOML file
 async def save_birthdays(birthdays: dict):
     async with FILE_LOCK:
         await asyncio.to_thread(_file_write, birthdays)
 
 
+# Function to write in the birthday file
 def _file_write(birthdays: dict):
     with open(BIRTHDAY_FILE, "w") as f:
         tomlkit.dump(birthdays, f)
 
 
-# Permet de vérifier si la valeur est correcte
+# Function to verify if the given year is valid
 async def check_date(day: int, month: int, year: int) -> date:
     if not year:
         return date(4, month, day)
@@ -42,12 +44,12 @@ async def check_date(day: int, month: int, year: int) -> date:
     return date(year, month, day)
 
 
-# Permet de calculer l'âge
+# Function to calculate the age
 async def calculate_age(year: int) -> int:
     return date.today().year - year if year != 4 else None
 
 
-# Permet de convertir un objet date vers un timestamp relatif Discord
+# Function to convert a datetime object to Discord timestamp
 async def datetime_to_timestamp(birthday: date) -> str:
     birthday_dt = datetime.fromisoformat(str(birthday))
     unix_timestamp = birthday_dt.timestamp()

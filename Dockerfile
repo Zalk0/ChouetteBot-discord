@@ -15,7 +15,7 @@ COPY . .
 ENV DOCKER_RUNNING=true
 
 # Permit to get the image tag inside of it
-# Build the image with `docker build  --build-arg version=tag -t app:tag`
+# Build the image with `docker build --build-arg version=tag -t app:tag`
 ARG version
 ENV IMAGE_TAG=$version
 

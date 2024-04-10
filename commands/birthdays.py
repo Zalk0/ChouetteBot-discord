@@ -38,7 +38,7 @@ class Birthday(app_commands.Group):
                 "Vous n'avez pas entré une date d'anniversaire valide", ephemeral=True
             )
 
-    # Commande pour ajouter un anniversaire
+    # Make a command to add a birthday
     @app_commands.command(
         name="add",
         description="Permet d'enregistrer son anniversaire",
@@ -68,7 +68,7 @@ class Birthday(app_commands.Group):
                 ephemeral=True,
             )
 
-    # Commande pour modifier un anniversaire
+    # Make a command to modify the birthday
     @app_commands.command(
         name="modify",
         description="Permet de modifier son anniversaire enregistré",
@@ -97,7 +97,7 @@ class Birthday(app_commands.Group):
                 ephemeral=True,
             )
 
-    # Commande pour supprimer un anniversaire
+    # Make a command to remove the birthday
     @app_commands.command(
         name="remove",
         description="Permet de supprimer son anniversaire enregistré",
@@ -116,6 +116,7 @@ class Birthday(app_commands.Group):
                 ephemeral=True,
             )
 
+    # Make a command to list all birthdays listed in database, sorted by date
     @app_commands.command(
         name="list",
         description="Liste les anniversaires enregistrés",

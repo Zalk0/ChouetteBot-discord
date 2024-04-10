@@ -57,3 +57,9 @@ You can also run ruff manually with the commands `ruff check` and `ruff format`.
 
 You can use a Docker image to deploy the bot. It's currently supporting amd64, armv6 and armv7
 architectures. We provide deployment information on the [Docker Hub repository](https://hub.docker.com/r/gylfirst/chouettebot).
+
+You can build it from source with:
+```bash
+docker build --build-arg version=tag -t app:tag
+```
+where `tag` and `app:tag` can be changed (tag must be the same).

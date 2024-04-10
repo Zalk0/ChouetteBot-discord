@@ -6,11 +6,13 @@ api_hypixel = "https://api.hypixel.net/"
 token_hypixel = getenv("HYPIXEL_KEY")
 
 
+# Function to return response from url
 async def fetch(session, url, params=None):
     async with session.get(url, params=params) as response:
         return await response.json()
 
 
+# Function to return Hypixel discord with their API
 async def return_discord_hypixel(session, uuid):
     response = await fetch(session, f"{api_hypixel}player", {"key": token_hypixel, "uuid": uuid})
     try:
@@ -21,6 +23,7 @@ async def return_discord_hypixel(session, uuid):
         return None
 
 
+# Function to return player uuid from Mojang API with pseudo
 async def return_uuid(session, pseudo):
     response = await fetch(session, f"https://api.mojang.com/users/profiles/minecraft/{pseudo}")
     try:
@@ -32,6 +35,7 @@ async def return_uuid(session, pseudo):
         return None
 
 
+# Function to return the player guild from Hypixel API
 async def return_guild(session, name):
     response = await fetch(session, f"{api_hypixel}guild", {"key": token_hypixel, "name": name})
     try:
@@ -40,6 +44,7 @@ async def return_guild(session, name):
         return None
 
 
+# Function to know if the player is in a Hypixel guild
 async def is_in_guild(session, uuid, g_name):
     guild = await return_guild(session, g_name)
     if guild is None:
@@ -47,6 +52,7 @@ async def is_in_guild(session, uuid, g_name):
     return any(member["uuid"] == uuid for member in guild["members"])
 
 
+# Function to check some information
 async def check(pseudo, guild, discord):
     async with aiohttp.ClientSession() as session:
         uuid = await return_uuid(session, pseudo)
