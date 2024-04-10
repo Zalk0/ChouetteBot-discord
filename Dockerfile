@@ -11,5 +11,13 @@ RUN if [ $(uname -m | cut -c 1-3) = "arm" ]; then \
 
 COPY . .
 
+# Tell the bot that it's running inside a docker image
+ENV DOCKER_RUNNING=true
+
+# Permit to get the image tag inside it
+# build the image with `docker build  --build-arg tag="tag" -t app:tag`
+ARG tag
+ENV IMAGE_TAG=$tag
+
 EXPOSE 8080
 CMD ["python3", "main.py"]
