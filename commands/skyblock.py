@@ -45,7 +45,7 @@ class Skyblock(app_commands.Group):
             f"[link]({dungeonsguide['assets'][0]['browser_download_url']})\n"
             f"- NotEnoughUpdates: `{notenoughupdates['version_number']}` "
             f"[link]({notenoughupdates['files'][0]['url']})\n"
-            f"- SkyblockAddons (forked by Fix3dll): `{skyblockaddons['name'].split('-')[1]}` "
+            f"- SkyblockAddons (forked by Fix3dll): `{skyblockaddons['version_number']}` "
             f"[link]({skyblockaddons['files'][0]['url']})\n"
             f"- Skytils: `{skytils['tag_name'].replace('v', '')}` "
             f"[link]({skytils['assets'][0]['browser_download_url']})"
