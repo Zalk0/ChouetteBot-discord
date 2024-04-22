@@ -1,4 +1,4 @@
-aiohttp ~= 3.9.4
+aiohttp ~= 3.9.5
 discord.py[speed] ~= 2.3.2
 python-dotenv ~= 1.0.1
 tomlkit ~= 0.12.4
