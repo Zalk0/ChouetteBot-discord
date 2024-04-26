@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from bot import ChouetteBot
+from chouette.bot import ChouetteBot
 
 
 def main():

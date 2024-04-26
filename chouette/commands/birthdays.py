@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from discord import Interaction, app_commands
 from tomlkit import table
 
-from utils.birthdays import (
+from chouette.utils.birthdays import (
     check_date,
     datetime_to_timestamp,
     load_birthdays,
@@ -14,7 +14,7 @@ from utils.birthdays import (
 )
 
 if TYPE_CHECKING:
-    from bot import ChouetteBot
+    from chouette.bot import ChouetteBot
 
 
 class InvalidBirthdayDate(app_commands.AppCommandError):

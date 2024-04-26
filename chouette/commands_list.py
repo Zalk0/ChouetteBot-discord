@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING
 
 import discord
 
-from commands.admin import whisper
-from commands.birthdays import Birthday
-from commands.misc import cheh, delete, die_roll, info, latex, pin, ping
-from commands.skyblock import Skyblock
+from chouette.commands.admin import whisper
+from chouette.commands.birthdays import Birthday
+from chouette.commands.misc import cheh, delete, die_roll, info, latex, pin, ping
+from chouette.commands.skyblock import Skyblock
 
 if TYPE_CHECKING:
-    from bot import ChouetteBot
+    from chouette.bot import ChouetteBot
 
 # List the commands
 COMMANDS_LIST: tuple = (

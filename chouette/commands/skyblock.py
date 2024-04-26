@@ -7,10 +7,10 @@ import aiohttp
 import discord
 from discord import app_commands
 
-from utils.skyblock_guild import check
+from chouette.utils.skyblock_guild import check
 
 if TYPE_CHECKING:
-    from bot import ChouetteBot
+    from chouette.bot import ChouetteBot
 
 
 # Define command group based on the Group class
