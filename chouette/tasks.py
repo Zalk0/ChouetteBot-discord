@@ -6,10 +6,10 @@ from typing import TYPE_CHECKING
 
 from discord.ext import tasks
 
-from utils.birthdays import calculate_age, load_birthdays
+from chouette.utils.birthdays import calculate_age, load_birthdays
 
 if TYPE_CHECKING:
-    from bot import ChouetteBot
+    from chouette.bot import ChouetteBot
 
 # Get local timezone for tasks
 try:

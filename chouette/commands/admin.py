@@ -6,7 +6,7 @@ import discord
 from discord import app_commands
 
 if TYPE_CHECKING:
-    from bot import ChouetteBot
+    from chouette.bot import ChouetteBot
 
 
 # Check if user is an admin of the bot

@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING
 import discord
 from discord.abc import Messageable
 
-from utils.latex_render import latex_process
+from chouette.utils.latex_render import latex_process
 
 if TYPE_CHECKING:
-    from bot import ChouetteBot
+    from chouette.bot import ChouetteBot
 
 
 async def responses(

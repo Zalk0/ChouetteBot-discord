@@ -4,10 +4,10 @@ import os
 import discord
 from aiohttp import web
 
-import tasks
-from commands_list import commands
-from responses import responses
-from utils.version import get_version
+from chouette.commands_list import commands
+from chouette.responses import responses
+from chouette.tasks import tasks_list
+from chouette.utils.version import get_version
 
 
 # Create a class of the bot
@@ -70,7 +70,7 @@ class ChouetteBot(discord.Client):
 
         # Call commands and import tasks
         await commands(self)
-        await tasks.tasks_list(self)
+        await tasks_list(self)
 
         # Start web server
         await self.start_server()

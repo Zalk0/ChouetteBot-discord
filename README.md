@@ -33,7 +33,7 @@ You also have to fill the other fields in your `.env` file or else you're going 
 After having done all this you can launch the bot :
 
 ```bash
-python main.py
+python -m chouette
 ```
 
 ---

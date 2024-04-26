@@ -1,5 +1,3 @@
 *
-!commands/
-!utils/
-!*.py
+!chouette/**/*.py
 !requirements.txt
