@@ -86,12 +86,12 @@ class Skyblock(app_commands.Group):
             await interaction.response.send_message("Vous avez déjà le rôle !")
             return
         await interaction.response.defer(thinking=True)
-        checked = check(
+        checked = await check(
             pseudo,
             interaction.client.config["HYPIXEL_GUILD_NAME"],
-            interaction.user.global_name,
+            interaction.user.name,
         )
-        if checked:
+        if checked is True:
             role = interaction.guild.get_role(int(interaction.client.config["HYPIXEL_GUILD_ROLE"]))
             await interaction.user.add_roles(role)
             await interaction.followup.send("Vous avez été assigné le rôle de membre !")
