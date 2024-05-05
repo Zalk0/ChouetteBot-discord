@@ -2,6 +2,8 @@ from os import getenv
 
 import aiohttp
 
+from chouette.utils.skyblock import minecraft_uuid
+
 api_hypixel = "https://api.hypixel.net/v2/"
 
 
@@ -18,18 +20,6 @@ async def return_discord_hypixel(session, uuid, token_hypixel):
         return response["player"]["socialMedia"]["links"]["DISCORD"]
     except Exception:
         if response["success"] == "true":
-            return 0
-        return None
-
-
-async def return_uuid(session, pseudo):
-    """Récupère l'UUID d'un joueur Minecraft avec l'API de Mojang."""
-    response = await fetch(session, f"https://api.mojang.com/users/profiles/minecraft/{pseudo}")
-    try:
-        return response["id"]
-    except Exception:
-        """Si le pseudo n'existe pas, Mojang renvoie un message d'erreur"""
-        if response["errorMessage"] == f"Couldn't find any profile with name {pseudo}":
             return 0
         return None
 
@@ -57,7 +47,7 @@ async def check(pseudo, guild, discord):
     et si le joueur est dans une guilde Hypixel."""
     token_hypixel = getenv("HYPIXEL_KEY")
     async with aiohttp.ClientSession() as session:
-        uuid = await return_uuid(session, pseudo)
+        uuid = await minecraft_uuid(session, pseudo)
         if uuid == 0:
             return f"Il n'y a pas de compte Minecraft avec ce pseudo : {pseudo}"
         if uuid is None:
