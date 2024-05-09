@@ -65,30 +65,31 @@ async def get_profile(
         return False, "No profile with this name"
 
 
-async def get_stats(session, pseudo, profile):
-    level: float = profile.get("leveling").get("experience") / 100
+async def get_stats(session, pseudo, uuid, profile):
+    info = profile.get("members").get(uuid)
+    level: float = (info.get("leveling").get("experience")) / 100
     async with session.get(f"https://sky.shiiyu.moe/api/v2/profile/{pseudo}") as response:
         networth: float = (
             (await response.json())
             .get("profiles")
-            .get(profile)
+            .get(profile.get("profile_id"))
             .get("data")
             .get("networth")
             .get("networth")
         )
     skills: dict[str, float] = {
-        "farming": profile.get("experience_skill_farming"),
-        "mining": profile.get("experience_skill_mining"),
-        "foraging": profile.get("experience_skill_foraging"),
-        "fishing": profile.get("experience_skill_fishing"),
-        "carpentry": profile.get("experience_skill_carpentry"),
-        "taming": profile.get("experience_skill_taming"),
-        "combat": profile.get("experience_skill_combat"),
-        "alchemy": profile.get("experience_skill_alchemy"),
-        "enchanting": profile.get("experience_skill_enchanting"),
-        "dungeoneering": profile.get("dungeons").get("dungeon_types").get("catacombs").get("experience")
+        "farming": info.get("experience_skill_farming"),
+        "mining": info.get("experience_skill_mining"),
+        "foraging": info.get("experience_skill_foraging"),
+        "fishing": info.get("experience_skill_fishing"),
+        "carpentry": info.get("experience_skill_carpentry"),
+        "taming": info.get("experience_skill_taming"),
+        "combat": info.get("experience_skill_combat"),
+        "alchemy": info.get("experience_skill_alchemy"),
+        "enchanting": info.get("experience_skill_enchanting"),
+        "dungeoneering": info.get("dungeons").get("dungeon_types").get("catacombs").get("experience")
     }
-    slayer = profile.get("slayer_bosses")
+    slayer = info.get("slayer_bosses")
     slayers: dict[str, float] = {
         "zombie": slayer.get("zombie").get("xp"),
         "spider": slayer.get("spider").get("xp"),
@@ -107,14 +108,15 @@ async def pseudo_to_profile(
     if not uuid[0]:
         # TODO: better handling
         return uuid[1]
+    uuid = uuid[1]
     if name:
-        profile = await get_profile(session, api_key, uuid[1], name)
+        profile = await get_profile(session, api_key, uuid, name)
     else:
-        profile = await selected_profile(session, api_key, uuid[1])
+        profile = await selected_profile(session, api_key, uuid)
     if not profile[0]:
         # TODO: better handling
         return profile[1]
-    info = {uuid[1]: {"discord": "", "pseudo": pseudo, "profile": profile[1].get("profile_id")}}
-    info.get(uuid[1]).update(await get_stats(session, pseudo, profile[1]))
-    print(info)
+    profile = profile[1]
+    info = {uuid: {"discord": "", "pseudo": pseudo, "profile": profile.get("profile_id")}}
+    info.get(uuid).update(await get_stats(session, pseudo, uuid, profile))
     # TODO
