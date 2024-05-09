@@ -7,6 +7,7 @@ import aiohttp
 import discord
 from discord import app_commands
 
+from chouette.utils.skyblock import pseudo_to_profile
 from chouette.utils.skyblock_guild import check
 
 if TYPE_CHECKING:
@@ -114,3 +115,17 @@ class Skyblock(app_commands.Group):
             await interaction.followup.send("Vous avez été assigné le rôle de membre !")
         else:
             await interaction.followup.send(checked)
+
+    # Make a command to link the Discord user to a Hypixel profile
+    @app_commands.command(name="link", description="Lie ton profil Hypixel Skyblock")
+    @app_commands.rename(pseudo="pseudo_mc")
+    @app_commands.describe(pseudo="Ton pseudo Minecraft", profile="Ton profil Skyblock préféré")
+    async def link(
+        self, interaction: discord.Interaction[ChouetteBot], pseudo: str, profile: str | None
+    ):
+        await interaction.response.defer(thinking=True)
+        async with aiohttp.ClientSession() as session:
+            profile_uuid = await pseudo_to_profile(
+                session, interaction.client.config["HYPIXEL_KEY"], pseudo, profile
+            )
+        # TODO
