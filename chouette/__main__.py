@@ -11,6 +11,9 @@ def main():
     if Path(".env").is_file():
         load_dotenv()
 
+    # Ensure data directory exists
+    Path("data").mkdir(exist_ok=True)
+
     # Create an instance of the ChouetteBot
     client = ChouetteBot()
 

@@ -2,8 +2,7 @@ from os import getenv
 
 import aiohttp
 
-api_hypixel = "https://api.hypixel.net/"
-token_hypixel = getenv("HYPIXEL_KEY")
+api_hypixel = "https://api.hypixel.net/v2/"
 
 
 # Function to return response from url
@@ -13,7 +12,7 @@ async def fetch(session, url, params=None):
 
 
 # Function to return Hypixel discord with their API
-async def return_discord_hypixel(session, uuid):
+async def return_discord_hypixel(session, uuid, token_hypixel):
     response = await fetch(session, f"{api_hypixel}player", {"key": token_hypixel, "uuid": uuid})
     try:
         return response["player"]["socialMedia"]["links"]["DISCORD"]
@@ -36,7 +35,7 @@ async def return_uuid(session, pseudo):
 
 
 # Function to return the player guild from Hypixel API
-async def return_guild(session, name):
+async def return_guild(session, name, token_hypixel):
     response = await fetch(session, f"{api_hypixel}guild", {"key": token_hypixel, "name": name})
     try:
         return response["guild"]
@@ -45,8 +44,8 @@ async def return_guild(session, name):
 
 
 # Function to know if the player is in a Hypixel guild
-async def is_in_guild(session, uuid, g_name):
-    guild = await return_guild(session, g_name)
+async def is_in_guild(session, uuid, g_name, token_hypixel):
+    guild = await return_guild(session, g_name, token_hypixel)
     if guild is None:
         return None
     return any(member["uuid"] == uuid for member in guild["members"])
@@ -54,6 +53,7 @@ async def is_in_guild(session, uuid, g_name):
 
 # Function to check some information
 async def check(pseudo, guild, discord):
+    token_hypixel = getenv("HYPIXEL_KEY")
     async with aiohttp.ClientSession() as session:
         uuid = await return_uuid(session, pseudo)
         if uuid == 0:
@@ -61,7 +61,7 @@ async def check(pseudo, guild, discord):
         if uuid is None:
             return "Something wrong happened"
 
-        discord_mc = await return_discord_hypixel(session, uuid)
+        discord_mc = await return_discord_hypixel(session, uuid, token_hypixel)
         if discord_mc == 0:
             return "Vous n'avez pas entré de pseudo Discord sur le serveur Hypixel"
         if discord_mc != discord:
@@ -69,7 +69,7 @@ async def check(pseudo, guild, discord):
         if discord_mc is None:
             return "Something wrong happened"
 
-        test = await is_in_guild(session, uuid, guild)
+        test = await is_in_guild(session, uuid, guild, token_hypixel)
         if test:
             return True
         if test is None:
