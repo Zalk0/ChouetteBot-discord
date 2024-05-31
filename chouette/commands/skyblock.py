@@ -50,6 +50,20 @@ class Skyblock(app_commands.Group):
             f"- Skytils: `{skytils['tag_name'].replace('v', '')}` "
             f"[link]({skytils['assets'][0]['browser_download_url']})"
         )
+        
+    # Make a command to link the tutorial fHowToSkyblock? from the GitHub repository
+    @app_commands.command(
+        name="tuto",
+        description="Link the tutorial HowToSkyblock? written for beginners",
+    )
+    async def tuto(self, interaction: discord.Interaction[ChouetteBot]):
+        await interaction.response(thinking=True)
+        repo_url = "https://github.com/gylfirst/HowToSkyblock"
+        await interaction.followup.send(
+            f"This tutorial is written for beginners to help them get started with Hypixel Skyblock.\n"
+            f"You can find it [here](<{repo_url}>).\n"
+            f"Written with :heart: by [gylfirst](<https://github.com/gylfirst>)!"
+        )
 
     # Make a command to check if it's raining in Spider's Den in Hypixel Skyblock
     @app_commands.command(
