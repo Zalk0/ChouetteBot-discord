@@ -10,6 +10,7 @@ line-length = 99
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "RET", "SIM", "RUF", "T20", "ERA", "ASYNC"]
 ignore = ["E501"]
+allowed-confusables = ["‘", "’", "–", "′"]
 
 [tool.ruff.format]
 indent-style = "space"
