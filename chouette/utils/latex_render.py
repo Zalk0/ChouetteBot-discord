@@ -5,8 +5,8 @@ import discord
 
 
 # Make a LaTeX rendering function using an online equation renderer : https://latex.codecogs.com/
-# Then send the image as a file
 async def latex_render(equation: str) -> discord.File:
+    """Fait le rendu d'une équation LaTeX et le renvoie sous forme de fichier."""
     options = r"\dpi{200} \bg_black \color[RGB]{240, 240, 240} \pagecolor[RGB]{49, 51, 56}"
     # bg_black is for putting a black background (custom command of the site)
     # instead of the transparent one. Then a custom background color can be used with pagecolor.
@@ -17,8 +17,8 @@ async def latex_render(equation: str) -> discord.File:
     return discord.File(BytesIO(response_content), filename="equation.png")
 
 
-# Make a LaTeX process function to use when LaTeX maths is inserted in a message
-async def latex_process(message: str):
+async def latex_process(message: str) -> discord.File:
+    """Traite un message contenant des équations LaTeX et le renvoie sous forme de fichier."""
     message = await latex_replace(message)
     parts = message.split("$")
     equation = r"\\"
@@ -37,9 +37,9 @@ async def latex_process(message: str):
     return await latex_render(equation.replace(r" \textrm{}", ""))
 
 
-# LaTeX replace accents and special characters to commands
 # TODO: Add all the symbols that may appear
 async def latex_replace(message: str) -> str:
+    """Remplace les caractères spéciaux par des commandes LaTeX."""
     return (
         message.replace(r"ù", r"\`u")
         .replace(r"é", r"\'e")

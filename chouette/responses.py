@@ -17,6 +17,7 @@ async def responses(
     message: str,
     author: discord.User,
 ) -> tuple[str, bool]:
+    """Vérifie si le message de l'utilisateur correspond à une réponse spécifique."""
     # Checks if a message ends with quoi
     if "".join(filter(str.isalpha, message)).lower().endswith("quoi"):
         return "**FEUR**", False

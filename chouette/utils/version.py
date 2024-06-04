@@ -4,8 +4,8 @@ from os import getenv
 SPACES = " " * 38
 
 
-# Generate the message to log the bot running version
 async def get_version() -> str:
+    """Génère un message avec les informations de version."""
     msg = "Version information:\n"
 
     # Check if the environnement is Docker or not

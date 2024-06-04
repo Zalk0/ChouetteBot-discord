@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 from chouette.bot import ChouetteBot
 
 
-def main():
+def main() -> None:
+    """Fonction principale du bot."""
     # Load the .env values if a .env file exists
     if Path(".env").is_file():
         load_dotenv()

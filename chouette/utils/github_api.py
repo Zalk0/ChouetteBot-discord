@@ -1,8 +1,8 @@
 import aiohttp
 
 
-# Function to get the last information about main commit with GitHub API
-async def get_last_update():
+async def get_last_update() -> str:
+    """Récupère la date du dernier commit sur le dépôt principal de ChouetteBot."""
     async with (
         aiohttp.ClientSession() as session,
         session.get(
