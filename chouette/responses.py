@@ -41,7 +41,7 @@ async def responses(
                 await client.tree.sync()
                 for guild in client.guilds:
                     await client.tree.sync(guild=guild)
-                return "Les slashs commandes ont été synchronisées avec succès !", True
+                return "Les commandes slashs ont été synchronisées avec succès !", True
             except discord.app_commands.CommandSyncFailure as e:
                 client.bot_logger.error(e)
                 return str(e), True

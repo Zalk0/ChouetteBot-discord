@@ -53,9 +53,7 @@ async def cheh(interaction: discord.Interaction[ChouetteBot], user: discord.Memb
 
 @app_commands.guild_only
 @app_commands.checks.bot_has_permissions(manage_messages=True)
-@app_commands.context_menu(
-    name="Epingler/Déséingler", description="Épingle ou désépingle un message"
-)
+@app_commands.context_menu(name="Epingler/Déséingler")
 async def pin(interaction: discord.Interaction[ChouetteBot], message: discord.Message) -> None:
     """Épingle ou désépingle un message."""
     if message.pinned:
@@ -72,9 +70,7 @@ async def pin(interaction: discord.Interaction[ChouetteBot], message: discord.Me
     manage_messages=True, read_message_history=True, read_messages=True
 )
 @app_commands.checks.has_permissions(manage_messages=True)
-@app_commands.context_menu(
-    name="Supprime jusqu'ici", description="Supprime les messages jusqu'à celui-ci (inclus)"
-)
+@app_commands.context_menu(name="Supprime jusqu'ici")
 async def delete(interaction: discord.Interaction[ChouetteBot], message: discord.Message) -> None:
     """Supprime les messages jusqu'à celui-ci (inclus)."""
     await interaction.response.defer(ephemeral=True, thinking=True)
