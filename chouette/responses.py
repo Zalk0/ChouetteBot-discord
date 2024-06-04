@@ -17,7 +17,12 @@ async def responses(
     message: str,
     author: discord.User,
 ) -> tuple[str, bool]:
-    """Vérifie si le message de l'utilisateur correspond à une réponse spécifique."""
+    """
+    Vérifie si le message de l'utilisateur correspond à une réponse spécifique :
+    On vérifie si le message se termine par "quoi" pour répondre **FEUR**.
+    On vérifie si le message contient des $$ pour afficher une équation LaTeX.
+    On vérifie si le message est égal à la mention du bot suivi de "sync" pour synchroniser les commandes slash.
+    """
     # Checks if a message ends with quoi
     if "".join(filter(str.isalpha, message)).lower().endswith("quoi"):
         return "**FEUR**", False
@@ -41,7 +46,7 @@ async def responses(
                 await client.tree.sync()
                 for guild in client.guilds:
                     await client.tree.sync(guild=guild)
-                return "Les commandes slashs ont été synchronisées avec succès !", True
+                return "Les commandes slash ont été synchronisées avec succès !", True
             except discord.app_commands.CommandSyncFailure as e:
                 client.bot_logger.error(e)
                 return str(e), True
