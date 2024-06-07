@@ -75,29 +75,30 @@ async def get_stats(session, pseudo, uuid, profile):
             .get(profile.get("profile_id"))
             .get("data")
             .get("networth")
-            .get("networth")
+            .get("networth", 0)
         )
-    skills: dict[str, float] = {
-        "farming": info.get("experience_skill_farming"),
-        "mining": info.get("experience_skill_mining"),
-        "foraging": info.get("experience_skill_foraging"),
-        "fishing": info.get("experience_skill_fishing"),
-        "carpentry": info.get("experience_skill_carpentry"),
-        "taming": info.get("experience_skill_taming"),
-        "combat": info.get("experience_skill_combat"),
-        "alchemy": info.get("experience_skill_alchemy"),
-        "enchanting": info.get("experience_skill_enchanting"),
-        "dungeoneering": info.get("dungeons").get("dungeon_types").get("catacombs").get("experience")
-    }
-    slayer = info.get("slayer_bosses")
-    slayers: dict[str, float] = {
-        "zombie": slayer.get("zombie").get("xp"),
-        "spider": slayer.get("spider").get("xp"),
-        "wolf": slayer.get("wolf").get("xp"),
-        "enderman": slayer.get("enderman").get("xp"),
-        "blaze": slayer.get("blaze").get("xp"),
-        "vampire": slayer.get("vampire").get("xp"),
-    }
+    skill = info.get("player_data").get("experience")
+    skills: tuple[float, float, float, float, float, float, float, float, float, float] = (
+        skill.get("SKILL_FISHING", 0),
+        skill.get("SKILL_ALCHEMY", 0),
+        skill.get("SKILL_MINING", 0),
+        skill.get("SKILL_FARMING", 0),
+        skill.get("SKILL_ENCHANTING", 0),
+        skill.get("SKILL_TAMING", 0),
+        skill.get("SKILL_FORAGING", 0),
+        skill.get("SKILL_CARPENTRY", 0),
+        skill.get("SKILL_COMBAT", 0),
+        info.get("dungeons").get("dungeon_types").get("catacombs").get("experience", 0),
+    )
+    slayer = info.get("slayer").get("slayer_bosses")
+    slayers: tuple[int, int, int, int, int, int] = (
+        slayer.get("zombie", {}).get("xp", 0),
+        slayer.get("spider", {}).get("xp", 0),
+        slayer.get("wolf", {}).get("xp", 0),
+        slayer.get("enderman", {}).get("xp", 0),
+        slayer.get("blaze", {}).get("xp", 0),
+        slayer.get("vampire", {}).get("xp", 0),
+    )
     return {"level": level, "networth": networth, "skills": skills, "slayers": slayers}
 
 
@@ -119,4 +120,7 @@ async def pseudo_to_profile(
     profile = profile[1]
     info = {uuid: {"discord": "", "pseudo": pseudo, "profile": profile.get("profile_id")}}
     info.get(uuid).update(await get_stats(session, pseudo, uuid, profile))
-    # TODO
+    file_content = await load_skyblock()
+    file_content.update(info)
+    await save_skyblock(file_content)
+    return info.get(uuid)

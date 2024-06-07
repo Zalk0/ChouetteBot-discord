@@ -125,7 +125,16 @@ class Skyblock(app_commands.Group):
     ):
         await interaction.response.defer(thinking=True)
         async with aiohttp.ClientSession() as session:
-            profile_uuid = await pseudo_to_profile(
+            profile_name = await pseudo_to_profile(
                 session, interaction.client.config["HYPIXEL_KEY"], pseudo, profile
             )
-        # TODO
+        if isinstance(profile_name, str):
+            interaction.client.bot_logger.error(profile_name)
+            await interaction.followup.send(
+                f"Il y a eu une erreur :\n`{profile_name}`", ephemeral=True
+            )
+            return
+        await interaction.followup.send(
+            f"Vous êtes bien connecté et le profile "
+            f"{profile_name.get('profile')} a été enregistré."
+        )
