@@ -60,11 +60,21 @@ class Skyblock(app_commands.Group):
     async def tuto(self, interaction: discord.Interaction[ChouetteBot]) -> None:
         """Donne le lien du tutoriel pour débuter sur le Skyblock d'Hypixel."""
         repo_url = "https://github.com/gylfirst/HowToSkyblock"
-        await interaction.response.send_message(
-            f"Ce tutoriel est écrit pour que les débutants puissent jouer au Skyblock d'Hypixel facilement.\n"
-            f"Vous pouvez le trouver [ici](<{repo_url}>).\n"
-            f"Fait avec :heart: par [gylfirst](<https://github.com/gylfirst>)!"
+        strip_color = discord.Colour.from_str(value="#DAA520")  # HTML name: GoldenRod
+        embed_tuto = discord.Embed(
+            title="Tutoriel pour débuter sur le Skyblock d'Hypixel",
+            description="Ce tutoriel est écrit pour que les débutants puissent jouer au Skyblock d'Hypixel facilement.",
+            color=strip_color,
         )
+        embed_tuto.set_author(name="Gylfirst", url="https://github.com/gylfirst")
+        embed_tuto.set_thumbnail(url="https://hypixel.net/attachments/1608783256403-png.2210524")
+        embed_tuto.add_field(
+            name="Comment utiliser le tutoriel ?",
+            value=f"Il suffit de cliquer sur le lien ci-dessous pour accéder au tutoriel.\n{repo_url}",
+            inline=False,
+        )
+        embed_tuto.set_footer(text="HowToSkyblock")
+        await interaction.response.send_message(embed=embed_tuto)
 
     @app_commands.command(
         name="spider_rain",
