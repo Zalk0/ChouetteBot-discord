@@ -59,9 +59,8 @@ class Skyblock(app_commands.Group):
     )
     async def tuto(self, interaction: discord.Interaction[ChouetteBot]) -> None:
         """Donne le lien du tutoriel pour débuter sur le Skyblock d'Hypixel."""
-        await interaction.response(thinking=True)
         repo_url = "https://github.com/gylfirst/HowToSkyblock"
-        await interaction.followup.send(
+        await interaction.response.send_message(
             f"Ce tutoriel est écrit pour que les débutants puissent jouer au Skyblock d'Hypixel facilement.\n"
             f"Vous pouvez le trouver [ici](<{repo_url}>).\n"
             f"Fait avec :heart: par [gylfirst](<https://github.com/gylfirst>)!"
