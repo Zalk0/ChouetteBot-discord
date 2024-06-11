@@ -132,6 +132,7 @@ class Skyblock(app_commands.Group):
     async def link(
         self, interaction: discord.Interaction[ChouetteBot], pseudo: str, profile: str | None
     ):
+        """Lie le profil Hypixel Skyblock du joueur."""
         await interaction.response.defer(thinking=True)
         async with aiohttp.ClientSession() as session:
             profile_name = await pseudo_to_profile(
@@ -144,6 +145,6 @@ class Skyblock(app_commands.Group):
             )
             return
         await interaction.followup.send(
-            f"Vous êtes bien connecté et le profile "
+            f"Vous êtes bien connecté et le profil "
             f"{profile_name.get('profile')} a été enregistré."
         )
