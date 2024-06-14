@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from discord.ext import tasks
 
 from chouette.utils.birthdays import calculate_age, load_birthdays
+from chouette.utils.ranking import display_ranking, update_stats
 
 if TYPE_CHECKING:
     from chouette.bot import ChouetteBot
@@ -63,6 +64,24 @@ async def tasks_list(client: ChouetteBot) -> None:
                     )
                 await client.get_channel(int(client.config["BIRTHDAY_CHANNEL"])).send(msg_birthday)
 
+    # Loop to display the ranking for hypixel skyblock guild every month on the 1st at 8am in local time
+    @tasks.loop(time=time(8, tzinfo=TIMEZONE))
+    async def skyblock_guild_ranking() -> None:
+        """Affiche le classement de la guilde Hypixel Skyblock."""
+        await client.wait_until_ready()
+        if date.today().day == 1:
+            guild = client.get_guild(int(client.config["HYPIXEL_GUILD_ID"]))
+            member = guild.get_role(int(client.config["HYPIXEL_GUILD_ROLE"]))
+            guild_icon = guild.icon
+            api_key = client.config["HYPIXEL_KEY"]
+            update_message = await update_stats(api_key=api_key)
+            client.bot_logger.info(update_message)
+            await client.get_channel(int(client.config["HYPIXEL_CHANNEL"])).send(
+                f"||{member.mention}||",
+                embed=await display_ranking(img=guild_icon),
+            )
+
     # Start loop
     poke_ping.start()
     check_birthdays.start()
+    skyblock_guild_ranking.start()

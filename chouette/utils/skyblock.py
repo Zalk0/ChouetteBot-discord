@@ -9,17 +9,17 @@ HYPIXEL_API = "https://api.hypixel.net/v2/"
 
 
 async def load_skyblock() -> dict:
-    """Load Skyblock data from disk."""
+    """Charge les données du Skyblock à partir du disque."""
     return await data_read(SKYBLOCK_FILE)
 
 
 async def save_skyblock(skyblock: dict) -> None:
-    """Save Skyblock data to disk."""
+    """Sauvegarde les données du Skyblock sur le disque."""
     await data_write(skyblock, SKYBLOCK_FILE)
 
 
 async def minecraft_uuid(session: ClientSession, pseudo: str) -> tuple[bool, str]:
-    """Return player UUID from Mojang Minecraft API."""
+    """Retourne l'UUID d'un joueur Minecraft avec l'API Mojang."""
     async with session.get(
         f"https://api.mojang.com/users/profiles/minecraft/{pseudo}"
     ) as response:
@@ -32,7 +32,7 @@ async def minecraft_uuid(session: ClientSession, pseudo: str) -> tuple[bool, str
 async def selected_profile(
     session: ClientSession, api_key: str, uuid: str
 ) -> tuple[bool, dict | str]:
-    """Return selected Skyblock profile of a player."""
+    """Retourne le profil Skyblock sélectionné d'un joueur."""
     async with session.get(
         f"{HYPIXEL_API}skyblock/profiles", params={"key": api_key, "uuid": uuid}
     ) as response:
@@ -51,7 +51,7 @@ async def selected_profile(
 async def get_profile(
     session: ClientSession, api_key: str, uuid: str, name: str
 ) -> tuple[bool, dict | str]:
-    """Return specified Skyblock profile of a player."""
+    """Retourn le profil Skyblock d'un joueur avec un nom spécifique."""
     async with session.get(
         f"{HYPIXEL_API}skyblock/profiles", params={"key": api_key, "uuid": uuid}
     ) as response:
@@ -65,18 +65,35 @@ async def get_profile(
         return False, "No profile with this name"
 
 
-async def get_stats(session, pseudo, uuid, profile):
+async def get_stats(session, pseudo, uuid, profile) -> dict[str, float]:
+    """Retourne les statistiques d'un joueur Skyblock avec les API."""
     info = profile.get("members").get(uuid)
     level: float = (info.get("leveling").get("experience")) / 100
     async with session.get(f"https://sky.shiiyu.moe/api/v2/profile/{pseudo}") as response:
-        networth: float = (
-            (await response.json())
-            .get("profiles")
-            .get(profile.get("profile_id"))
-            .get("data")
-            .get("networth")
-            .get("networth", 0)
-        )
+        if response.status != 200:
+            async with session.get(f"https://sky.shiiyu.moe/stats/{pseudo}") as response_error:
+                if response_error.status != 200:
+                    raise Exception("Error while fetching stats")
+                async with session.get(
+                    f"https://sky.shiiyu.moe/api/v2/profile/{pseudo}"
+                ) as response_again:
+                    networth: float = (
+                        (await response_again.json())
+                        .get("profiles")
+                        .get(profile.get("profile_id"))
+                        .get("data")
+                        .get("networth")
+                        .get("networth", 0)
+                    )
+        else:
+            networth: float = (
+                (await response.json())
+                .get("profiles")
+                .get(profile.get("profile_id"))
+                .get("data")
+                .get("networth")
+                .get("networth", 0)
+            )
     skill = info.get("player_data").get("experience")
     skills: tuple[float, float, float, float, float, float, float, float, float, float] = (
         skill.get("SKILL_FISHING", 0),
@@ -99,12 +116,23 @@ async def get_stats(session, pseudo, uuid, profile):
         slayer.get("blaze", {}).get("xp", 0),
         slayer.get("vampire", {}).get("xp", 0),
     )
-    return {"level": level, "networth": networth, "skills": skills, "slayers": slayers}
+    level_cap: tuple[int, int] = (
+        info.get("jacobs_contest").get("perks").get("farming_level_cap", 0),
+        # TODO: add one day taming cap (when api is cool)
+    )
+    return {
+        "level": level,
+        "networth": networth,
+        "skills": skills,
+        "slayers": slayers,
+        "level_cap": level_cap,
+    }
 
 
 async def pseudo_to_profile(
     session: ClientSession, api_key: str, pseudo: str, name: str | None
 ) -> str:
+    """Retourne les statistiques d'un joueur Skyblock avec les API."""
     uuid = await minecraft_uuid(session, pseudo)
     if not uuid[0]:
         # TODO: better handling
