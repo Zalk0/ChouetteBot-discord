@@ -76,7 +76,7 @@ async def tasks_list(client: ChouetteBot) -> None:
             api_key = client.config["HYPIXEL_KEY"]
             update_message = await update_stats(api_key=api_key)
             client.bot_logger.info(update_message)
-            await client.get_channel(int(client.config["HYPIXEL_CHANNEL"])).send(
+            await client.get_channel(int(client.config["HYPIXEL_RANK_CHANNEL"])).send(
                 f"||{member.mention}||",
                 embed=await display_ranking(img=guild_icon),
             )
