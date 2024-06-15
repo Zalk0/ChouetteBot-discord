@@ -197,6 +197,6 @@ def experience_to_level(type_xp: str, xp_amount: float) -> float:
 
     for i, (level, xp) in enumerate(xp_data):
         if xp_amount <= xp:
-            previous_xp = xp_data[i-1][1]
+            previous_xp = xp_data[i - 1][1]
             return level - 1 + (xp_amount - previous_xp) / (xp - previous_xp)
     return xp_data[-1][0]
