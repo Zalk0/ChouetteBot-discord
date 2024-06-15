@@ -1,15 +1,16 @@
-async def experience_to_level(type_xp: str, xp_amount: float) -> float:
+def experience_to_level(type_xp: str, xp_amount: float) -> float:
     """
-    Calcule le niveau correspondant à une quantité donnée de XP cumulative.
+    Calcule le niveau correspondant à une quantité donnée d'expérience cumulative.
 
     Args:
-        type_xp (str): Le type d'XP pour lequel calculer le niveau (compétence, type de tueur, donjon). Pour `slayer_type`, utilisez l'un des suivants: slayer_zombie, slayer_spider, slayer_web, slayer_vampire.
-        xp_amount (float): La quantité d'XP cumulée.
+        type_xp: Le type d'expérience pour lequel calculer le niveau (compétence, type de slayer, donjon).
+            Pour `slayer_type`, utilisez l'un des suivants: slayer_zombie, slayer_spider, slayer_web, slayer_vampire.
+        xp_amount: La quantité d'expérience cumulée.
 
     Returns:
-        level (float): Le niveau correspondant à la quantité donnée d'XP cumulée.
+        level: Le niveau correspondant à la quantité donnée d'expérience cumulée.
     """
-    skill_xp_data: list[tuple(int, int)] = [
+    skill_xp_data: list[tuple[int, int]] = [
         (0, 0),
         (1, 50),
         (2, 175),
@@ -71,9 +72,8 @@ async def experience_to_level(type_xp: str, xp_amount: float) -> float:
         (58, 97572425),
         (59, 104672425),
         (60, 111672425),
-        (61, 10e24),
     ]
-    dungeon_xp_data: list[tuple(int, int)] = [
+    dungeon_xp_data: list[tuple[int, int]] = [
         (0, 0),
         (1, 50),
         (2, 125),
@@ -125,9 +125,8 @@ async def experience_to_level(type_xp: str, xp_amount: float) -> float:
         (48, 360559640),
         (49, 453559640),
         (50, 569809640),
-        (51, 10e24),
     ]
-    slayer_xp_data: list[list[tuple(int, int)]] = [
+    slayer_xp_data: list[list[tuple[int, int]]] = [
         [
             (0, 0),
             (1, 5),
@@ -177,6 +176,9 @@ async def experience_to_level(type_xp: str, xp_amount: float) -> float:
     # Skill XP data
     if type_xp == "skill":
         xp_data = skill_xp_data
+    # Dungeon XP data
+    elif type_xp == "dungeon":
+        xp_data = dungeon_xp_data
     # Slayer XP data
     # Slayer Zombie
     elif type_xp == "slayer_zombie":
@@ -190,15 +192,11 @@ async def experience_to_level(type_xp: str, xp_amount: float) -> float:
     # Slayer Vampire
     elif type_xp == "slayer_vampire":
         xp_data = slayer_xp_data[3]
-    # Dungeon XP data
-    elif type_xp == "dungeon":
-        xp_data = dungeon_xp_data
     else:
         raise ValueError(f"Unknown type of XP: {type_xp}")
 
-    for i in range(len(xp_data) - 1):
-        current_level, current_xp = xp_data[i]
-        next_level, next_xp = xp_data[i + 1]
-        if xp_amount <= next_xp:
-            return current_level + (xp_amount - current_xp) / (next_xp - current_xp)
+    for i, (level, xp) in enumerate(xp_data):
+        if xp_amount <= xp:
+            previous_xp = xp_data[i-1][1]
+            return level - 1 + (xp_amount - previous_xp) / (xp - previous_xp)
     return xp_data[-1][0]

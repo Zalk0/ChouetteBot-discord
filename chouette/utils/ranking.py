@@ -133,31 +133,25 @@ async def generate_ranking_message(data, category, level_cap):
         if category != "level" and category != "networth":
             if category in skills_list:
                 if category != "dungeoneering":
-                    value = await experience_to_level(type_xp="skill", xp_amount=value)
+                    value = experience_to_level(type_xp="skill", xp_amount=value)
                 else:
-                    value = await experience_to_level(type_xp="dungeon", xp_amount=value)
-                # set max level to 50 for skills (alchemy, carpentery, fishing, foraging)
-                if (
-                    category == "alchemy"
-                    or category == "carpentery"
-                    or category == "fishing"
-                    or category == "foraging"
-                ):
+                    value = experience_to_level(type_xp="dungeon", xp_amount=value)
+                # Set max level to 50 for skills (alchemy, carpentery, fishing, foraging)
+                if category in ("alchemy", "carpentery", "fishing", "foraging", "taming"):
                     value = min(value, 50.00)
-                # set max level to 50 for farming with level cap
+                # Set max level to level cap for farming
                 if category == "farming":
                     value = min(value, level_cap[0] + 50)
-                # set max level to 50 for taming with level cap
-                # TODO: if taming -> level_cap[1] + 50
+                    # TODO: if taming -> level_cap[1] + 50
             elif category in slayers_list:
                 if category == "zombie":
-                    value = await experience_to_level(type_xp="slayer_zombie", xp_amount=value)
+                    value = experience_to_level(type_xp="slayer_zombie", xp_amount=value)
                 elif category == "spider":
-                    value = await experience_to_level(type_xp="slayer_spider", xp_amount=value)
+                    value = experience_to_level(type_xp="slayer_spider", xp_amount=value)
                 elif category == "vampire":
-                    value = await experience_to_level(type_xp="slayer_vampire", xp_amount=value)
+                    value = experience_to_level(type_xp="slayer_vampire", xp_amount=value)
                 else:
-                    value = await experience_to_level(type_xp="slayer_web", xp_amount=value)
+                    value = experience_to_level(type_xp="slayer_web", xp_amount=value)
             else:
                 raise ValueError(f"Unknown category: {category}")
             value = f"{value:.2f}"
