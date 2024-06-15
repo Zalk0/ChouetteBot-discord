@@ -21,10 +21,7 @@ class Skyblock(app_commands.Group):
         """Initialise la classe Skyblock."""
         super().__init__(name="skyblock", description="Commandes relatives au Skyblock d'Hypixel")
 
-    @app_commands.command(
-        name="mods",
-        description="Vérifie les dernières mises à jour des mods populaires du Skyblock d'Hypixel",
-    )
+    @app_commands.command(name="mods")
     async def mods(self, interaction: discord.Interaction[ChouetteBot]) -> None:
         """Vérifie les dernières mises à jour des mods populaires du Skyblock d'Hypixel."""
         await interaction.response.defer(thinking=True)
@@ -53,10 +50,7 @@ class Skyblock(app_commands.Group):
             f"[lien]({skytils['assets'][0]['browser_download_url']})"
         )
 
-    @app_commands.command(
-        name="tuto",
-        description="Donne le lien du tutoriel pour débuter sur le Skyblock d'Hypixel",
-    )
+    @app_commands.command(name="tuto")
     async def tuto(self, interaction: discord.Interaction[ChouetteBot]) -> None:
         """Donne le lien du tutoriel pour débuter sur le Skyblock d'Hypixel."""
         repo_url = "https://github.com/gylfirst/HowToSkyblock"
@@ -76,10 +70,7 @@ class Skyblock(app_commands.Group):
         embed_tuto.set_footer(text="HowToSkyblock")
         await interaction.response.send_message(embed=embed_tuto)
 
-    @app_commands.command(
-        name="spider_rain",
-        description="Indique le temps de la prochaine pluie ou orage sur Spider's Den",
-    )
+    @app_commands.command(name="spider_rain")
     async def spider(self, interaction: discord.Interaction[ChouetteBot]) -> None:
         """Indique le temps de la prochaine pluie ou orage sur Spider's Den."""
         utc_last_thunderstorm = round(
@@ -103,9 +94,7 @@ class Skyblock(app_commands.Group):
             thunderstorm_msg = f"Le prochain orage s'arrêtera <t:{thunderstorm_duration}:R>"
         await interaction.response.send_message(f"{rain_msg}\n{thunderstorm_msg}")
 
-    @app_commands.command(
-        name="guild", description="Donne un rôle si le joueur est dans la guilde"
-    )
+    @app_commands.command(name="guild")
     @app_commands.rename(pseudo="pseudo_mc")
     async def in_guild(self, interaction: discord.Interaction[ChouetteBot], pseudo: str) -> None:
         """Donne un rôle sur le Discord si le joueur est dans la guilde."""
@@ -125,24 +114,22 @@ class Skyblock(app_commands.Group):
         else:
             await interaction.followup.send(checked)
 
-    # Make a command to link the Discord user to a Hypixel profile
-    @app_commands.command(name="link", description="Lie ton profil Hypixel Skyblock")
+    @app_commands.command(name="link")
     @app_commands.rename(pseudo="pseudo_mc")
     @app_commands.describe(pseudo="Ton pseudo Minecraft", profile="Ton profil Skyblock préféré")
     async def link(
         self, interaction: discord.Interaction[ChouetteBot], pseudo: str, profile: str | None
     ):
         """Lie le profil Hypixel Skyblock du joueur."""
-        await interaction.response.defer(thinking=True)
+        await interaction.response.defer(ephemeral=True, thinking=True)
+        discord_pseudo = interaction.user.name
         async with aiohttp.ClientSession() as session:
             profile_name = await pseudo_to_profile(
-                session, interaction.client.config["HYPIXEL_KEY"], pseudo, profile
+                session, interaction.client.config["HYPIXEL_KEY"], discord_pseudo, pseudo, profile
             )
         if isinstance(profile_name, str):
             interaction.client.bot_logger.error(profile_name)
-            await interaction.followup.send(
-                f"Il y a eu une erreur :\n`{profile_name}`", ephemeral=True
-            )
+            await interaction.followup.send(f"Il y a eu une erreur :\n`{profile_name}`")
             return
         await interaction.followup.send(
             f"Vous êtes bien connecté et le profil "
