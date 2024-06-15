@@ -31,12 +31,14 @@ async def update_stats(api_key: str) -> str:
     msg = "Synchro des données de la guilde sur Hypixel Skyblock pour :"
     async with aiohttp.ClientSession() as session:
         for player in data:
-            result = (
-                await pseudo_to_profile(
-                    session=session, api_key=api_key, pseudo=data[player]["pseudo"], name=None
-                ),
+            result = await pseudo_to_profile(
+                session,
+                api_key,
+                data[player]["discord"],
+                data[player]["pseudo"],
+                data[player]["profile"],
             )
-            msg += f"\n{SPACES}- {result[0]['pseudo']} sur le profil {result[0]['profile']}"
+            msg += f"\n{SPACES}- {result.get('pseudo')} sur le profil {result.get('profile')}"
     return msg
 
 

@@ -134,7 +134,7 @@ async def get_stats(session, pseudo, uuid, profile) -> dict[str, float]:
 
 async def pseudo_to_profile(
     session: ClientSession, api_key: str, discord_pseudo: str, pseudo: str, name: str | None
-) -> str:
+) -> dict | str:
     """Retourne le profil d'un joueur Skyblock avec l'API."""
     uuid = await minecraft_uuid(session, pseudo)
     if not uuid[0]:
@@ -159,7 +159,7 @@ async def pseudo_to_profile(
         return profile[1]
     profile = profile[1]
 
-    info = {uuid: {"discord": "", "pseudo": pseudo, "profile": profile.get("profile_id")}}
+    info = {uuid: {"discord": discord, "pseudo": pseudo, "profile": profile.get("cute_name")}}
     info.get(uuid).update(await get_stats(session, pseudo, uuid, profile))
     file_content = await load_skyblock()
     if file_content.get(uuid, {}).get("profile", "") != profile.get("profile_id"):

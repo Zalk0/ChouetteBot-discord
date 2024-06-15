@@ -27,7 +27,7 @@ except ZoneInfoNotFoundError:
 async def tasks_list(client: ChouetteBot) -> None:
     """Liste des tâches à effectuer pour le bot."""
 
-    # Loop to send message every 2 hours for pokeroll in utc time (default)
+    # Send message every 2 hours for pokeroll in utc time (default)
     @tasks.loop(time=[time(t) for t in range(0, 24, 2)])
     async def poke_ping() -> None:
         """Envoie un message pour le pokeroll."""
@@ -37,7 +37,7 @@ async def tasks_list(client: ChouetteBot) -> None:
         msg_poke = f"{dresseurs.mention} C'est l'heure d'attraper des pokémons {pokeball}"
         await client.get_channel(int(client.config["POKE_CHANNEL"])).send(msg_poke)
 
-    # Loop to check if it's someone's birthday every day at 8am in local time
+    # Check if it's someone's birthday every day at 8am in local time
     @tasks.loop(time=time(8, tzinfo=TIMEZONE))
     async def check_birthdays() -> None:
         """Vérifie si c'est l'anniversaire de quelqu'un."""
@@ -64,21 +64,18 @@ async def tasks_list(client: ChouetteBot) -> None:
                     )
                 await client.get_channel(int(client.config["BIRTHDAY_CHANNEL"])).send(msg_birthday)
 
-    # Loop to display the ranking for hypixel skyblock guild every month on the 1st at 8am in local time
+    # Display the ranking for Hypixel Skyblock guild every month on the 1st at 8am in local time
     @tasks.loop(time=time(8, tzinfo=TIMEZONE))
     async def skyblock_guild_ranking() -> None:
         """Affiche le classement de la guilde Hypixel Skyblock."""
-        await client.wait_until_ready()
         if date.today().day == 1:
             guild = client.get_guild(int(client.config["HYPIXEL_GUILD_ID"]))
             member = guild.get_role(int(client.config["HYPIXEL_GUILD_ROLE"]))
-            guild_icon = guild.icon
             api_key = client.config["HYPIXEL_KEY"]
             update_message = await update_stats(api_key=api_key)
             client.bot_logger.info(update_message)
             await client.get_channel(int(client.config["HYPIXEL_RANK_CHANNEL"])).send(
-                f"||{member.mention}||",
-                embed=await display_ranking(img=guild_icon),
+                f"||{member.mention}||", embed=await display_ranking(img=guild.icon.url)
             )
 
     # Start loop

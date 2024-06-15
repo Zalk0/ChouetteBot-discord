@@ -77,8 +77,11 @@ async def delete(interaction: discord.Interaction[ChouetteBot], message: discord
     last_id = interaction.channel.last_message_id
 
     def is_msg(msg: discord.Message) -> bool:
-        """Vérifie si le message est dans l'intervalle (dernier message <=> message sélectionné).
-        On décale les IDs de 22 bits pour obtenir le timestamp du message."""
+        """
+        Vérifie si le message est dans l'intervalle (dernier message ↔ message sélectionné).
+
+        On décale les IDs de 22 bits pour obtenir le timestamp du message.
+        """
         return (message.id >> 22) <= (msg.id >> 22) <= (last_id >> 22)
 
     del_msg = await message.channel.purge(bulk=True, reason="Admin used bulk delete", check=is_msg)
@@ -94,7 +97,8 @@ async def info(interaction: discord.Interaction[ChouetteBot]) -> None:
     dockerhub_link = "https://hub.docker.com/r/gylfirst/chouettebot"
     await interaction.response.send_message(
         f"Bot Discord créé par : {creators}\n\n"
-        f"Projet développé pendant notre temps libre. Vous pouvez demander des fonctionnalités sur GitHub.\n"
+        "Projet développé pendant notre temps libre. "
+        "Vous pouvez demander des fonctionnalités sur GitHub.\n"
         f"[Code source](<{github_link}>)\n"
         f"[Image Docker](<{dockerhub_link}>)\n\n"
         f"Dernière mise à jour : {last_update}"
