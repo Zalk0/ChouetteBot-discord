@@ -74,8 +74,12 @@ async def tasks_list(client: ChouetteBot) -> None:
             api_key = client.config["HYPIXEL_KEY"]
             update_message = await update_stats(api_key=api_key)
             client.bot_logger.info(update_message)
+            if not guild.icon:
+                icon_url = "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg"
+            else:
+                icon_url = guild.icon.url
             await client.get_channel(int(client.config["HYPIXEL_RANK_CHANNEL"])).send(
-                f"||{member.mention}||", embed=await display_ranking(img=guild.icon.url)
+                f"||{member.mention}||", embed=await display_ranking(img=icon_url)
             )
 
     # Start loop
