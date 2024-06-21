@@ -1,16 +1,12 @@
 from datetime import date
-from pathlib import Path
 
 import aiohttp
 import discord
 
 from chouette.utils.birthdays import month_to_str
-from chouette.utils.data_io import data_read, data_write
 from chouette.utils.hypixel_data import experience_to_level
-from chouette.utils.skyblock import pseudo_to_profile
+from chouette.utils.skyblock import get_profile, get_stats, load_skyblock, save_skyblock
 
-SKYBLOCK_FILE: Path = Path("data", "skyblock.toml")
-RANKING_FILE: Path = Path("data", "ranking.toml")
 SPACES = " " * 38
 
 
@@ -27,24 +23,26 @@ async def format_number(number) -> str:
 
 async def update_stats(api_key: str) -> str:
     """Crée le classement de la guilde sur Hypixel Skyblock."""
-    data = await data_read(SKYBLOCK_FILE)
+    old_data = await load_skyblock()
+    new_data = old_data.copy()
     msg = "Synchro des données de la guilde sur Hypixel Skyblock pour :"
     async with aiohttp.ClientSession() as session:
-        for player in data:
-            result = await pseudo_to_profile(
-                session,
-                api_key,
-                data[player]["discord"],
-                data[player]["pseudo"],
-                data[player]["profile"],
-            )
-            msg += f"\n{SPACES}- {result.get('pseudo')} sur le profil {result.get('profile')}"
+        for uuid in old_data:
+            pseudo = old_data.get(uuid).get("pseudo")
+            profile_name = old_data.get(uuid).get("profile")
+            profile = await get_profile(session, api_key, uuid, profile_name)
+            if not profile[0]:
+                raise Exception("Error while updating stats")
+            profile = profile[1]
+            new_data.get(uuid).update(await get_stats(session, pseudo, uuid, profile))
+            msg += f"\n{SPACES}- {pseudo} sur le profil {profile_name}"
+    await save_skyblock(new_data)
+    # TODO: handle comparison using old and new data (see issue #56)
     return msg
 
 
-async def parse_data() -> dict:
+async def parse_data(data: dict) -> tuple[dict, list]:
     """Parse les données de la guilde sur Hypixel Skyblock."""
-    data = await data_read(SKYBLOCK_FILE)
     ranking = {}
     skills = [
         "fishing",
@@ -69,24 +67,21 @@ async def parse_data() -> dict:
                     ranking[key] = {}
                 ranking[key][data[player]["pseudo"]] = value
             # Handle 'skills'
-            elif key == "skills":
+            if key == "skills":
                 for skill in skills:
                     if skill not in ranking:
                         ranking[skill] = {}
                     ranking[skill][data[player]["pseudo"]] = value[skills.index(skill)]
             # Handle 'slayers'
-            elif key == "slayers":
+            if key == "slayers":
                 for slayer in slayers:
                     if slayer not in ranking:
                         ranking[slayer] = {}
                     ranking[slayer][data[player]["pseudo"]] = value[slayers.index(slayer)]
-            elif key == "level_cap":
+            if key == "level_cap":
                 level_cap.append(value[0])
                 # TODO: for taming
                 # -> level_cap.append(value[1])
-            # Skip other keys
-            else:
-                continue
 
     # Sorting the nested dictionaries by value
     for category in ranking:
@@ -103,7 +98,6 @@ async def parse_data() -> dict:
                         reverse=True,
                     )
                 )
-    await data_write(ranking, RANKING_FILE)
     return ranking, level_cap
 
 
@@ -171,15 +165,15 @@ async def generate_ranking_message(data, category, level_cap):
 
 async def display_ranking(img: str) -> discord.Embed:
     """Affiche le classement de la guilde sur Hypixel Skyblock."""
-    mois = await month_to_str(date.today().month)
-    annee = date.today().year
+    month = await month_to_str(date.today().month)
+    year = date.today().year
     ranking = discord.Embed(
-        title=f"Classement du mois de {mois} {annee}",
+        title=f"Classement du mois de {month} {year}",
         description="Voici le classement de la guilde sur Hypixel Skyblock.",
         color=discord.Colour.from_rgb(0, 170, 255),
     )
     ranking.set_footer(text="✅ Mis à jour le 1er de chaque mois à 8h00")
-    data, level_cap = await parse_data()
+    data, level_cap = await parse_data(await load_skyblock())
     for category in data:
         if isinstance(data[category], dict):
             messages = await generate_ranking_message(data, category, level_cap)
