@@ -152,13 +152,13 @@ async def generate_ranking_message(data, category, level_cap):
         elif category == "networth":
             value = await format_number(value)
         if i == 0:
-            message = f"🥇 **{player}** ({value})"
+            message = f"\N{FIRST PLACE MEDAL} **{player}** ({value})"
         elif i == 1:
-            message = f"🥈 **{player}** ({value})"
+            message = f"\N{SECOND PLACE MEDAL} **{player}** ({value})"
         elif i == 2:
-            message = f"🥉 **{player}** ({value})"
+            message = f"\N{THIRD PLACE MEDAL} **{player}** ({value})"
         else:
-            message = f"⚫ **{player}** ({value})"
+            message = f"\N{MEDIUM BLACK CIRCLE} **{player}** ({value})"
         messages.append(message)
     return messages
 
@@ -172,7 +172,7 @@ async def display_ranking(img: str) -> discord.Embed:
         description="Voici le classement de la guilde sur Hypixel Skyblock.",
         color=discord.Colour.from_rgb(0, 170, 255),
     )
-    ranking.set_footer(text="✅ Mis à jour le 1er de chaque mois à 8h00")
+    ranking.set_footer(text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00")
     data, level_cap = await parse_data(await load_skyblock())
     for category in data:
         if isinstance(data[category], dict):

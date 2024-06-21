@@ -120,7 +120,7 @@ async def get_stats(session, pseudo, uuid, profile) -> dict[str, float]:
         slayer.get("vampire", {}).get("xp", 0),
     )
     level_cap: tuple[int] = (
-        info.get("jacobs_contest").get("perks").get("farming_level_cap", 0),
+        info.get("jacobs_contest", {}).get("perks", {}).get("farming_level_cap", 0),
         # TODO: add one day taming cap (when api is cool)
     )
     return {
