@@ -35,3 +35,22 @@ async def datetime_to_timestamp(birthday: date) -> str:
     birthday_dt = datetime.fromisoformat(str(birthday))
     unix_timestamp = birthday_dt.timestamp()
     return f"<t:{int(unix_timestamp)}:R>"
+
+
+async def month_to_str(month: int) -> str:
+    """Convertit un numéro de mois en français."""
+    months: list[str] = [
+        "Janvier",
+        "Février",
+        "Mars",
+        "Avril",
+        "Mai",
+        "Juin",
+        "Juillet",
+        "Août",
+        "Septembre",
+        "Octobre",
+        "Novembre",
+        "Décembre",
+    ]
+    return months[month - 1]
