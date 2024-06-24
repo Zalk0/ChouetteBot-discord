@@ -10,10 +10,11 @@ from chouette.tasks import tasks_list
 from chouette.utils.version import get_version
 
 
-# Create a class of the bot
 class ChouetteBot(discord.Client):
-    # Initialization when class is called
-    def __init__(self):
+    """Classe principale du bot ChouetteBot."""
+
+    def __init__(self) -> None:
+        """Initialise la classe ChouetteBot."""
         # Associate the env variables to the bot
         self.config = os.environ
 
@@ -64,7 +65,8 @@ class ChouetteBot(discord.Client):
         # First declaration to be able to add commands to the guild
         self.my_guild = discord.Object(int(self.config["GUILD_ID"]))
 
-    async def setup_hook(self):
+    async def setup_hook(self) -> None:
+        """Initialise le bot."""
         # Log the current running version
         self.bot_logger.info(await get_version())
 
@@ -75,8 +77,8 @@ class ChouetteBot(discord.Client):
         # Start web server
         await self.start_server()
 
-    # Wait until bot is ready
-    async def on_ready(self):
+    async def on_ready(self) -> None:
+        """Fonction appelée lorsque le bot est prêt."""
         # Waits until internal cache is ready
         await self.wait_until_ready()
 
@@ -90,8 +92,8 @@ class ChouetteBot(discord.Client):
         self.bot_logger.info(f"{self.user} is now online and ready!")
         self.bot_logger.info(f"Number of servers I'm in : {len(self.guilds)}")
 
-    # To react to messages sent in channels bot has access to
-    async def on_message(self, message: discord.Message):
+    async def on_message(self, message: discord.Message) -> None:
+        """Fonction appelée lorsqu'un message est envoyé dans les salons auxquels il a accès."""
         # Ignore messages from bots including self
         if message.author.bot:
             return
@@ -119,12 +121,13 @@ class ChouetteBot(discord.Client):
             self.bot_logger.info(f'{self.user} responded to {author}: "{response[0]}"')
 
     async def is_team_member_or_owner(self, author: discord.User) -> bool:
+        """Vérifie si l'auteur est membre de l'équipe ou le propriétaire de l'application."""
         if self.application.team:
             return author.id in [member.id for member in self.application.team.members]
         return author.id == self.application.owner.id
 
-    # Add a basic HTTP server to check if the bot is up
-    async def start_server(self):
+    async def start_server(self) -> None:
+        """Démarre un serveur HTTP pour vérifier si le bot est en ligne."""
         # Set a logger for the webserver
         web_logger = logging.getLogger("web")
         # Don't want to spam logs with site access
@@ -138,13 +141,15 @@ class ChouetteBot(discord.Client):
         }
 
         # Remove the Server header and apply the headers
-        async def _default_headers(req: web.Request, res: web.StreamResponse):
+        async def _default_headers(req: web.Request, res: web.StreamResponse) -> None:
+            """Applique les headers par défaut à la réponse."""
             if "Server" in res.headers:
                 del res.headers["Server"]
             res.headers.update(headers)
 
         # This is the response
-        async def handler(req: web.Request):
+        async def handler(req: web.Request) -> web.Response:
+            """Réponse du serveur web."""
             return web.Response(text=f"{self.user.name} is up")
 
         app = web.Application()

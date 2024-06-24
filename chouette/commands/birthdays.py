@@ -21,15 +21,17 @@ class InvalidBirthdayDate(app_commands.AppCommandError):
     pass
 
 
-# Define command group based on the Group class
 class Birthday(app_commands.Group):
-    # Set command group name and description
-    def __init__(self):
+    """Classe qui permet de gérer les anniversaires"""
+
+    def __init__(self) -> None:
+        """Initialise la classe Birthday"""
         super().__init__(name="birthday", description="Commandes pour gérer les anniversaires")
 
     async def on_error(
         self, interaction: Interaction[ChouetteBot], error: app_commands.AppCommandError
     ) -> None:
+        """Gère les erreurs lors de l'exécution des commandes."""
         if isinstance(error, InvalidBirthdayDate):
             interaction.client.bot_logger.info(
                 f"{interaction.user} entered an invalid date as his birthday"
@@ -38,7 +40,6 @@ class Birthday(app_commands.Group):
                 "Vous n'avez pas entré une date d'anniversaire valide", ephemeral=True
             )
 
-    # Make a command to add a birthday
     @app_commands.command(
         name="add",
         description="Permet d'enregistrer son anniversaire",
@@ -46,7 +47,8 @@ class Birthday(app_commands.Group):
     @app_commands.describe(day="Nombre entier", month="Nombre entier", year="Nombre entier")
     async def add(
         self, interaction: Interaction[ChouetteBot], day: int, month: int, year: int | None
-    ):
+    ) -> None:
+        """Ajoute l'anniversaire de l'utilisateur dans la base de données."""
         try:
             birth_date = await check_date(day, month, year)
         except ValueError as e:
@@ -68,7 +70,6 @@ class Birthday(app_commands.Group):
                 ephemeral=True,
             )
 
-    # Make a command to modify the birthday
     @app_commands.command(
         name="modify",
         description="Permet de modifier son anniversaire enregistré",
@@ -76,7 +77,8 @@ class Birthday(app_commands.Group):
     @app_commands.describe(day="Nombre entier", month="Nombre entier", year="Nombre entier")
     async def modify(
         self, interaction: Interaction[ChouetteBot], day: int, month: int, year: int | None
-    ):
+    ) -> None:
+        """Modifie l'anniversaire de l'utilisateur dans la base de données."""
         try:
             birth_date = await check_date(day, month, year)
         except ValueError as e:
@@ -97,12 +99,12 @@ class Birthday(app_commands.Group):
                 ephemeral=True,
             )
 
-    # Make a command to remove the birthday
     @app_commands.command(
         name="remove",
         description="Permet de supprimer son anniversaire enregistré",
     )
-    async def remove(self, interaction: Interaction[ChouetteBot]):
+    async def remove(self, interaction: Interaction[ChouetteBot]) -> None:
+        """Supprimer l'anniversaire de l'utilisateur de la base de données."""
         user_id = str(interaction.user.id)
         birthdays = await load_birthdays()
         if user_id in birthdays:
@@ -116,12 +118,12 @@ class Birthday(app_commands.Group):
                 ephemeral=True,
             )
 
-    # Make a command to list all birthdays listed in database, sorted by date
     @app_commands.command(
         name="list",
         description="Liste les anniversaires enregistrés",
     )
-    async def list(self, interaction: Interaction[ChouetteBot]):
+    async def list(self, interaction: Interaction[ChouetteBot]) -> None:
+        """Liste les anniversaires enregistrés dans la base de données triés par date."""
         msg = f"Voici les anniversaires de {interaction.guild.name}\n"
         birthdays = sorted(
             (await load_birthdays()).items(), key=lambda x: x[1].get("birthday").replace(4)
