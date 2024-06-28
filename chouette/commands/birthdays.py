@@ -148,9 +148,10 @@ class Birthday(app_commands.Group):
                 birthdays[0][1].get("birthday").day == 29
                 and birthdays[0][1].get("birthday").month == 2
             ):
-                next_birthday = (
-                    birthdays[0][1].get("birthday").replace(date.today().year + 1, 3, 1)
-                )
+                try:
+                    next_birthday = date(date.today().year + 1, 2, 29)
+                except ValueError:
+                    next_birthday = date(date.today().year + 1, 3, 1)
             else:
                 next_birthday = birthdays[0][1].get("birthday").replace(date.today().year + 1)
         msg += "```"
