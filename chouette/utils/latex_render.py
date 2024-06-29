@@ -75,9 +75,10 @@ async def latex_replace(message: str) -> str:
         .replace(r"»", r"\guillemotright")
         .replace(r"“", r"\textquotedblleft")
         .replace(r"”", r"\textquotedblright")
-        .replace(r"‘", r"\textquoteleft")
-        .replace(r"’", r"\textquoteright")
-        .replace(r"–", r"\textendash")
+        .replace(r"‘", r"\textquoteleft")  # noqa: RUF001
+        .replace(r"’", r"\textquoteright")  # noqa: RUF001
+        .replace(r"–", r"\textendash")  # noqa: RUF001
+        .replace(r"′", r"\textprime")  # noqa: RUF001
         .replace(r"—", r"\textemdash")
         .replace(r"…", r"\ldots")
         .replace(r"‰", r"\textperthousand")
@@ -99,7 +100,6 @@ async def latex_replace(message: str) -> str:
         .replace(r"•", r"\textbullet")
         .replace(r"·", r"\textperiodcentered")
         .replace(r"…", r"\textellipsis")
-        .replace(r"′", r"\textprime")
         .replace(r"″", r"\textdoubleprime")
         .replace(r"‴", r"\texttripleprime")
         .replace(r"⁗", r"\textquadrupleprime")
