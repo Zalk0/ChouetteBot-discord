@@ -26,12 +26,12 @@ async def get_version() -> str:
 
         # Split the list into specific variables
         branch = info[0].split(",")[0].split("->")[1].strip()
-        hash = info[1].strip()
+        commit_hash = info[1].strip()
         date = info[2].strip()
 
         # Wait for the subprocess exit
         await proc.wait()
 
         # Create message with information and spaces for logs format
-        msg += f"{SPACES}Git - {branch}\n{SPACES}Commit hash: {hash}\n{SPACES}Commit date: {date}"
+        msg += f"{SPACES}Git - {branch}\n{SPACES}Commit hash: {commit_hash}\n{SPACES}Commit date: {date}"
     return msg

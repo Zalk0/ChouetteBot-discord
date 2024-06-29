@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, time
+from datetime import date, time, timedelta
 from os import getenv
 from typing import TYPE_CHECKING
 
@@ -47,7 +47,11 @@ async def tasks_list(client: ChouetteBot) -> None:
             await member.remove_roles(role, reason="Birthday ended")
         for user_id, info in (await load_birthdays()).items():
             birthday: date = info.get("birthday")
-            if birthday == date.today().replace(birthday.year):
+            if (birthday.day == date.today().day and birthday.month == date.today().month) or (
+                birthday.day == 29
+                and birthday.month == 2
+                and date.today() - timedelta(days=1) == date(date.today().year, 2, 28)
+            ):
                 user = guild.get_member(int(user_id))
                 await user.add_roles(role, reason="Birthday")
                 age = await calculate_age(birthday.year)
