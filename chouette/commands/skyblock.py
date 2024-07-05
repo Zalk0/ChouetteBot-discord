@@ -8,7 +8,6 @@ import discord
 from discord import app_commands
 
 from chouette.utils.skyblock import pseudo_to_profile
-from chouette.utils.skyblock_guild import check
 
 if TYPE_CHECKING:
     from chouette.bot import ChouetteBot
@@ -94,26 +93,6 @@ class Skyblock(app_commands.Group):
             thunderstorm_msg = f"Le prochain orage s'arrêtera <t:{thunderstorm_duration}:R>"
         await interaction.response.send_message(f"{rain_msg}\n{thunderstorm_msg}")
 
-    @app_commands.command(name="guild")
-    @app_commands.rename(pseudo="pseudo_mc")
-    async def in_guild(self, interaction: discord.Interaction[ChouetteBot], pseudo: str) -> None:
-        """Donne un rôle sur le Discord si le joueur est dans la guilde."""
-        if interaction.user.get_role(int(interaction.client.config["HYPIXEL_GUILD_ROLE"])):
-            await interaction.response.send_message("Vous avez déjà le rôle !")
-            return
-        await interaction.response.defer(thinking=True)
-        checked = await check(
-            pseudo,
-            interaction.client.config["HYPIXEL_GUILD_NAME"],
-            interaction.user.name,
-        )
-        if checked is True:
-            role = interaction.guild.get_role(int(interaction.client.config["HYPIXEL_GUILD_ROLE"]))
-            await interaction.user.add_roles(role)
-            await interaction.followup.send("Vous avez été assigné le rôle de membre !")
-        else:
-            await interaction.followup.send(checked)
-
     @app_commands.command(name="link")
     @app_commands.rename(pseudo="pseudo_mc")
     @app_commands.describe(pseudo="Ton pseudo Minecraft", profile="Ton profil Skyblock préféré")
@@ -121,7 +100,7 @@ class Skyblock(app_commands.Group):
         self, interaction: discord.Interaction[ChouetteBot], pseudo: str, profile: str | None
     ):
         """Lie le profil Hypixel Skyblock du joueur."""
-        await interaction.response.defer(ephemeral=True, thinking=True)
+        await interaction.response.defer(thinking=True)
         discord_pseudo = interaction.user.name
         async with aiohttp.ClientSession() as session:
             profile_name = await pseudo_to_profile(
