@@ -168,7 +168,7 @@ async def display_ranking(img: str) -> discord.Embed:
     month = await month_to_str(date.today().month)
     year = date.today().year
     ranking = discord.Embed(
-        title=f"Classement du mois de {month} {year}",
+        title=f"Classement de début {month} {year}",
         description="Voici le classement de la guilde sur Hypixel Skyblock.",
         color=discord.Colour.from_rgb(0, 170, 255),
     )
