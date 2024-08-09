@@ -86,18 +86,17 @@ def parse_data(data: dict) -> tuple[dict, list]:
     # Sorting the nested dictionaries by value
     for category in ranking:
         if isinstance(ranking[category], dict):
+            unsorted = ranking[category]
             ranking[category] = dict(
                 sorted(ranking[category].items(), key=lambda item: item[1], reverse=True)
             )
-        elif category == "skills" or category == "slayers":
-            for subcategory in ranking[category]:
-                ranking[category][subcategory] = dict(
-                    sorted(
-                        ranking[category][subcategory].items(),
-                        key=lambda item: item[1],
-                        reverse=True,
-                    )
-                )
+            # In the case of farming we need sort the level_cap too
+            if category == "farming":
+                level_cap[0] = [
+                    level_cap[0][list(unsorted.keys()).index(key)] for key in ranking[category]
+                ]
+        else:
+            raise ValueError(f"Unknown category while sorting: {category}")
     return ranking, level_cap
 
 
@@ -147,7 +146,7 @@ def generate_ranking_message(data, category, level_cap):
                 else:
                     value = experience_to_level(type_xp="slayer_web", xp_amount=value)
             else:
-                raise ValueError(f"Unknown category: {category}")
+                raise ValueError(f"Unknown category in the ranking: {category}")
             value = f"{value:.2f}"
         elif category == "networth":
             value = format_number(value)
