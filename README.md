@@ -55,7 +55,7 @@ You can also run ruff manually with the commands `ruff check` and `ruff format`.
 
 [![Docker Image](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yaml/badge.svg?branch=main)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yaml)
 
-You can use a Docker image to deploy the bot. It's currently supporting amd64, armv6 and armv7
+You can use a Docker image to deploy the bot. It's currently supporting amd64, armv6, armv7 and arm64
 architectures. We provide deployment information on the [Docker Hub repository](https://hub.docker.com/r/gylfirst/chouettebot).
 
 You can build it from source with:
