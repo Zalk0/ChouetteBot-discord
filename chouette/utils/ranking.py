@@ -10,7 +10,7 @@ from chouette.utils.skyblock import get_profile, get_stats, load_skyblock, save_
 SPACES = " " * 38
 
 
-async def format_number(number) -> str:
+def format_number(number) -> str:
     """Permet de formater un nombre en K, M ou B."""
     if number >= 1_000_000_000:
         return f"{number / 1_000_000_000:.2f}B"
@@ -41,7 +41,7 @@ async def update_stats(api_key: str) -> str:
     return msg
 
 
-async def parse_data(data: dict) -> tuple[dict, list]:
+def parse_data(data: dict) -> tuple[dict, list]:
     """Parse les données de la guilde sur Hypixel Skyblock."""
     ranking = {}
     skills = [
@@ -57,7 +57,7 @@ async def parse_data(data: dict) -> tuple[dict, list]:
         "dungeoneering",
     ]
     slayers = ["zombie", "spider", "wolf", "enderman", "blaze", "vampire"]
-    level_cap = []
+    level_cap = [[], []]
 
     for player in data:
         for key, value in data[player].items():
@@ -79,9 +79,9 @@ async def parse_data(data: dict) -> tuple[dict, list]:
                         ranking[slayer] = {}
                     ranking[slayer][data[player]["pseudo"]] = value[slayers.index(slayer)]
             if key == "level_cap":
-                level_cap.append(value[0])
+                level_cap[0].append(value[0])
                 # TODO: for taming
-                # -> level_cap.append(value[1])
+                # -> level_cap[1].append(value[1])
 
     # Sorting the nested dictionaries by value
     for category in ranking:
@@ -101,7 +101,7 @@ async def parse_data(data: dict) -> tuple[dict, list]:
     return ranking, level_cap
 
 
-async def generate_ranking_message(data, category, level_cap):
+def generate_ranking_message(data, category, level_cap):
     skills_list: list[str] = [
         "fishing",
         "alchemy",
@@ -135,8 +135,8 @@ async def generate_ranking_message(data, category, level_cap):
                     value = min(value, 50.00)
                 # Set max level to level cap for farming
                 if category == "farming":
-                    value = min(value, level_cap[0] + 50)
-                    # TODO: if taming -> level_cap[1] + 50
+                    value = min(value, level_cap[0][i] + 50)
+                    # TODO: if taming -> level_cap[1][i] + 50
             elif category in slayers_list:
                 if category == "zombie":
                     value = experience_to_level(type_xp="slayer_zombie", xp_amount=value)
@@ -150,7 +150,8 @@ async def generate_ranking_message(data, category, level_cap):
                 raise ValueError(f"Unknown category: {category}")
             value = f"{value:.2f}"
         elif category == "networth":
-            value = await format_number(value)
+            value = format_number(value)
+
         if i == 0:
             message = f"\N{FIRST PLACE MEDAL} **{player}** ({value})"
         elif i == 1:
@@ -173,10 +174,10 @@ async def display_ranking(img: str) -> discord.Embed:
         color=discord.Colour.from_rgb(0, 170, 255),
     )
     ranking.set_footer(text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00")
-    data, level_cap = await parse_data(await load_skyblock())
+    data, level_cap = parse_data(await load_skyblock())
     for category in data:
         if isinstance(data[category], dict):
-            messages = await generate_ranking_message(data, category, level_cap)
+            messages = generate_ranking_message(data, category, level_cap)
             ranking.add_field(
                 name=f"**[ {category.capitalize()} ]**",
                 value="\n".join(messages),
