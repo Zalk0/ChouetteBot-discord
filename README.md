@@ -1,5 +1,6 @@
 # ChouetteBot-discord
 
+![Python version 3.9+](https://img.shields.io/badge/Python-3.9+-blue)
 [![Ruff status](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml/badge.svg?branch=main)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Zalk0/ChouetteBot-discord/main.svg)](https://results.pre-commit.ci/latest/github/Zalk0/ChouetteBot-discord/main)
 
@@ -55,13 +56,18 @@ You can also run ruff manually with the commands `ruff check` and `ruff format`.
 
 [![Docker Image](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yaml/badge.svg?branch=main)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yaml)
 
-You can use a Docker image to deploy the bot. It's currently supporting amd64, armv6, armv7 and arm64
-architectures. We provide deployment information on the [Docker Hub repository](https://hub.docker.com/r/gylfirst/chouettebot).
+You can use a Docker image to deploy the bot.
+It's currently supporting amd64, armv6, armv7 and arm64 architectures.
+We provide deployment information on the
+[Docker Hub repository](https://hub.docker.com/r/gylfirst/chouettebot).
 
 You can build it from source with:
+
 ```bash
 docker build .
 # or
 docker build --build-arg version=tag -t app:tag .
 ```
-(see [Docker Build CLI Options](https://docs.docker.com/reference/cli/docker/image/build/#options) to get more info)
+
+(see [Docker Build CLI Options](https://docs.docker.com/reference/cli/docker/image/build/#options)
+to get more info)
