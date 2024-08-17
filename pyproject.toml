@@ -1,6 +1,7 @@
 [project]
 name = "ChouetteBot"
-license = "MIT"
+license = { text = "MIT License" }
+readme = "README.md"
 requires-python = ">=3.9"
 
 [tool.ruff]
