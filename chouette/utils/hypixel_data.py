@@ -1,4 +1,9 @@
-def experience_to_level(type_xp: str, xp_amount: float) -> float:
+from typing import Optional
+
+
+def experience_to_level(
+    type_xp: str, xp_amount: float, max_level: Optional[int] = None
+) -> (float, float):
     """
     Calcule le niveau correspondant à une quantité donnée d'expérience cumulative.
 
@@ -6,6 +11,7 @@ def experience_to_level(type_xp: str, xp_amount: float) -> float:
         type_xp: Le type d'expérience pour lequel calculer le niveau (compétence, type de slayer, donjon).
             Pour `slayer_type`, utilisez l'un des suivants: slayer_zombie, slayer_spider, slayer_web, slayer_vampire.
         xp_amount: La quantité d'expérience cumulée.
+        max_level: Le niveau maximum
 
     Returns:
         level: Le niveau correspondant à la quantité donnée d'expérience cumulée.
@@ -65,11 +71,11 @@ def experience_to_level(type_xp: str, xp_amount: float) -> float:
         (51, 59472425),
         (52, 64072425),
         (53, 68972425),
-        (54, 74122425),
+        (54, 74172425),
         (55, 79672425),
         (56, 85472425),
         (57, 91572425),
-        (58, 97572425),
+        (58, 97972425),
         (59, 104672425),
         (60, 111672425),
     ]
@@ -196,7 +202,9 @@ def experience_to_level(type_xp: str, xp_amount: float) -> float:
         raise ValueError(f"Unknown type of XP: {type_xp}")
 
     for i, (level, xp) in enumerate(xp_data):
+        if max_level and level == max_level:
+            return max_level, xp_amount - xp_data[level][1]
         if xp_amount <= xp:
             previous_xp = xp_data[i - 1][1]
-            return level - 1 + (xp_amount - previous_xp) / (xp - previous_xp)
-    return xp_data[-1][0]
+            return level - 1 + (xp_amount - previous_xp) / (xp - previous_xp), None
+    return xp_data[-1][0], xp_amount - xp_data[-1][1]

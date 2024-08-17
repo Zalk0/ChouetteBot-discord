@@ -1,3 +1,4 @@
+import math
 from datetime import date
 
 import aiohttp
@@ -123,42 +124,52 @@ def generate_ranking_message(data, category, level_cap):
     ]
     messages = []
     for i, (player, value) in enumerate(data[category].items()):
+        overflow = None
         if category != "level" and category != "networth":
             if category in skills_list:
                 if category != "dungeoneering":
-                    value = experience_to_level(type_xp="skill", xp_amount=value)
+                    max_level = 60
+                    # Set max level to 50 for skills (alchemy, carpentery, fishing, foraging)
+                    if category in ("alchemy", "carpentery", "fishing", "foraging", "taming"):
+                        max_level = 50
+                    # Set max level to level cap for farming
+                    if category == "farming":
+                        max_level = level_cap[0][i] + 50
+                        # TODO: if taming -> level_cap[1][i] + 50
+                    value, overflow = experience_to_level("skill", value, max_level)
                 else:
-                    value = experience_to_level(type_xp="dungeon", xp_amount=value)
-                # Set max level to 50 for skills (alchemy, carpentery, fishing, foraging)
-                if category in ("alchemy", "carpentery", "fishing", "foraging", "taming"):
-                    value = min(value, 50.00)
-                # Set max level to level cap for farming
-                if category == "farming":
-                    value = min(value, level_cap[0][i] + 50)
-                    # TODO: if taming -> level_cap[1][i] + 50
+                    value, overflow = experience_to_level("dungeon", value)
             elif category in slayers_list:
                 if category == "zombie":
-                    value = experience_to_level(type_xp="slayer_zombie", xp_amount=value)
+                    value, overflow = experience_to_level("slayer_zombie", value)
                 elif category == "spider":
-                    value = experience_to_level(type_xp="slayer_spider", xp_amount=value)
+                    value, overflow = experience_to_level("slayer_spider", value)
                 elif category == "vampire":
-                    value = experience_to_level(type_xp="slayer_vampire", xp_amount=value)
+                    value, overflow = experience_to_level("slayer_vampire", value)
                 else:
-                    value = experience_to_level(type_xp="slayer_web", xp_amount=value)
+                    value, overflow = experience_to_level("slayer_web", value)
             else:
                 raise ValueError(f"Unknown category in the ranking: {category}")
-            value = f"{value:.2f}"
+
+            if overflow:
+                value = f"{value:.0f}"
+                overflow = math.floor(overflow)
+            else:
+                value = f"{value:.2f}"
+
         elif category == "networth":
             value = format_number(value)
 
         if i == 0:
-            message = f"\N{FIRST PLACE MEDAL} **{player}** ({value})"
+            message = f"\N{FIRST PLACE MEDAL} **{player}** [{value}]"
         elif i == 1:
-            message = f"\N{SECOND PLACE MEDAL} **{player}** ({value})"
+            message = f"\N{SECOND PLACE MEDAL} **{player}** [{value}]"
         elif i == 2:
-            message = f"\N{THIRD PLACE MEDAL} **{player}** ({value})"
+            message = f"\N{THIRD PLACE MEDAL} **{player}** [{value}]"
         else:
-            message = f"\N{MEDIUM BLACK CIRCLE} **{player}** ({value})"
+            message = f"\N{MEDIUM BLACK CIRCLE} **{player}** [{value}]"
+        if overflow:
+            message += f" (*{overflow:,}*)".replace(",", " ")
         messages.append(message)
     return messages
 
