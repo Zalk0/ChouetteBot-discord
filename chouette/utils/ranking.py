@@ -35,7 +35,7 @@ async def update_stats(api_key: str) -> str:
             if not profile[0]:
                 raise Exception("Error while updating stats")
             profile = profile[1]
-            new_data.get(uuid).update(await get_stats(session, pseudo, uuid, profile))
+            new_data.get(uuid).update(await get_stats(session, api_key, pseudo, uuid, profile))
             msg += f"\n{SPACES}- {pseudo} sur le profil {profile_name}"
     await save_skyblock(new_data)
     # TODO: handle comparison using old and new data (see issue #56)
@@ -73,6 +73,9 @@ def parse_data(data: dict) -> tuple[dict, list]:
                     if skill not in ranking:
                         ranking[skill] = {}
                     ranking[skill][data[player]["pseudo"]] = value[skills.index(skill)]
+                if "skill average" not in ranking:
+                    ranking["skill average"] = {}
+                ranking["skill average"][data[player]["pseudo"]] = []
             # Handle 'slayers'
             if key == "slayers":
                 for slayer in slayers:
@@ -81,8 +84,7 @@ def parse_data(data: dict) -> tuple[dict, list]:
                     ranking[slayer][data[player]["pseudo"]] = value[slayers.index(slayer)]
             if key == "level_cap":
                 level_cap[0].append(value[0])
-                # TODO: for taming
-                # -> level_cap[1].append(value[1])
+                level_cap[1].append(value[1])
 
     # Sorting the nested dictionaries by value
     for category in ranking:
@@ -91,10 +93,14 @@ def parse_data(data: dict) -> tuple[dict, list]:
             ranking[category] = dict(
                 sorted(ranking[category].items(), key=lambda item: item[1], reverse=True)
             )
-            # In the case of farming we need sort the level_cap too
+            # In the case of farming we need to sort the level_cap too
             if category == "farming":
                 level_cap[0] = [
                     level_cap[0][list(unsorted.keys()).index(key)] for key in ranking[category]
+                ]
+            if category == "taming":
+                level_cap[1] = [
+                    level_cap[1][list(unsorted.keys()).index(key)] for key in ranking[category]
                 ]
         else:
             raise ValueError(f"Unknown category while sorting: {category}")
@@ -123,9 +129,27 @@ def generate_ranking_message(data, category, level_cap):
         "vampire",
     ]
     messages = []
+    if category == "skill average":
+        skill_average = {}
+        for _i, (player, value) in enumerate(data[category].items()):
+            skill_average[player] = sum(value) / len(value)
+        skill_average = dict(sorted(skill_average.items(), key=lambda item: item[1], reverse=True))
+
+        for i, (player, value) in enumerate(skill_average.items()):
+            value = f"{value:.2f}"
+            if i == 0:
+                message = f"\N{FIRST PLACE MEDAL} **{player}** [{value}]"
+            elif i == 1:
+                message = f"\N{SECOND PLACE MEDAL} **{player}** [{value}]"
+            elif i == 2:
+                message = f"\N{THIRD PLACE MEDAL} **{player}** [{value}]"
+            else:
+                message = f"\N{MEDIUM BLACK CIRCLE} **{player}** [{value}]"
+            messages.append(message)
+        return data, messages
     for i, (player, value) in enumerate(data[category].items()):
         overflow = None
-        if category != "level" and category != "networth":
+        if category not in ("level", "networth", "skill average"):
             if category in skills_list:
                 if category != "dungeoneering":
                     max_level = 60
@@ -135,8 +159,10 @@ def generate_ranking_message(data, category, level_cap):
                     # Set max level to level cap for farming
                     if category == "farming":
                         max_level = level_cap[0][i] + 50
-                        # TODO: if taming -> level_cap[1][i] + 50
+                    if category == "taming":
+                        max_level = max(min(level_cap[1][i], 60), 50)
                     value, overflow = experience_to_level("skill", value, max_level)
+                    data["skill average"][player].append(math.floor(value))
                 else:
                     value, overflow = experience_to_level("dungeon", value)
             elif category in slayers_list:
@@ -171,7 +197,7 @@ def generate_ranking_message(data, category, level_cap):
         if overflow:
             message += f" (*{overflow:,}*)".replace(",", " ")
         messages.append(message)
-    return messages
+    return data, messages
 
 
 async def display_ranking(img: str) -> discord.Embed:
@@ -180,14 +206,15 @@ async def display_ranking(img: str) -> discord.Embed:
     year = date.today().year
     ranking = discord.Embed(
         title=f"Classement de début {month} {year}",
-        description="Voici le classement de la guilde sur Hypixel Skyblock.",
+        description="Voici le classement de la guilde sur Hypixel Skyblock.\n"
+        "Le skill average est sans progression (comme affiché sur Hypixel dans le menu des skills).",
         color=discord.Colour.from_rgb(0, 170, 255),
     )
     ranking.set_footer(text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00")
     data, level_cap = parse_data(await load_skyblock())
     for category in data:
         if isinstance(data[category], dict):
-            messages = generate_ranking_message(data, category, level_cap)
+            data, messages = generate_ranking_message(data, category, level_cap)
             ranking.add_field(
                 name=f"**[ {category.capitalize()} ]**",
                 value="\n".join(messages),
