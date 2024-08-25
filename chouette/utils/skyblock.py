@@ -80,6 +80,17 @@ async def get_profile(
         return False, "No profile with this name"
 
 
+async def get_hypixel_player(session: ClientSession, api_key: str, uuid: str) -> dict:
+    """Retourne le profil d'un joueur Hypixel."""
+    async with session.get(
+        f"{HYPIXEL_API}player", params={"key": api_key, "uuid": uuid}
+    ) as response:
+        json: dict = await response.json()
+        if response.status != 200:
+            raise Exception("Error while fetching Hypixel player info")
+        return json
+
+
 async def get_networth(session: ClientSession, pseudo: str, profile_id: str) -> float:
     """Retourne la fortune d'un joueur Skyblock à l'aide de l'API SkyCrypt."""
     async with session.get(f"https://sky.shiiyu.moe/api/v2/profile/{pseudo}") as response:
@@ -94,11 +105,12 @@ async def get_networth(session: ClientSession, pseudo: str, profile_id: str) -> 
         return json.get("profiles").get(profile_id).get("data").get("networth").get("networth", 0)
 
 
-async def get_stats(session, pseudo, uuid, profile) -> dict[str, float]:
+async def get_stats(session, api_key, pseudo, uuid, profile) -> dict[str, float]:
     """Retourne les statistiques d'un joueur Skyblock avec l'API."""
     info = profile.get("members").get(uuid)
     level: float = (info.get("leveling").get("experience")) / 100
     networth = await get_networth(session, pseudo, profile.get("profile_id"))
+    hypixel_player = await get_hypixel_player(session, api_key, uuid)
     skill = info.get("player_data").get("experience")
     skills: tuple[float, float, float, float, float, float, float, float, float, float] = (
         skill.get("SKILL_FISHING", 0),
@@ -121,9 +133,9 @@ async def get_stats(session, pseudo, uuid, profile) -> dict[str, float]:
         slayer.get("blaze", {}).get("xp", 0),
         slayer.get("vampire", {}).get("xp", 0),
     )
-    level_cap: tuple[int] = (
+    level_cap: tuple[int, int] = (
         info.get("jacobs_contest", {}).get("perks", {}).get("farming_level_cap", 0),
-        # TODO: add one day taming cap (when api is cool)
+        hypixel_player.get("player").get("achievements", {}).get("skyblock_domesticator", 0),
     )
     return {
         "level": level,
@@ -162,7 +174,7 @@ async def pseudo_to_profile(
     profile = profile[1]
 
     info = {uuid: {"discord": discord, "pseudo": pseudo, "profile": profile.get("cute_name")}}
-    info.get(uuid).update(await get_stats(session, pseudo, uuid, profile))
+    info.get(uuid).update(await get_stats(session, api_key, pseudo, uuid, profile))
     file_content = await load_skyblock()
     if file_content.get(uuid, {}).get("profile", "") != profile.get("profile_id"):
         file_content.update(info)
