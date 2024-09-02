@@ -196,7 +196,7 @@ def experience_to_level(
         raise ValueError(f"Unknown type of XP: {type_xp}")
 
     for level, xp in enumerate(xp_data):
-        if max_level and level == max_level:
+        if max_level and level == max_level and xp_amount > xp:
             return max_level, xp_amount - xp
         if xp_amount <= xp:
             previous_xp = xp_data[level - 1]
