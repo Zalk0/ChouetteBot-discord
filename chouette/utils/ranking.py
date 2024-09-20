@@ -154,7 +154,7 @@ def generate_ranking_message(data, category, level_cap):
                 if category != "dungeoneering":
                     max_level = 60
                     # Set max level to 50 for skills (alchemy, carpentery, fishing, foraging)
-                    if category in ("alchemy", "carpentery", "fishing", "foraging", "taming"):
+                    if category in ("alchemy", "carpentery", "fishing", "foraging"):
                         max_level = 50
                     # Set max level to level cap for farming
                     if category == "farming":
