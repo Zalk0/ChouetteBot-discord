@@ -6,7 +6,13 @@ import discord
 
 from chouette.utils.birthdays import month_to_str
 from chouette.utils.hypixel_data import experience_to_level
-from chouette.utils.skyblock import get_profile, get_stats, load_skyblock, save_skyblock
+from chouette.utils.skyblock import (
+    get_hypixel_player,
+    get_profile,
+    get_stats,
+    load_skyblock,
+    save_skyblock,
+)
 
 SPACES = " " * 38
 
@@ -35,7 +41,8 @@ async def update_stats(api_key: str) -> str:
             if not profile[0]:
                 raise Exception("Error while updating stats")
             profile = profile[1]
-            new_data.get(uuid).update(await get_stats(session, api_key, pseudo, uuid, profile))
+            player = await get_hypixel_player(session, api_key, uuid)
+            new_data.get(uuid).update(await get_stats(session, pseudo, uuid, player, profile))
             msg += f"\n{SPACES}- {pseudo} sur le profil {profile_name}"
     await save_skyblock(new_data)
     # TODO: handle comparison using old and new data (see issue #56)
