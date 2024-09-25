@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from aiohttp import ClientSession
 
 from chouette.utils.data_io import data_read, data_write
+
+if TYPE_CHECKING:
+    from chouette.bot import ChouetteBot
 
 SKYBLOCK_FILE = Path("data", "skyblock.toml")
 HYPIXEL_API = "https://api.hypixel.net/v2/"
@@ -147,7 +151,7 @@ async def get_stats(session, api_key, pseudo, uuid, profile) -> dict[str, float]
 
 
 async def pseudo_to_profile(
-    session: ClientSession, api_key: str, discord_pseudo: str, pseudo: str, name: str | None
+    session: ClientSession, client: ChouetteBot, discord_pseudo: str, pseudo: str, name: str | None
 ) -> dict | str:
     """Retourne le profil d'un joueur Skyblock avec l'API."""
     uuid = await minecraft_uuid(session, pseudo)
@@ -155,6 +159,9 @@ async def pseudo_to_profile(
         # TODO: better handling
         return uuid[1]
     uuid = uuid[1]
+    client.bot_logger.debug(f"L'UUID de {pseudo} est {uuid}")
+
+    api_key = client.config.get("HYPIXEL_KEY")
 
     discord = await hypixel_discord(session, api_key, uuid)
     if not discord[0]:
@@ -163,6 +170,7 @@ async def pseudo_to_profile(
     discord = discord[1]
     if discord != discord_pseudo:
         return "Votre pseudo Discord ne correspond pas à celui entré sur le serveur Hypixel"
+    client.bot_logger.debug("Les pseudos Discord correspondent")
 
     if name:
         profile = await get_profile(session, api_key, uuid, name)
@@ -172,6 +180,7 @@ async def pseudo_to_profile(
         # TODO: better handling
         return profile[1]
     profile = profile[1]
+    client.bot_logger.debug(f"Le profil {profile.get('cute_name')} a été trouvé")
 
     info = {uuid: {"discord": discord, "pseudo": pseudo, "profile": profile.get("cute_name")}}
     info.get(uuid).update(await get_stats(session, api_key, pseudo, uuid, profile))
