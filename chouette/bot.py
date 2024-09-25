@@ -1,8 +1,10 @@
 import logging
 import os
+from datetime import datetime
 
 import discord
 from aiohttp import web
+from aiohttp.abc import AbstractAccessLogger
 
 from chouette.commands_list import commands
 from chouette.responses import responses
@@ -130,9 +132,40 @@ class ChouetteBot(discord.Client):
         """Démarre un serveur HTTP pour vérifier si le bot est en ligne."""
         # Set a logger for the webserver
         web_logger = logging.getLogger("web")
-        # Don't want to spam logs with site access
-        if self.log_level >= logging.INFO:
-            logging.getLogger("aiohttp.access").setLevel(logging.ERROR)
+
+        # Custom access log handler
+        class CustomAccessLogger(AbstractAccessLogger):
+            """Custom logger to intercept and rewrite the request log messages."""
+
+            def log(self, request, response, time, level=self.log_level):
+                """Log the request and response."""
+                # All the information we need to log
+                # Remote IP address
+                remote_ip = request.remote
+                # Current time in the desired format
+                log_time = datetime.now().strftime("%d/%b/%Y:%H:%M:%S %z")
+                # Request method (GET, POST, etc.), path, and HTTP version
+                method = request.method
+                path = request.path
+                http_version = f"HTTP/{request.version.major}.{request.version.minor}"
+                # Status code and response size
+                status = response.status
+                response_size = response.body_length if response.body_length is not None else "-"
+                # Referrer (empty for simplicity, you can extract from headers if needed)
+                referrer = request.headers.get("Referer", "-")
+                # User agent (extract from request headers)
+                user_agent = request.headers.get("User-Agent", "-")
+
+                # Custom message to log
+                custom_message = (
+                    f'{remote_ip} [{log_time}] "{method} {path} {http_version}" '
+                    f'{status} {response_size} "{referrer}" "{user_agent}"'
+                )
+
+                # Log the custom message if the log level is low enough (only DEBUG)
+                if level < logging.INFO:
+                    self.logger.setLevel(logging.DEBUG)
+                    self.logger.log(self.logger.level, custom_message)
 
         # Set some basic headers for security
         headers = {
@@ -155,8 +188,11 @@ class ChouetteBot(discord.Client):
         app = web.Application()
         app.on_response_prepare.append(_default_headers)
         app.add_routes([web.get("/", handler)])
-        runner = web.AppRunner(app)
+
+        # Attach custom access logger to the web app
+        runner = web.AppRunner(app, access_log_class=CustomAccessLogger)
         await runner.setup()
+
         site = web.TCPSite(runner, self.config["SERVER_HOST"], int(self.config["SERVER_PORT"]))
         try:
             await site.start()
