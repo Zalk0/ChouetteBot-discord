@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from aiohttp import ClientSession
 
 from chouette.utils.data_io import data_read, data_write
+
+if TYPE_CHECKING:
+    from chouette.bot import ChouetteBot
 
 SKYBLOCK_FILE = Path("data", "skyblock.toml")
 HYPIXEL_API = "https://api.hypixel.net/v2/"
@@ -31,17 +35,11 @@ async def minecraft_uuid(session: ClientSession, pseudo: str) -> tuple[bool, str
         return True, json.get("id")
 
 
-async def hypixel_discord(session: ClientSession, api_key: str, uuid: str) -> tuple[bool, str]:
+async def hypixel_discord(player: dict) -> tuple[bool, str]:
     """Retourne le pseudo Discord lié à un compte Hypixel."""
-    async with session.get(
-        f"{HYPIXEL_API}player", params={"key": api_key, "uuid": uuid}
-    ) as response:
-        json: dict = await response.json()
-        if response.status != 200:
-            return False, json.get("cause")
-        if not json.get("player").get("socialMedia", {}).get("links", {}).get("DISCORD", ""):
-            return False, "Vous n'avez pas associé votre compte Discord à Hypixel"
-        return True, json.get("player").get("socialMedia").get("links").get("DISCORD")
+    if not player.get("player").get("socialMedia", {}).get("links", {}).get("DISCORD", ""):
+        return False, "Vous n'avez pas associé votre compte Discord à Hypixel"
+    return True, player.get("player").get("socialMedia").get("links").get("DISCORD")
 
 
 async def selected_profile(
@@ -105,12 +103,11 @@ async def get_networth(session: ClientSession, pseudo: str, profile_id: str) -> 
         return json.get("profiles").get(profile_id).get("data").get("networth").get("networth", 0)
 
 
-async def get_stats(session, api_key, pseudo, uuid, profile) -> dict[str, float]:
+async def get_stats(session, pseudo, uuid, hypixel_player, profile) -> dict[str, float]:
     """Retourne les statistiques d'un joueur Skyblock avec l'API."""
     info = profile.get("members").get(uuid)
     level: float = (info.get("leveling").get("experience")) / 100
     networth = await get_networth(session, pseudo, profile.get("profile_id"))
-    hypixel_player = await get_hypixel_player(session, api_key, uuid)
     skill = info.get("player_data").get("experience")
     skills: tuple[float, float, float, float, float, float, float, float, float, float] = (
         skill.get("SKILL_FISHING", 0),
@@ -147,7 +144,7 @@ async def get_stats(session, api_key, pseudo, uuid, profile) -> dict[str, float]
 
 
 async def pseudo_to_profile(
-    session: ClientSession, api_key: str, discord_pseudo: str, pseudo: str, name: str | None
+    session: ClientSession, client: ChouetteBot, discord_pseudo: str, pseudo: str, name: str | None
 ) -> dict | str:
     """Retourne le profil d'un joueur Skyblock avec l'API."""
     uuid = await minecraft_uuid(session, pseudo)
@@ -155,14 +152,19 @@ async def pseudo_to_profile(
         # TODO: better handling
         return uuid[1]
     uuid = uuid[1]
+    client.bot_logger.debug(f"L'UUID de {pseudo} est {uuid}")
 
-    discord = await hypixel_discord(session, api_key, uuid)
+    api_key = client.config.get("HYPIXEL_KEY")
+
+    player = await get_hypixel_player(session, api_key, uuid)
+    discord = await hypixel_discord(player)
     if not discord[0]:
         # TODO: better handling
         return discord[1]
     discord = discord[1]
     if discord != discord_pseudo:
         return "Votre pseudo Discord ne correspond pas à celui entré sur le serveur Hypixel"
+    client.bot_logger.debug("Les pseudos Discord correspondent")
 
     if name:
         profile = await get_profile(session, api_key, uuid, name)
@@ -172,9 +174,11 @@ async def pseudo_to_profile(
         # TODO: better handling
         return profile[1]
     profile = profile[1]
+    client.bot_logger.debug(f"Le profil {profile.get('cute_name')} a été trouvé")
 
     info = {uuid: {"discord": discord, "pseudo": pseudo, "profile": profile.get("cute_name")}}
-    info.get(uuid).update(await get_stats(session, api_key, pseudo, uuid, profile))
+    info.get(uuid).update(await get_stats(session, pseudo, uuid, player, profile))
+    client.bot_logger.debug("Les stats ont bien été calculées")
     file_content = await load_skyblock()
     if file_content.get(uuid, {}).get("profile", "") != profile.get("profile_id"):
         file_content.update(info)

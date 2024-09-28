@@ -104,7 +104,7 @@ class Skyblock(app_commands.Group):
         discord_pseudo = interaction.user.name
         async with aiohttp.ClientSession() as session:
             profile_name = await pseudo_to_profile(
-                session, interaction.client.config["HYPIXEL_KEY"], discord_pseudo, pseudo, profile
+                session, interaction.client, discord_pseudo, pseudo, profile
             )
         if isinstance(profile_name, str):
             interaction.client.bot_logger.error(profile_name)
