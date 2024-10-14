@@ -72,25 +72,44 @@ class Skyblock(app_commands.Group):
     @app_commands.command(name="spider_rain")
     async def spider(self, interaction: discord.Interaction[ChouetteBot]) -> None:
         """Indique le temps de la prochaine pluie ou orage sur Spider's Den."""
-        utc_last_thunderstorm = round(
-            datetime(2023, 3, 27, 1, 45, 56, tzinfo=timezone.utc).timestamp()
-        )
+        # The weather cycle for spider den starts at the start of the skyblock (timestamp 1560275700) and repeats
         time_now = round(datetime.now(tz=timezone.utc).timestamp())
-        base = time_now - utc_last_thunderstorm
-        thunderstorm = base % ((3850 + 1000) * 4)
-        rain = thunderstorm % (3850 + 1000)
-        if rain <= 3850:
-            next_rain = time_now + 3850 - rain
-            rain_msg = f"TLa prochaine pluie sera <t:{next_rain}:R>"
-        else:
-            rain_duration = time_now + 3850 + 1000 - rain
+        skyblock_age = time_now - 1560275700
+
+        # variables for cooldown, duration and interval for thunderstorm and rain
+        # Sunny -> Thunderstorm -> Sunny -> Rain -> Sunny -> Rain
+        # Sunny: 2400secs
+        # Rain and Thunderstorm: 1200secs
+        cooldown = 2400
+        duration = 1200
+        thunderstorm_interval = 3
+
+        thunderstorm = skyblock_age % ((cooldown + duration) * thunderstorm_interval)
+        rain = skyblock_age % (cooldown + duration)
+
+        # rain
+        if cooldown <= rain:
+            time_left = (cooldown + duration) - rain
+            rain_duration = time_now + time_left
             rain_msg = f"La pluie s'arrêtera <t:{rain_duration}:R>"
-        if thunderstorm <= (3850 * 4 + 1000 * 3):
-            next_thunderstorm = time_now + (3850 * 4 + 1000 * 3) - thunderstorm
-            thunderstorm_msg = f"Le prochain orage sera <t:{next_thunderstorm}:R>"
         else:
-            thunderstorm_duration = time_now + (3850 * 4 + 1000 * 4) - thunderstorm
+            next_rain = time_now + cooldown - rain
+            rain_msg = f"La prochaine pluie sera <t:{next_rain}:R>"
+
+        # thunderstorm
+        if (cooldown <= thunderstorm) and (thunderstorm < (cooldown + duration)):
+            time_left = (cooldown + duration) - rain
+            thunderstorm_duration = time_now + time_left
             thunderstorm_msg = f"Le prochain orage s'arrêtera <t:{thunderstorm_duration}:R>"
+        else:
+            if thunderstorm < cooldown:
+                next_thunderstorm = time_now + cooldown - thunderstorm
+            elif (cooldown + duration) <= thunderstorm:
+                next_thunderstorm = (
+                    time_now + (cooldown + duration) * (thunderstorm_interval) + cooldown
+                ) - thunderstorm
+            thunderstorm_msg = f"Le prochain orage sera <t:{next_thunderstorm}:R>"
+
         await interaction.response.send_message(f"{rain_msg}\n{thunderstorm_msg}")
 
     @app_commands.command(name="link")
