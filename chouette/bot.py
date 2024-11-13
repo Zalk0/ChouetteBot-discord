@@ -130,9 +130,17 @@ class ChouetteBot(discord.Client):
         """Démarre un serveur HTTP pour vérifier si le bot est en ligne."""
         # Set a logger for the webserver
         web_logger = logging.getLogger("web")
-        # Don't want to spam logs with site access
-        if self.log_level >= logging.INFO:
-            logging.getLogger("aiohttp.access").setLevel(logging.ERROR)
+
+        # Switch site access log to DEBUG level
+        def access_filter(record: logging.LogRecord) -> bool:
+            if record.levelno == logging.INFO:
+                if self.log_level >= logging.INFO:
+                    return False
+                record.levelno = logging.DEBUG
+                record.levelname = "DEBUG"
+            return True
+
+        logging.getLogger("aiohttp.access").addFilter(access_filter)
 
         # Set some basic headers for security
         headers = {
