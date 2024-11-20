@@ -73,7 +73,7 @@ def parse_data(data: dict) -> dict:
         "enchanting",
         "taming",
         "foraging",
-        "carpentery",
+        "carpentry",
         "combat",
         "dungeoneering",
     ]
@@ -121,7 +121,7 @@ def parse_data(data: dict) -> dict:
                         level_cap[1][player_index] if level_cap[1][player_index] > 50 else 50,
                     )
                 else:
-                    if skill in ["fishing", "alchemy", "carpentery", "foraging"]:
+                    if skill in ["fishing", "alchemy", "carpentry", "foraging"]:
                         level, overflow = experience_to_level(
                             "skill", data[player]["skills"][skills.index(skill)], max_level=50
                         )
@@ -191,7 +191,7 @@ def generate_ranking_message(data, category) -> list[str]:
         "enchanting",
         "taming",
         "foraging",
-        "carpentery",
+        "carpentry",
         "combat",
         "dungeoneering",
     ]
