@@ -28,6 +28,19 @@ def format_number(number) -> str:
     return str(number)
 
 
+def format_ranking_message(player: str, value: str, i: int) -> str:
+    """Formate le message pour les données du classement de la guilde sur Hypixel Skyblock."""
+    if i == 0:
+        message = f"\N{FIRST PLACE MEDAL} **{player}** [{value}]"
+    elif i == 1:
+        message = f"\N{SECOND PLACE MEDAL} **{player}** [{value}]"
+    elif i == 2:
+        message = f"\N{THIRD PLACE MEDAL} **{player}** [{value}]"
+    else:
+        message = f"\N{MEDIUM BLACK CIRCLE} **{player}** [{value}]"
+    return message
+
+
 async def update_stats(api_key: str) -> str:
     """Crée le classement de la guilde sur Hypixel Skyblock."""
     old_data = await load_skyblock()
@@ -49,7 +62,7 @@ async def update_stats(api_key: str) -> str:
     return msg
 
 
-def parse_data(data: dict) -> tuple[dict, list]:
+def parse_data(data: dict) -> dict:
     """Parse les données de la guilde sur Hypixel Skyblock."""
     ranking = {}
     skills = [
@@ -78,8 +91,7 @@ def parse_data(data: dict) -> tuple[dict, list]:
             if key == "skills":
                 for skill in skills:
                     if skill not in ranking:
-                        ranking[skill] = {}
-                    ranking[skill][data[player]["pseudo"]] = value[skills.index(skill)]
+                        ranking[skill] = {"level": {}, "overflow": {}}
                 if "skill average" not in ranking:
                     ranking["skill average"] = {}
                 ranking["skill average"][data[player]["pseudo"]] = []
@@ -87,34 +99,90 @@ def parse_data(data: dict) -> tuple[dict, list]:
             if key == "slayers":
                 for slayer in slayers:
                     if slayer not in ranking:
-                        ranking[slayer] = {}
-                    ranking[slayer][data[player]["pseudo"]] = value[slayers.index(slayer)]
+                        ranking[slayer] = {"level": {}, "overflow": {}}
             if key == "level_cap":
                 level_cap[0].append(value[0])
                 level_cap[1].append(value[1])
 
+    # Calculate the level and overflow for each skill for each player
+    for player_index, player in enumerate(data):
+        for skill in skills:
+            if skill != "dungeoneering":
+                if skill == "farming":
+                    level, overflow = experience_to_level(
+                        "skill",
+                        data[player]["skills"][skills.index(skill)],
+                        level_cap[0][player_index] + 50,
+                    )
+                elif skill == "taming":
+                    level, overflow = experience_to_level(
+                        "skill",
+                        data[player]["skills"][skills.index(skill)],
+                        level_cap[1][player_index] if level_cap[1][player_index] > 50 else 50,
+                    )
+                else:
+                    if skill in ["fishing", "alchemy", "carpentery", "foraging"]:
+                        level, overflow = experience_to_level(
+                            "skill", data[player]["skills"][skills.index(skill)], max_level=50
+                        )
+                    else:
+                        level, overflow = experience_to_level(
+                            "skill", data[player]["skills"][skills.index(skill)]
+                        )
+            else:
+                level, overflow = experience_to_level(
+                    "dungeon", data[player]["skills"][skills.index(skill)], 50
+                )
+            ranking[skill]["level"][data[player]["pseudo"]] = level
+            ranking[skill]["overflow"][data[player]["pseudo"]] = overflow
+        # Calculate the level and overflow for each slayer for each player
+        for slayer in slayers:
+            level, overflow = experience_to_level(
+                f"slayer_{slayer}",
+                data[player]["slayers"][slayers.index(slayer)],
+            )
+            ranking[slayer]["level"][data[player]["pseudo"]] = level
+            ranking[slayer]["overflow"][data[player]["pseudo"]] = overflow
+
     # Sorting the nested dictionaries by value
+    sorted_ranking: dict = ranking.copy()
     for category in ranking:
         if isinstance(ranking[category], dict):
-            unsorted = ranking[category]
-            ranking[category] = dict(
-                sorted(ranking[category].items(), key=lambda item: item[1], reverse=True)
-            )
-            # In the case of farming we need to sort the level_cap too
-            if category == "farming":
-                level_cap[0] = [
-                    level_cap[0][list(unsorted.keys()).index(key)] for key in ranking[category]
-                ]
-            if category == "taming":
-                level_cap[1] = [
-                    level_cap[1][list(unsorted.keys()).index(key)] for key in ranking[category]
-                ]
+            # Level and Networth
+            if category in ["level", "networth"]:
+                sorted_ranking[category] = dict(
+                    sorted(ranking[category].items(), key=lambda item: item[1], reverse=True)
+                )
+            # Skills
+            if category in skills:
+                sorted_ranking[category] = {
+                    "level": dict(
+                        sorted(
+                            ranking[category]["level"].items(),
+                            key=lambda item: (item[1], ranking[category]["overflow"][item[0]]),
+                            reverse=True,
+                        )
+                    ),
+                    "overflow": dict(ranking[category]["overflow"].items()),
+                }
+            # Slayers
+            if category in slayers:
+                sorted_ranking[category] = {
+                    "level": dict(
+                        sorted(
+                            ranking[category]["level"].items(),
+                            key=lambda item: (item[1], ranking[category]["overflow"][item[0]]),
+                            reverse=True,
+                        )
+                    ),
+                    "overflow": dict(ranking[category]["overflow"].items()),
+                }
         else:
-            raise ValueError(f"Unknown category while sorting: {category}")
-    return ranking, level_cap
+            raise ValueError(f"Unknown category while sorting the ranking: {category}")
+    return sorted_ranking
 
 
-def generate_ranking_message(data, category, level_cap):
+def generate_ranking_message(data, category) -> list[str]:
     skills_list: list[str] = [
         "fishing",
         "alchemy",
@@ -135,76 +203,65 @@ def generate_ranking_message(data, category, level_cap):
         "blaze",
         "vampire",
     ]
-    messages = []
-    if category == "skill average":
-        skill_average = {}
-        for _i, (player, value) in enumerate(data[category].items()):
-            skill_average[player] = sum(value) / len(value)
-        skill_average = dict(sorted(skill_average.items(), key=lambda item: item[1], reverse=True))
-
-        for i, (player, value) in enumerate(skill_average.items()):
+    messages: list = []
+    # Level
+    if category == "level":
+        for i, (player, value) in enumerate(data[category].items()):
             value = f"{value:.2f}"
-            if i == 0:
-                message = f"\N{FIRST PLACE MEDAL} **{player}** [{value}]"
-            elif i == 1:
-                message = f"\N{SECOND PLACE MEDAL} **{player}** [{value}]"
-            elif i == 2:
-                message = f"\N{THIRD PLACE MEDAL} **{player}** [{value}]"
-            else:
-                message = f"\N{MEDIUM BLACK CIRCLE} **{player}** [{value}]"
+            message = format_ranking_message(player, value, i)
             messages.append(message)
-        return data, messages
-    for i, (player, value) in enumerate(data[category].items()):
-        overflow = None
-        if category not in ("level", "networth", "skill average"):
-            if category in skills_list:
-                if category != "dungeoneering":
-                    max_level = 60
-                    # Set max level to 50 for skills (alchemy, carpentery, fishing, foraging)
-                    if category in ("alchemy", "carpentery", "fishing", "foraging"):
-                        max_level = 50
-                    # Set max level to level cap for farming
-                    if category == "farming":
-                        max_level = level_cap[0][i] + 50
-                    if category == "taming":
-                        max_level = max(min(level_cap[1][i], 60), 50)
-                    value, overflow = experience_to_level("skill", value, max_level)
-                    data["skill average"][player].append(math.floor(value))
-                else:
-                    value, overflow = experience_to_level("dungeon", value)
-            elif category in slayers_list:
-                if category == "zombie":
-                    value, overflow = experience_to_level("slayer_zombie", value)
-                elif category == "spider":
-                    value, overflow = experience_to_level("slayer_spider", value)
-                elif category == "vampire":
-                    value, overflow = experience_to_level("slayer_vampire", value)
-                else:
-                    value, overflow = experience_to_level("slayer_web", value)
-            else:
-                raise ValueError(f"Unknown category in the ranking: {category}")
-
+    # Networth
+    if category == "networth":
+        for i, (player, value) in enumerate(data[category].items()):
+            value = format_number(value)
+            message = format_ranking_message(player, value, i)
+            messages.append(message)
+    # Skills
+    if category in skills_list:
+        for i, (player, value) in enumerate(data[category]["level"].items()):
+            overflow = data[category]["overflow"][player]
             if overflow:
                 value = f"{value:.0f}"
                 overflow = math.floor(overflow)
             else:
                 value = f"{value:.2f}"
-
-        elif category == "networth":
-            value = format_number(value)
-
-        if i == 0:
-            message = f"\N{FIRST PLACE MEDAL} **{player}** [{value}]"
-        elif i == 1:
-            message = f"\N{SECOND PLACE MEDAL} **{player}** [{value}]"
-        elif i == 2:
-            message = f"\N{THIRD PLACE MEDAL} **{player}** [{value}]"
-        else:
-            message = f"\N{MEDIUM BLACK CIRCLE} **{player}** [{value}]"
-        if overflow:
-            message += f" (*{overflow:,}*)".replace(",", " ")
-        messages.append(message)
-    return data, messages
+            message = format_ranking_message(player, value, i)
+            if overflow:
+                message += f" (*{overflow:,}*)".replace(",", " ")
+            messages.append(message)
+    # Skill average
+    skills_avg: list[str] = skills_list.copy()
+    skills_avg.remove("dungeoneering")
+    if category == "skill average":
+        for player in data[category]:
+            total = []
+            # Calculate the average of the skills
+            for skill in skills_avg:
+                total.append(math.floor(data[skill]["level"][player]))
+            average = math.fsum(total) / len(total)
+            data[category][player] = average
+        # Sort the skill average
+        data[category] = dict(
+            sorted(data[category].items(), key=lambda item: item[1], reverse=True)
+        )
+        for i, (player, value) in enumerate(data[category].items()):
+            value = f"{value:.2f}"
+            message = format_ranking_message(player, value, i)
+            messages.append(message)
+    # Slayers
+    if category in slayers_list:
+        for i, (player, value) in enumerate(data[category]["level"].items()):
+            overflow = data[category]["overflow"][player]
+            if overflow:
+                value = f"{value:.0f}"
+                overflow = math.floor(overflow)
+            else:
+                value = f"{value:.2f}"
+            message = format_ranking_message(player, value, i)
+            if overflow:
+                message += f" (*{overflow:,}*)".replace(",", " ")
+            messages.append(message)
+    return messages
 
 
 async def display_ranking(img: str) -> discord.Embed:
@@ -218,10 +275,10 @@ async def display_ranking(img: str) -> discord.Embed:
         color=discord.Colour.from_rgb(0, 170, 255),
     )
     ranking.set_footer(text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00")
-    data, level_cap = parse_data(await load_skyblock())
+    data = parse_data(await load_skyblock())
     for category in data:
         if isinstance(data[category], dict):
-            data, messages = generate_ranking_message(data, category, level_cap)
+            messages = generate_ranking_message(data, category)
             ranking.add_field(
                 name=f"**[ {category.capitalize()} ]**",
                 value="\n".join(messages),

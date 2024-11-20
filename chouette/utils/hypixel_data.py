@@ -8,13 +8,14 @@ def experience_to_level(
     Calcule le niveau correspondant à une quantité donnée d'expérience cumulative.
 
     Args:
-        type_xp: Le type d'expérience pour lequel calculer le niveau (compétence, type de slayer, donjon).
-            Pour `slayer_type`, utilisez l'un des suivants: slayer_zombie, slayer_spider, slayer_web, slayer_vampire.
-        xp_amount: La quantité d'expérience cumulée.
-        max_level: Le niveau maximum
+        `type_xp`: Le type d'expérience pour lequel calculer le niveau (compétence, type de slayer, donjon).
+            Pour `slayer_type`, utilisez l'un des suivants: `slayer_zombie`, `slayer_spider`, `slayer_wolf`, `slayer_enderman`, `slayer_blaze`,` slayer_vampire`.
+        `xp_amount`: La quantité d'expérience cumulée.
+        `max_level`: Le niveau maximum
 
     Returns:
-        level: Le niveau correspondant à la quantité donnée d'expérience cumulée.
+        `level`: Le niveau correspondant à la quantité donnée d'expérience cumulée.
+        `overflow`: L'expérience restante pour atteindre le prochain niveau.
     """
     skill_xp_data: list[int] = [
         0,
@@ -187,7 +188,7 @@ def experience_to_level(
     elif type_xp == "slayer_spider":
         xp_data = slayer_xp_data[1]
     # Slayer Wolf/Enderman/Blaze
-    elif type_xp == "slayer_web":
+    elif type_xp in ["slayer_wolf", "slayer_enderman", "slayer_blaze"]:
         xp_data = slayer_xp_data[2]
     # Slayer Vampire
     elif type_xp == "slayer_vampire":
@@ -200,5 +201,5 @@ def experience_to_level(
             return max_level, xp_amount - xp
         if xp_amount <= xp:
             previous_xp = xp_data[level - 1]
-            return level - 1 + (xp_amount - previous_xp) / (xp - previous_xp), None
+            return level - 1 + (xp_amount - previous_xp) / (xp - previous_xp), 0
     return len(xp_data) - 1, xp_amount - xp_data[-1]
