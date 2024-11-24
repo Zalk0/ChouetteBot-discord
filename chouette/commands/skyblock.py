@@ -115,6 +115,8 @@ class Skyblock(app_commands.Group):
     @app_commands.command(name="link")
     @app_commands.rename(pseudo="pseudo_mc")
     @app_commands.describe(pseudo="Ton pseudo Minecraft", profile="Ton profil Skyblock préféré")
+    # Cooldown 1 use per 60 seconds
+    @app_commands.checks.cooldown(rate=1, per=60)
     async def link(
         self, interaction: discord.Interaction[ChouetteBot], pseudo: str, profile: str | None
     ):
