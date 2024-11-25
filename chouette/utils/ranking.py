@@ -96,7 +96,7 @@ def parse_data(data: dict) -> dict:
                         ranking[skill] = {"level": {}, "overflow": {}}
                 if "skill average" not in ranking:
                     ranking["skill average"] = {}
-                ranking["skill average"][data[player]["pseudo"]] = []
+                ranking["skill average"][data[player]["pseudo"]] = None
             # Handle 'slayers'
             if key == "slayers":
                 for slayer in slayers:
