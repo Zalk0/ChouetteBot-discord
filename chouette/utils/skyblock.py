@@ -166,7 +166,12 @@ async def pseudo_to_profile(
     discord = discord[1]
     if discord != discord_pseudo:
         if discord.lower() == discord_pseudo:
-            return "Vous avez entré votre pseudo Discord avec des majuscules sur Hypixel !\n(Ce n'est plus possible depuis les nouvelles règles de pseudonymes de Discord)"
+            return (
+                "Vous avez entré le bon pseudo Discord sur Hypixel "
+                "mais il contient des majuscules !"
+            )
+        if not discord.islower():
+            return "Le pseudo Discord entré sur Hypixel contient des majuscules !"
         return "Votre pseudo Discord ne correspond pas à celui entré sur le serveur Hypixel"
     client.bot_logger.debug("Les pseudos Discord correspondent")
 
