@@ -1,5 +1,7 @@
+import copy
 import math
 from datetime import date
+from itertools import chain
 
 import aiohttp
 import discord
@@ -44,7 +46,7 @@ def format_ranking_message(player: str, value: str, i: int) -> str:
 async def update_stats(api_key: str) -> str:
     """Crée le classement de la guilde sur Hypixel Skyblock."""
     old_data = await load_skyblock()
-    new_data = old_data.copy()
+    new_data = copy.deepcopy(old_data)
     msg = "Synchro des données de la guilde sur Hypixel Skyblock pour :"
     async with aiohttp.ClientSession() as session:
         for uuid in old_data:
@@ -94,7 +96,7 @@ def parse_data(data: dict) -> dict:
                         ranking[skill] = {"level": {}, "overflow": {}}
                 if "skill average" not in ranking:
                     ranking["skill average"] = {}
-                ranking["skill average"][data[player]["pseudo"]] = []
+                ranking["skill average"][data[player]["pseudo"]] = None
             # Handle 'slayers'
             if key == "slayers":
                 for slayer in slayers:
@@ -104,45 +106,32 @@ def parse_data(data: dict) -> dict:
                 level_cap[0].append(value[0])
                 level_cap[1].append(value[1])
 
-    # Calculate the level and overflow for each skill for each player
+    # Calculate the level and overflow for each skill and slayer for each player
     for player_index, player in enumerate(data):
-        for skill in skills:
-            if skill != "dungeoneering":
-                if skill == "farming":
-                    level, overflow = experience_to_level(
-                        "skill",
-                        data[player]["skills"][skills.index(skill)],
-                        level_cap[0][player_index] + 50,
-                    )
-                elif skill == "taming":
-                    level, overflow = experience_to_level(
-                        "skill",
-                        data[player]["skills"][skills.index(skill)],
-                        level_cap[1][player_index] if level_cap[1][player_index] > 50 else 50,
-                    )
-                else:
-                    if skill in ["fishing", "alchemy", "carpentry", "foraging"]:
-                        level, overflow = experience_to_level(
-                            "skill", data[player]["skills"][skills.index(skill)], max_level=50
-                        )
-                    else:
-                        level, overflow = experience_to_level(
-                            "skill", data[player]["skills"][skills.index(skill)]
-                        )
-            else:
-                level, overflow = experience_to_level(
-                    "dungeon", data[player]["skills"][skills.index(skill)], 50
-                )
+        for skill in chain(skills, slayers):
+            type_xp = "skill"
+            category = "skills"
+            max_level = None
+            skill_list = skills
+
+            if skill == "farming":
+                max_level = level_cap[0][player_index] + 50
+            if skill == "taming":
+                max_level = level_cap[1][player_index] if level_cap[1][player_index] > 50 else 50
+            if skill in ["fishing", "alchemy", "carpentry", "foraging"]:
+                max_level = 50
+            if skill == "dungeoneering":
+                type_xp = "dungeon"
+            if skill in slayers:
+                type_xp = f"slayer_{skill}"
+                category = "slayers"
+                skill_list = slayers
+
+            level, overflow = experience_to_level(
+                type_xp, data[player][category][skill_list.index(skill)], max_level
+            )
             ranking[skill]["level"][data[player]["pseudo"]] = level
             ranking[skill]["overflow"][data[player]["pseudo"]] = overflow
-        # Calculate the level and overflow for each slayer for each player
-        for slayer in slayers:
-            level, overflow = experience_to_level(
-                f"slayer_{slayer}",
-                data[player]["slayers"][slayers.index(slayer)],
-            )
-            ranking[slayer]["level"][data[player]["pseudo"]] = level
-            ranking[slayer]["overflow"][data[player]["pseudo"]] = overflow
 
     # Sorting the nested dictionaries by value
     sorted_ranking: dict = ranking.copy()
@@ -153,20 +142,8 @@ def parse_data(data: dict) -> dict:
                 sorted_ranking[category] = dict(
                     sorted(ranking[category].items(), key=lambda item: item[1], reverse=True)
                 )
-            # Skills
-            if category in skills:
-                sorted_ranking[category] = {
-                    "level": dict(
-                        sorted(
-                            ranking[category]["level"].items(),
-                            key=lambda item: (item[1], ranking[category]["overflow"][item[0]]),
-                            reverse=True,
-                        )
-                    ),
-                    "overflow": dict(ranking[category]["overflow"].items()),
-                }
-            # Slayers
-            if category in slayers:
+            # Skills and slayers
+            if category in chain(skills, slayers):
                 sorted_ranking[category] = {
                     "level": dict(
                         sorted(
@@ -216,8 +193,8 @@ def generate_ranking_message(data, category) -> list[str]:
             value = format_number(value)
             message = format_ranking_message(player, value, i)
             messages.append(message)
-    # Skills
-    if category in skills_list:
+    # Skills and slayers
+    if category in chain(skills_list, slayers_list):
         for i, (player, value) in enumerate(data[category]["level"].items()):
             overflow = data[category]["overflow"][player]
             if overflow:
@@ -247,19 +224,6 @@ def generate_ranking_message(data, category) -> list[str]:
         for i, (player, value) in enumerate(data[category].items()):
             value = f"{value:.2f}"
             message = format_ranking_message(player, value, i)
-            messages.append(message)
-    # Slayers
-    if category in slayers_list:
-        for i, (player, value) in enumerate(data[category]["level"].items()):
-            overflow = data[category]["overflow"][player]
-            if overflow:
-                value = f"{value:.0f}"
-                overflow = math.floor(overflow)
-            else:
-                value = f"{value:.2f}"
-            message = format_ranking_message(player, value, i)
-            if overflow:
-                message += f" (*{overflow:,}*)".replace(",", " ")
             messages.append(message)
     return messages
 
