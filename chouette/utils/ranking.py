@@ -1,5 +1,6 @@
 import math
 from datetime import date
+from itertools import chain
 
 import aiohttp
 import discord
@@ -153,20 +154,8 @@ def parse_data(data: dict) -> dict:
                 sorted_ranking[category] = dict(
                     sorted(ranking[category].items(), key=lambda item: item[1], reverse=True)
                 )
-            # Skills
-            if category in skills:
-                sorted_ranking[category] = {
-                    "level": dict(
-                        sorted(
-                            ranking[category]["level"].items(),
-                            key=lambda item: (item[1], ranking[category]["overflow"][item[0]]),
-                            reverse=True,
-                        )
-                    ),
-                    "overflow": dict(ranking[category]["overflow"].items()),
-                }
-            # Slayers
-            if category in slayers:
+            # Skills and slayers
+            if category in chain(skills, slayers):
                 sorted_ranking[category] = {
                     "level": dict(
                         sorted(
@@ -216,8 +205,8 @@ def generate_ranking_message(data, category) -> list[str]:
             value = format_number(value)
             message = format_ranking_message(player, value, i)
             messages.append(message)
-    # Skills
-    if category in skills_list:
+    # Skills and slayers
+    if category in chain(skills_list, slayers_list):
         for i, (player, value) in enumerate(data[category]["level"].items()):
             overflow = data[category]["overflow"][player]
             if overflow:
@@ -247,19 +236,6 @@ def generate_ranking_message(data, category) -> list[str]:
         for i, (player, value) in enumerate(data[category].items()):
             value = f"{value:.2f}"
             message = format_ranking_message(player, value, i)
-            messages.append(message)
-    # Slayers
-    if category in slayers_list:
-        for i, (player, value) in enumerate(data[category]["level"].items()):
-            overflow = data[category]["overflow"][player]
-            if overflow:
-                value = f"{value:.0f}"
-                overflow = math.floor(overflow)
-            else:
-                value = f"{value:.2f}"
-            message = format_ranking_message(player, value, i)
-            if overflow:
-                message += f" (*{overflow:,}*)".replace(",", " ")
             messages.append(message)
     return messages
 
