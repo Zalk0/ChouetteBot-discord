@@ -1,3 +1,4 @@
+import copy
 import math
 from datetime import date
 from itertools import chain
@@ -45,7 +46,7 @@ def format_ranking_message(player: str, value: str, i: int) -> str:
 async def update_stats(api_key: str) -> str:
     """Crée le classement de la guilde sur Hypixel Skyblock."""
     old_data = await load_skyblock()
-    new_data = old_data.copy()
+    new_data = copy.deepcopy(old_data)
     msg = "Synchro des données de la guilde sur Hypixel Skyblock pour :"
     async with aiohttp.ClientSession() as session:
         for uuid in old_data:
