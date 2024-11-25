@@ -106,45 +106,32 @@ def parse_data(data: dict) -> dict:
                 level_cap[0].append(value[0])
                 level_cap[1].append(value[1])
 
-    # Calculate the level and overflow for each skill for each player
+    # Calculate the level and overflow for each skill and slayer for each player
     for player_index, player in enumerate(data):
-        for skill in skills:
-            if skill != "dungeoneering":
-                if skill == "farming":
-                    level, overflow = experience_to_level(
-                        "skill",
-                        data[player]["skills"][skills.index(skill)],
-                        level_cap[0][player_index] + 50,
-                    )
-                elif skill == "taming":
-                    level, overflow = experience_to_level(
-                        "skill",
-                        data[player]["skills"][skills.index(skill)],
-                        level_cap[1][player_index] if level_cap[1][player_index] > 50 else 50,
-                    )
-                else:
-                    if skill in ["fishing", "alchemy", "carpentry", "foraging"]:
-                        level, overflow = experience_to_level(
-                            "skill", data[player]["skills"][skills.index(skill)], max_level=50
-                        )
-                    else:
-                        level, overflow = experience_to_level(
-                            "skill", data[player]["skills"][skills.index(skill)]
-                        )
-            else:
-                level, overflow = experience_to_level(
-                    "dungeon", data[player]["skills"][skills.index(skill)], 50
-                )
+        for skill in chain(skills, slayers):
+            type_xp = "skill"
+            category = "skills"
+            max_level = None
+            skill_list = skills
+
+            if skill == "farming":
+                max_level = level_cap[0][player_index] + 50
+            if skill == "taming":
+                max_level = level_cap[1][player_index] if level_cap[1][player_index] > 50 else 50
+            if skill in ["fishing", "alchemy", "carpentry", "foraging"]:
+                max_level = 50
+            if skill == "dungeoneering":
+                type_xp = "dungeon"
+            if skill in slayers:
+                type_xp = f"slayer_{skill}"
+                category = "slayers"
+                skill_list = slayers
+
+            level, overflow = experience_to_level(
+                type_xp, data[player][category][skill_list.index(skill)], max_level
+            )
             ranking[skill]["level"][data[player]["pseudo"]] = level
             ranking[skill]["overflow"][data[player]["pseudo"]] = overflow
-        # Calculate the level and overflow for each slayer for each player
-        for slayer in slayers:
-            level, overflow = experience_to_level(
-                f"slayer_{slayer}",
-                data[player]["slayers"][slayers.index(slayer)],
-            )
-            ranking[slayer]["level"][data[player]["pseudo"]] = level
-            ranking[slayer]["overflow"][data[player]["pseudo"]] = overflow
 
     # Sorting the nested dictionaries by value
     sorted_ranking: dict = ranking.copy()
