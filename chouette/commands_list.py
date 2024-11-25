@@ -50,7 +50,7 @@ async def commands(client: ChouetteBot) -> None:
             bot_perms = ", ".join(error.missing_permissions)
             interaction.client.bot_logger.error(
                 f"{interaction.client.user} is missing {bot_perms} "
-                f"to do {interaction.command.name} in #{interaction.channel}"
+                f"to do /{interaction.command.qualified_name} in #{interaction.channel}"
             )
             if len(error.missing_permissions) == 1:
                 await interaction.response.send_message(
@@ -67,7 +67,7 @@ async def commands(client: ChouetteBot) -> None:
             user_perms = ", ".join(error.missing_permissions)
             interaction.client.bot_logger.error(
                 f"{interaction.user} is missing {user_perms} "
-                f"to do {interaction.command.name} in #{interaction.channel}"
+                f"to do /{interaction.command.qualified_name} in #{interaction.channel}"
             )
             if len(error.missing_permissions) == 1:
                 await interaction.response.send_message(
@@ -80,9 +80,19 @@ async def commands(client: ChouetteBot) -> None:
                     ephemeral=True,
                 )
             return
+        if isinstance(error, discord.app_commands.CommandOnCooldown):
+            interaction.client.bot_logger.error(
+                f"{interaction.user} tried to use /{interaction.command.qualified_name} in "
+                f"#{interaction.channel.name} but the command is in cooldown for {error.retry_after:.0f}s",
+            )
+            await interaction.response.send_message(
+                f"Vous devez attendre {error.retry_after:.0f} secondes avant de réutiliser cette commande.",
+                ephemeral=True,
+            )
+            return
         if isinstance(error, discord.app_commands.CheckFailure):
             interaction.client.bot_logger.error(
-                f"{interaction.user} tried to do {interaction.command.name} "
+                f"{interaction.user} tried to do /{interaction.command.qualified_name} "
                 f"in #{interaction.channel}\n{SPACES}{error}"
             )
             await interaction.response.send_message(
