@@ -6,48 +6,48 @@ Thank you for considering contributing to ChouetteBot! We appreciate your suppor
 
 1. **Fork the Repository**: Click the "Fork" button at the top right of the repository page.
 
-2. **Clone Your Fork**: Clone your forked repository to your local machine.
+2. **Clone your Fork**, to edit the code on your machine.
 
    ```sh
    git clone https://github.com/your-username/ChouetteBot-discord.git
    ```
 
-3. **Install dev requirements**: Install the development requirements.
+3. **Install dev requirements**:
 
    ```sh
    pip install -r requirements-dev.txt
    ```
 
-4. **Create a Branch**: Create a new branch for your feature or bugfix.
+4. **Create a new Branch** for your feature or bugfix.
 
    ```sh
-   git checkout -b feature-or-bugfix-name
+   git checkout -b feature-or-bugfix-branch-name
    ```
 
-5. **Make Changes**: Make your changes to the codebase.
+5. **Make Changes**.
 
 6. **Format Changes**: Run pre-commit and ruff to ensure code quality.
 
    ```sh
-    pre-commit run -a
-    ruff check
-    ruff format
+   pre-commit run -a
+   ruff check
+   ruff format
    ```
 
-7. **Commit Changes**: Commit your changes with a descriptive commit message.
+7. **Commit Changes**, with a descriptive commit message.
 
    ```sh
    git add .
    git commit -m "Description of changes"
    ```
 
-8. **Push Changes**: Push your changes to your forked repository.
+8. **Push Changes** to your forked repository.
 
    ```sh
-   git push origin feature-or-bugfix-name
+   git push origin feature-or-bugfix-branch-name
    ```
 
-9. **Create a Pull Request**: Open a pull request to the main repository.
+9. **Create a Pull Request** to the main repository, be descriptive on the changes done.
 
 ## Reporting Issues
 
