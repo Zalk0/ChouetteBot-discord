@@ -54,8 +54,8 @@ class Skyblock(app_commands.Group):
                 ) as response:
                     skytils = await response.json()
             message = (
-                f"Version de Minecraft: `{mc_version.value}`\n",
-                "--------------------------------\n"
+                f"Version de Minecraft: `{mc_version.value}`\n"
+                f"--------------------------------\n"
                 "Les dernières mises à jour sont :\n"
                 f"- Dungeons-Guide: `{dungeonsguide['tag_name'].replace('v', '')}` "
                 f"[lien]({dungeonsguide['assets'][0]['browser_download_url']})\n"
@@ -64,8 +64,9 @@ class Skyblock(app_commands.Group):
                 f"- SkyblockAddons (forked by Fix3dll): `{skyblockaddons['version_number']}` "
                 f"[lien]({skyblockaddons['files'][0]['url']})\n"
                 f"- Skytils: `{skytils['tag_name'].replace('v', '')}` "
-                f"[lien]({skytils['assets'][0]['browser_download_url']})",
+                f"[lien]({skytils['assets'][0]['browser_download_url']})"
             )
+
         # `else` possible car seulement 2 versions de Minecraft
         elif mc_version.value == "1.21.1":
             # Mod loader: Fabric
@@ -104,20 +105,20 @@ class Skyblock(app_commands.Group):
                             skyblocker = entry
                             break
             message = (
-                f"Version de Minecraft: `{mc_version.value}`\n",
-                "Mod loader: `Fabric`\n",
-                "--------------------------------\n",
-                "Les dernières mises à jour sont :\n",
+                f"Version de Minecraft: `{mc_version.value}`\n"
+                f"Mod loader: `Fabric`\n"
+                "--------------------------------\n"
+                "Les dernières mises à jour sont :\n"
                 f"- Aaron's Mod: `{aaron['version_number'].split('+')[0]}` "
-                f"[lien]({aaron['files'][0]['url']})\n",
+                f"[lien]({aaron['files'][0]['url']})\n"
                 f"- Firmament: `{firmament['version_number'].split('+')[0]}` "
-                f"[lien]({firmament['files'][0]['url']})\n",
+                f"[lien]({firmament['files'][0]['url']})\n"
                 f"- Roughly Enough Items (REI): `{roughly_enough_items['version_number'].split('+')[0]}` "
-                f"[lien]({roughly_enough_items['files'][0]['url']})\n",
+                f"[lien]({roughly_enough_items['files'][0]['url']})\n"
                 f"- Skyblocker: `{skyblocker['version_number'].split('+')[0].replace('v', '')}` "
-                f"[lien]({skyblocker['files'][0]['url']})\n",
+                f"[lien]({skyblocker['files'][0]['url']})\n"
             )
-        await interaction.followup.send("".join(message))
+        await interaction.followup.send(message)
 
     @app_commands.command(name="tuto")
     async def tuto(self, interaction: discord.Interaction[ChouetteBot]) -> None:
