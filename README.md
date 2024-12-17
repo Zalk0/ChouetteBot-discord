@@ -18,6 +18,7 @@ pip install -r requirements.txt
 ```
 
 ---
+
 Before launching the bot, you need to fill in a `.env` file (using the
 [template](https://github.com/Zalk0/ChouetteBot-discord/blob/main/.env.example)
 I provide in the repo) and put a Discord bot token inside.  
@@ -31,6 +32,7 @@ they're enabled in the code (or change them).
 You also have to fill the other fields in your `.env` file or else you're going to have errors.
 
 ---
+
 After having done all this you can launch the bot :
 
 ```bash
@@ -41,14 +43,7 @@ python -m chouette
 
 ## Contribution
 
-To contribute, you can install the dev requirements after having cloned the repository:
-
-```bash
-pip install -r requirements-dev.txt
-```
-
-I have set up some pre-commit hooks mainly to run ruff automatically and to format project files.
-You can also run ruff manually with the commands `ruff check` and `ruff format`.
+Please check the [contributing guide](CONTRIBUTING.md) if you would like to participate in the project.
 
 ---
 
@@ -56,7 +51,6 @@ You can also run ruff manually with the commands `ruff check` and `ruff format`.
 
 [![Docker Image](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yaml/badge.svg?branch=main)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yaml)
 [![Docker Image Version](https://img.shields.io/docker/v/gylfirst/chouettebot?style=flat)](https://hub.docker.com/r/gylfirst/chouettebot)
-
 
 You can use a Docker image to deploy the bot.
 It's currently supporting amd64, armv6, armv7 and arm64 architectures.
