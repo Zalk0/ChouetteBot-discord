@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import aiohttp
 import discord
@@ -26,23 +26,18 @@ class Skyblock(app_commands.Group):
     )
     @app_commands.rename(mc_version="version")
     @app_commands.describe(mc_version="Ta version de Minecraft")
-    @app_commands.choices(
-        mc_version=[
-            app_commands.Choice(name="1.8.9", value="1.8.9"),
-            app_commands.Choice(name="1.21.1", value="1.21.1"),
-        ]
-    )
     async def mods(
-        self, interaction: discord.Interaction[ChouetteBot], mc_version: app_commands.Choice[str]
+        self, interaction: discord.Interaction[ChouetteBot], mc_version: Literal["1.8.9", "1.21.1"]
     ) -> None:
         """Vérifie les dernières mises à jour des mods populaires du Skyblock d'Hypixel."""
         await interaction.response.defer(thinking=True)
-        message = ""
+        message = f"Version de Minecraft: `{mc_version}`\n"
         api_github = "https://api.github.com/repos"
         api_modrinth = "https://api.modrinth.com/v2"
 
-        if mc_version.value == "1.8.9":
-            async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession() as session:
+            if mc_version == "1.8.9":
+                # Mod loader: Forge
                 async with session.get(
                     f"{api_github}/Dungeons-Guide/Skyblock-Dungeons-Guide/releases/latest"
                 ) as response:
@@ -55,60 +50,47 @@ class Skyblock(app_commands.Group):
                     f"{api_github}/Skytils/SkytilsMod/releases/latest"
                 ) as response:
                     skytils = await response.json()
-            message = (
-                f"Version de Minecraft: `{mc_version.value}`\n"
-                f"--------------------------------\n"
-                "Les dernières mises à jour sont :\n"
-                f"- Dungeons-Guide: `{dungeonsguide['tag_name'].replace('v', '')}` "
-                f"[lien]({dungeonsguide['assets'][0]['browser_download_url']})\n"
-                f"- NotEnoughUpdates: `{notenoughupdates['version_number']}` "
-                f"[lien]({notenoughupdates['files'][0]['url']})\n"
-                f"- SkyblockAddons (forked by Fix3dll): `{skyblockaddons['version_number']}` "
-                f"[lien]({skyblockaddons['files'][0]['url']})\n"
-                f"- Skytils: `{skytils['tag_name'].replace('v', '')}` "
-                f"[lien]({skytils['assets'][0]['browser_download_url']})"
-            )
 
-        elif mc_version.value == "1.21.1":
-            # Mod loader: Fabric
-            # Certains mods ne sont disponibles que pour Fabric, mais ils peuvent avoir d'autres loaders à l'avenir (ex: NeoForge)
-            mod_list = {
-                "aaron": "axe0DxiW",
-                "firmament": "IJNUBZ2a",
-                "rei": "nfn13YXA",
-                "skyblocker": "y6DuFGwJ",
-            }
-            mods_info = {}
-            async with aiohttp.ClientSession() as session:
+                message += (
+                    "Mod loader: `Forge`\n"
+                    "--------------------------------\n"
+                    "Les dernières mises à jour sont :\n"
+                    f"- Dungeons-Guide: `{dungeonsguide['tag_name'].replace('v', '')}` "
+                    f"[lien]({dungeonsguide['assets'][0]['browser_download_url']})\n"
+                    f"- NotEnoughUpdates: `{notenoughupdates['version_number']}` "
+                    f"[lien]({notenoughupdates['files'][0]['url']})\n"
+                    f"- SkyblockAddons (forked by Fix3dll): `{skyblockaddons['version_number']}` "
+                    f"[lien]({skyblockaddons['files'][0]['url']})\n"
+                    f"- Skytils: `{skytils['tag_name'].replace('v', '')}` "
+                    f"[lien]({skytils['assets'][0]['browser_download_url']})"
+                )
+
+            elif mc_version == "1.21.1":
+                # Mod loader: Fabric
+                # Certains mods ne sont disponibles que pour Fabric, mais ils pourraient
+                # être disponibles pour d'autres loaders à l'avenir (ex: NeoForge).
+                message += (
+                    "Mod loader: `Fabric`\n"
+                    "--------------------------------\n"
+                    "Les dernières mises à jour sont :\n"
+                )
+                mod_list = {
+                    "Aaron's Mod": "axe0DxiW",
+                    "Firmament": "IJNUBZ2a",
+                    "Roughly Enough Items (REI)": "nfn13YXA",
+                    "Skyblocker": "y6DuFGwJ",
+                }
+
                 for mod_name, mod_id in mod_list.items():
                     async with session.get(f"{api_modrinth}/project/{mod_id}/version") as response:
-                        mod_info = await response.json()
-                        for entry in mod_info:
-                            if mc_version.value in entry.get(
+                        for entry in await response.json():
+                            if mc_version in entry.get(
                                 "game_versions", []
                             ) and "fabric" in entry.get("loaders", []):
-                                mods_info[mod_name] = entry
+                                version = entry["version_number"].split("+")[0].replace("v", "")
+                                link = entry["files"][0]["url"]
+                                message += f"- {mod_name}: `{version}` [lien]({link})\n"
                                 break
-
-            aaron = mods_info.get("aaron", {})
-            firmament = mods_info.get("firmament", {})
-            roughly_enough_items = mods_info.get("rei", {})
-            skyblocker = mods_info.get("skyblocker", {})
-
-            message = (
-                f"Version de Minecraft: `{mc_version.value}`\n"
-                f"Mod loader: `Fabric`\n"
-                "--------------------------------\n"
-                "Les dernières mises à jour sont :\n"
-                f"- Aaron's Mod: `{aaron['version_number'].split('+')[0]}` "
-                f"[lien]({aaron['files'][0]['url']})\n"
-                f"- Firmament: `{firmament['version_number'].split('+')[0]}` "
-                f"[lien]({firmament['files'][0]['url']})\n"
-                f"- Roughly Enough Items (REI): `{roughly_enough_items['version_number'].split('+')[0]}` "
-                f"[lien]({roughly_enough_items['files'][0]['url']})\n"
-                f"- Skyblocker: `{skyblocker['version_number'].split('+')[0].replace('v', '')}` "
-                f"[lien]({skyblocker['files'][0]['url']})\n"
-            )
 
         await interaction.followup.send(message)
 
