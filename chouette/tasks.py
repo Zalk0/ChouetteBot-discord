@@ -76,15 +76,23 @@ async def tasks_list(client: ChouetteBot) -> None:
             guild = client.get_guild(int(client.config["HYPIXEL_GUILD_ID"]))
             member = guild.get_role(int(client.config["HYPIXEL_GUILD_ROLE"]))
             api_key = client.config["HYPIXEL_KEY"]
-            update_message = await update_stats(api_key=api_key)
+            update_message, old_ranking_data = await update_stats(api_key=api_key)
             client.bot_logger.info(update_message)
             if not guild.icon:
                 icon_url = "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg"
             else:
                 icon_url = guild.icon.url
-            await client.get_channel(int(client.config["HYPIXEL_RANK_CHANNEL"])).send(
-                f"||{member.mention}||", embed=await display_ranking(img=icon_url)
+            embeds = await display_ranking(
+                img=icon_url,
+                old_ranking=old_ranking_data,
             )
+            await client.get_channel(int(client.config["HYPIXEL_RANK_CHANNEL"])).send(
+                f"||{member.mention}||"
+            )
+            for embed in embeds:
+                await client.get_channel(int(client.config["HYPIXEL_RANK_CHANNEL"])).send(
+                    embed=embed,
+                )
 
     # Start loop
     poke_ping.start()
