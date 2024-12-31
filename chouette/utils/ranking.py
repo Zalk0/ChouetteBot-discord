@@ -30,21 +30,34 @@ def format_number(number) -> str:
     return str(number)
 
 
-def format_ranking_message(player: str, value: str, i: int) -> str:
+def format_ranking_message(player: str, value: str, i: int, position: int) -> str:
     """Formate le message pour les données du classement de la guilde sur Hypixel Skyblock."""
-    if i == 0:
-        message = f"\N{FIRST PLACE MEDAL} **{player}** [{value}]"
-    elif i == 1:
-        message = f"\N{SECOND PLACE MEDAL} **{player}** [{value}]"
-    elif i == 2:
-        message = f"\N{THIRD PLACE MEDAL} **{player}** [{value}]"
+    # Codes emoji custom pour les positions (discord developer portal app)
+    if position == 1:
+        # emoji custom 'green_up_arrow'
+        message = "<:gua:1319980544674762753> "
+    elif position == -1:
+        # emoji custom 'red_down_arrow'
+        message = "<:rda:1319980559581057045> "
     else:
-        message = f"\N{MEDIUM BLACK CIRCLE} **{player}** [{value}]"
+        message = "\U0001f536 "
+    if i == 0:
+        message += f"\N{FIRST PLACE MEDAL} **{player}** [{value}]"
+    elif i == 1:
+        message += f"\N{SECOND PLACE MEDAL} **{player}** [{value}]"
+    elif i == 2:
+        message += f"\N{THIRD PLACE MEDAL} **{player}** [{value}]"
+    else:
+        message += f"\N{MEDIUM BLACK CIRCLE} **{player}** [{value}]"
     return message
 
 
-async def update_stats(api_key: str) -> str:
-    """Crée le classement de la guilde sur Hypixel Skyblock."""
+async def update_stats(api_key: str) -> (str, dict):
+    """
+    Met à jour les statistiques de la guilde sur Hypixel Skyblock.
+
+    Retourne un message de synchronisation et les anciennes données de la guilde.
+    """
     old_data = await load_skyblock()
     new_data = copy.deepcopy(old_data)
     msg = "Synchro des données de la guilde sur Hypixel Skyblock pour :"
@@ -60,12 +73,16 @@ async def update_stats(api_key: str) -> str:
             new_data.get(uuid).update(await get_stats(session, pseudo, uuid, player, profile))
             msg += f"\n{SPACES}- {pseudo} sur le profil {profile_name}"
     await save_skyblock(new_data)
-    # TODO: handle comparison using old and new data (see issue #56)
-    return msg
+    old_data = parse_data(old_data)
+    return msg, old_data
 
 
 def parse_data(data: dict) -> dict:
-    """Parse les données de la guilde sur Hypixel Skyblock."""
+    """
+    Parse les données de la guilde sur Hypixel Skyblock. Calcule les niveaux et overflows des joueurs.
+
+    Retourne un dictionnaire avec les données triées.
+    """
     ranking = {}
     skills = [
         "fishing",
@@ -84,12 +101,12 @@ def parse_data(data: dict) -> dict:
 
     for player in data:
         for key, value in data[player].items():
-            # Handle 'level' and 'networth'
+            # Gère 'level' et 'networth'
             if key == "level" or key == "networth":
                 if key not in ranking:
                     ranking[key] = {}
                 ranking[key][data[player]["pseudo"]] = value
-            # Handle 'skills'
+            # Gère 'skills'
             if key == "skills":
                 for skill in skills:
                     if skill not in ranking:
@@ -97,16 +114,17 @@ def parse_data(data: dict) -> dict:
                 if "skill average" not in ranking:
                     ranking["skill average"] = {}
                 ranking["skill average"][data[player]["pseudo"]] = None
-            # Handle 'slayers'
+            # Gère 'slayers'
             if key == "slayers":
                 for slayer in slayers:
                     if slayer not in ranking:
                         ranking[slayer] = {"level": {}, "overflow": {}}
+            # Gère les 'level_cap'
             if key == "level_cap":
                 level_cap[0].append(value[0])
                 level_cap[1].append(value[1])
 
-    # Calculate the level and overflow for each skill and slayer for each player
+    # Calcule les niveaux et overflows des joueurs
     for player_index, player in enumerate(data):
         for skill in chain(skills, slayers):
             type_xp = "skill"
@@ -133,16 +151,16 @@ def parse_data(data: dict) -> dict:
             ranking[skill]["level"][data[player]["pseudo"]] = level
             ranking[skill]["overflow"][data[player]["pseudo"]] = overflow
 
-    # Sorting the nested dictionaries by value
+    # Trie les données du classement dans l'ordre décroissant
     sorted_ranking: dict = ranking.copy()
     for category in ranking:
         if isinstance(ranking[category], dict):
-            # Level and Networth
+            # 'Level' et 'Networth'
             if category in ["level", "networth"]:
                 sorted_ranking[category] = dict(
                     sorted(ranking[category].items(), key=lambda item: item[1], reverse=True)
                 )
-            # Skills and slayers
+            # 'Skills' et 'slayers'
             if category in chain(skills, slayers):
                 sorted_ranking[category] = {
                     "level": dict(
@@ -159,7 +177,13 @@ def parse_data(data: dict) -> dict:
     return sorted_ranking
 
 
-def generate_ranking_message(data, category) -> list[str]:
+def generate_ranking_message(data, category, old_data) -> list[str]:
+    """
+    Génère les messages pour les données du classement de la guilde sur Hypixel Skyblock.
+    On compare les anciennes données avec les nouvelles pour déterminer si un joueur a monté, descendu ou n'a pas bougé.
+
+    Retourne une liste de messages.
+    """
     skills_list: list[str] = [
         "fishing",
         "alchemy",
@@ -181,19 +205,23 @@ def generate_ranking_message(data, category) -> list[str]:
         "vampire",
     ]
     messages: list = []
-    # Level
+    # 'Level'
     if category == "level":
         for i, (player, value) in enumerate(data[category].items()):
             value = f"{value:.2f}"
-            message = format_ranking_message(player, value, i)
+            message = format_ranking_message(
+                player, value, i, calculate_player_position(old_data, data, category, player)
+            )
             messages.append(message)
-    # Networth
+    # 'Networth'
     if category == "networth":
         for i, (player, value) in enumerate(data[category].items()):
             value = format_number(value)
-            message = format_ranking_message(player, value, i)
+            message = format_ranking_message(
+                player, value, i, calculate_player_position(old_data, data, category, player)
+            )
             messages.append(message)
-    # Skills and slayers
+    # 'Skills' et 'slayers'
     if category in chain(skills_list, slayers_list):
         for i, (player, value) in enumerate(data[category]["level"].items()):
             overflow = data[category]["overflow"][player]
@@ -202,51 +230,118 @@ def generate_ranking_message(data, category) -> list[str]:
                 overflow = math.floor(overflow)
             else:
                 value = f"{value:.2f}"
-            message = format_ranking_message(player, value, i)
+            message = format_ranking_message(
+                player, value, i, calculate_player_position(old_data, data, category, player)
+            )
             if overflow:
                 message += f" (*{overflow:,}*)".replace(",", " ")
             messages.append(message)
-    # Skill average
+    # 'Skill average'
     skills_avg: list[str] = skills_list.copy()
     skills_avg.remove("dungeoneering")
     if category == "skill average":
+        # Calcule le 'skill average' pour les anciennes données
+        for player in old_data[category]:
+            total = []
+            for skill in skills_avg:
+                total.append(math.floor(old_data[skill]["level"][player]))
+            average = math.fsum(total) / len(total)
+            old_data[category][player] = average
+        # Trie le 'skill average'
+        old_data[category] = dict(
+            sorted(old_data[category].items(), key=lambda item: item[1], reverse=True)
+        )
+        # Calcule le 'skill average' pour les nouvelles données
         for player in data[category]:
             total = []
-            # Calculate the average of the skills
             for skill in skills_avg:
                 total.append(math.floor(data[skill]["level"][player]))
             average = math.fsum(total) / len(total)
             data[category][player] = average
-        # Sort the skill average
+        # Trie le 'skill average'
         data[category] = dict(
             sorted(data[category].items(), key=lambda item: item[1], reverse=True)
         )
         for i, (player, value) in enumerate(data[category].items()):
             value = f"{value:.2f}"
-            message = format_ranking_message(player, value, i)
+            message = format_ranking_message(
+                player, value, i, calculate_player_position(old_data, data, category, player)
+            )
             messages.append(message)
     return messages
 
 
-async def display_ranking(img: str) -> discord.Embed:
-    """Affiche le classement de la guilde sur Hypixel Skyblock."""
+def calculate_player_position(old_data, new_data, category, player) -> int:
+    """
+    Calcule la position d'un joueur dans le classement.
+
+    Retourne `1` si le joueur a monté, `-1` s'il a descendu, `0` s'il n'a pas bougé ou s'il est nouveau.
+    """
+    # 'Level', 'Networth' and 'Skill average'
+    if category in ["level", "networth", "skill average"]:
+        if player in old_data[category]:
+            old_position = list(old_data[category].keys()).index(player)
+            new_position = list(new_data[category].keys()).index(player)
+            if new_position < old_position:
+                return 1
+            if new_position > old_position:
+                return -1
+        return 0
+    # 'Skills' et 'slayers'
+    if player in old_data[category]["level"]:
+        old_position = list(old_data[category]["level"].keys()).index(player)
+        new_position = list(new_data[category]["level"].keys()).index(player)
+        if new_position < old_position:
+            return 1
+        if new_position > old_position:
+            return -1
+    return 0
+
+
+async def display_ranking(img: str, old_ranking: dict) -> list[discord.Embed]:
+    """
+    Crée les embeds pour afficher le classement de la guilde sur Hypixel Skyblock.
+    On les sépare si la taille dépasse 5000 caractères.
+
+    Retourne une liste d'embeds.
+    """
     month = await month_to_str(date.today().month)
     year = date.today().year
+
+    embeds_ranking = []
     ranking = discord.Embed(
         title=f"Classement de début {month} {year}",
         description="Voici le classement de la guilde sur Hypixel Skyblock.\n"
         "Le skill average est sans progression (comme affiché sur Hypixel dans le menu des skills).",
         color=discord.Colour.from_rgb(0, 170, 255),
     )
+    ranking.set_thumbnail(url=img)
     ranking.set_footer(text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00")
-    data = parse_data(await load_skyblock())
-    for category in data:
-        if isinstance(data[category], dict):
-            messages = generate_ranking_message(data, category)
+    new_ranking_data = parse_data(await load_skyblock())
+
+    # On génère les messages pour chaque catégorie
+    for category in new_ranking_data:
+        if isinstance(new_ranking_data[category], dict):
+            messages = generate_ranking_message(new_ranking_data, category, old_ranking)
+            field_value = "\n".join(messages)
+            # La limite des embeds est de 6000 caractères
+            # on split avant de dépasser cette limite pour éviter une coupure dans les catégories
+            if len(ranking) + len(field_value) > 5000:
+                embeds_ranking.append(ranking)
+                ranking = discord.Embed(
+                    title=f"Classement de début {month} {year} - Suite",
+                    description="Voici la suite du classement de la guilde sur Hypixel Skyblock.\n"
+                    "Le skill average est sans progression (comme affiché sur Hypixel dans le menu des skills).",
+                    color=discord.Colour.from_rgb(0, 170, 255),
+                )
+            # On ajoute les catégories dans les embeds
             ranking.add_field(
                 name=f"**[ {category.capitalize()} ]**",
-                value="\n".join(messages),
+                value=field_value,
                 inline=False,
             )
+    # On ajoute la miniature ainsi que le footer aux autres embeds
     ranking.set_thumbnail(url=img)
-    return ranking
+    ranking.set_footer(text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00")
+    embeds_ranking.append(ranking)
+    return embeds_ranking
