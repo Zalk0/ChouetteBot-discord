@@ -177,6 +177,5 @@ class Skyblock(app_commands.Group):
             await interaction.followup.send(f"Il y a eu une erreur :\n`{profile_name}`")
             return
         await interaction.followup.send(
-            f"Vous êtes bien connecté et le profil "
-            f"{profile_name.get('profile')} a été enregistré."
+            f"Vous êtes bien connecté et le profil {profile_name.get('profile')} a été enregistré."
         )
