@@ -89,22 +89,6 @@ async def get_hypixel_player(session: ClientSession, api_key: str, uuid: str) ->
         return json
 
 
-async def get_networth(session: ClientSession, pseudo: str, profile_id: str) -> float:
-    """Retourne la fortune d'un joueur Skyblock à l'aide de l'API SkyCrypt."""
-    async with session.get(f"https://sky.shiiyu.moe/api/v2/profile/{pseudo}") as response:
-        if "Cloudflare" in await response.text():
-            raise Exception("Fetching networth on SkyCrypt API failed because of Cloudflare")
-        json: dict = await response.json()
-        if response.status != 200 and json.get("error") == "Player has no SkyBlock profiles.":
-            async with session.get(f"https://sky.shiiyu.moe/stats/{pseudo}") as response_error:
-                if response_error.status != 200:
-                    raise Exception("Error while fetching networth")
-                return await get_networth(session, pseudo, profile_id)
-        if response.status != 200:
-            raise Exception("Error while fetching networth")
-        return json.get("profiles").get(profile_id).get("data").get("networth").get("networth", 0)
-
-
 async def get_stats(session, pseudo, uuid, hypixel_player, profile) -> dict[str, float]:
     """Retourne les statistiques d'un joueur Skyblock avec l'API."""
     info = profile.get("members").get(uuid)
