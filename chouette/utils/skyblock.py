@@ -110,7 +110,6 @@ async def get_stats(session, pseudo, uuid, hypixel_player, profile) -> dict[str,
     info = profile.get("members").get(uuid)
     level: float = (info.get("leveling").get("experience")) / 100
     # TODO: new API for networth or use Altpapier/SkyHelper-Networth
-    # networth = await get_networth(session, pseudo, profile.get("profile_id"))
     skill = info.get("player_data").get("experience")
     skills: tuple[float, float, float, float, float, float, float, float, float, float] = (
         skill.get("SKILL_FISHING", 0),
