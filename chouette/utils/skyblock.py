@@ -139,7 +139,6 @@ async def get_stats(session, pseudo, uuid, hypixel_player, profile) -> dict[str,
     )
     return {
         "level": level,
-        #"networth": networth,
         "skills": skills,
         "slayers": slayers,
         "level_cap": level_cap,
