@@ -311,7 +311,8 @@ async def display_ranking(img: str, old_ranking: dict) -> list[discord.Embed]:
     embeds_ranking = []
     ranking = discord.Embed(
         title=f"Classement de début {month} {year}",
-        description="Voici le classement de la guilde sur Hypixel Skyblock.\n"
+        description="\N{NO ENTRY SIGN} LA NETWORTH N'EST PLUS CALCULÉE !\n"
+        "Voici le classement de la guilde sur Hypixel Skyblock.\n"
         "Le skill average est sans progression (comme affiché sur Hypixel dans le menu des skills).",
         color=discord.Colour.from_rgb(0, 170, 255),
     )
@@ -330,7 +331,8 @@ async def display_ranking(img: str, old_ranking: dict) -> list[discord.Embed]:
                 embeds_ranking.append(ranking)
                 ranking = discord.Embed(
                     title=f"Classement de début {month} {year} - Suite",
-                    description="Voici la suite du classement de la guilde sur Hypixel Skyblock.\n"
+                    description="\N{NO ENTRY SIGN} LA NETWORTH N'EST PLUS CALCULÉE !\n"
+                    "Voici la suite du classement de la guilde sur Hypixel Skyblock.\n"
                     "Le skill average est sans progression (comme affiché sur Hypixel dans le menu des skills).",
                     color=discord.Colour.from_rgb(0, 170, 255),
                 )
