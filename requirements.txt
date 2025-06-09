@@ -1,5 +1,5 @@
 aiohttp ~= 3.11.15
 discord.py[speed] ~= 2.5.2
 python-dotenv ~= 1.1.0
-tomlkit ~= 0.13.2
+tomlkit ~= 0.13.3
 tzdata; os_name == "nt"
