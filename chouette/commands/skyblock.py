@@ -27,7 +27,7 @@ class Skyblock(app_commands.Group):
     @app_commands.rename(mc_version="version")
     @app_commands.describe(mc_version="Ta version de Minecraft")
     async def mods(
-        self, interaction: discord.Interaction[ChouetteBot], mc_version: Literal["1.8.9", "1.21.1"]
+        self, interaction: discord.Interaction[ChouetteBot], mc_version: Literal["1.8.9", "1.21.1", "1.21.5"]
     ) -> None:
         """Vérifie les dernières mises à jour des mods populaires du Skyblock d'Hypixel."""
         await interaction.response.defer(thinking=True)
@@ -65,7 +65,7 @@ class Skyblock(app_commands.Group):
                     f"[lien]({skytils['assets'][0]['browser_download_url']})"
                 )
 
-            elif mc_version == "1.21.1":
+            elif mc_version == "1.21.1" or mc_version == "1.21.5":
                 # Mod loader: Fabric
                 # Certains mods ne sont disponibles que pour Fabric, mais ils pourraient
                 # être disponibles pour d'autres loaders à l'avenir (ex: NeoForge).
