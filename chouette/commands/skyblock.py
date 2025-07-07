@@ -27,7 +27,9 @@ class Skyblock(app_commands.Group):
     @app_commands.rename(mc_version="version")
     @app_commands.describe(mc_version="Ta version de Minecraft")
     async def mods(
-        self, interaction: discord.Interaction[ChouetteBot], mc_version: Literal["1.8.9", "1.21.1", "1.21.5"]
+        self,
+        interaction: discord.Interaction[ChouetteBot],
+        mc_version: Literal["1.8.9", "1.21.1", "1.21.5"],
     ) -> None:
         """Vérifie les dernières mises à jour des mods populaires du Skyblock d'Hypixel."""
         await interaction.response.defer(thinking=True)
