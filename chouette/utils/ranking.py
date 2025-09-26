@@ -3,8 +3,8 @@ import math
 from datetime import date
 from itertools import chain
 
-import aiohttp
 import discord
+from aiohttp import ClientSession
 
 from chouette.utils.birthdays import month_to_str
 from chouette.utils.hypixel_data import experience_to_level
@@ -52,7 +52,7 @@ def format_ranking_message(player: str, value: str, i: int, position: int) -> st
     return message
 
 
-async def update_stats(api_key: str) -> (str, dict):
+async def update_stats(session: ClientSession, api_key: str) -> (str, dict):
     """
     Met à jour les statistiques de la guilde sur Hypixel Skyblock.
 
@@ -61,17 +61,16 @@ async def update_stats(api_key: str) -> (str, dict):
     old_data = await load_skyblock()
     new_data = copy.deepcopy(old_data)
     msg = "Synchro des données de la guilde sur Hypixel Skyblock pour :"
-    async with aiohttp.ClientSession() as session:
-        for uuid in old_data:
-            pseudo = old_data.get(uuid).get("pseudo")
-            profile_name = old_data.get(uuid).get("profile")
-            profile = await get_profile(session, api_key, uuid, profile_name)
-            if not profile[0]:
-                raise Exception("Error while updating stats")
-            profile = profile[1]
-            player = await get_hypixel_player(session, api_key, uuid)
-            new_data.get(uuid).update(await get_stats(session, pseudo, uuid, player, profile))
-            msg += f"\n{SPACES}- {pseudo} sur le profil {profile_name}"
+    for uuid in old_data:
+        pseudo = old_data.get(uuid).get("pseudo")
+        profile_name = old_data.get(uuid).get("profile")
+        profile = await get_profile(session, api_key, uuid, profile_name)
+        if not profile[0]:
+            raise Exception("Error while updating stats")
+        profile = profile[1]
+        player = await get_hypixel_player(session, api_key, uuid)
+        new_data.get(uuid).update(await get_stats(session, pseudo, uuid, player, profile))
+        msg += f"\n{SPACES}- {pseudo} sur le profil {profile_name}"
     await save_skyblock(new_data)
     old_data = parse_data(old_data)
     return msg, old_data

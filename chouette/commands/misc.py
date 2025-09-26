@@ -16,7 +16,8 @@ if TYPE_CHECKING:
 @app_commands.command(name="latex", description="Fait le rendu d'une équation LaTeX")
 async def latex(interaction: discord.Interaction[ChouetteBot], equation: str) -> None:
     """Fait le rendu d'une équation LaTeX et envoie la réponse sous forme d'image."""
-    await interaction.response.send_message(file=await latex_render(equation))
+    session = interaction.client.session
+    await interaction.response.send_message(file=await latex_render(session, equation))
 
 
 @app_commands.command(name="roll", description="Lance un dé")
@@ -92,7 +93,8 @@ async def delete(interaction: discord.Interaction[ChouetteBot], message: discord
 async def info(interaction: discord.Interaction[ChouetteBot]) -> None:
     """Affiche les informations du bot."""
     creators = "Zalko & Gylfirst"
-    last_update = await get_last_update()
+    session = interaction.client.session
+    last_update = await get_last_update(session)
     github_link = "https://github.com/Zalk0/ChouetteBot-discord"
     dockerhub_link = "https://hub.docker.com/r/gylfirst/chouettebot"
     await interaction.response.send_message(

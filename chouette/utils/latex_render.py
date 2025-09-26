@@ -1,23 +1,23 @@
 from io import BytesIO
 
-import aiohttp
 import discord
+from aiohttp import ClientSession
 
 
 # Make a LaTeX rendering function using an online equation renderer : https://latex.codecogs.com/
-async def latex_render(equation: str) -> discord.File:
+async def latex_render(session: ClientSession, equation: str) -> discord.File:
     """Fait le rendu d'une équation LaTeX et le renvoie sous forme de fichier."""
     options = r"\dpi{200} \bg_black \color[RGB]{240, 240, 240} \pagecolor[RGB]{49, 51, 56}"
     # bg_black is for putting a black background (custom command of the site)
     # instead of the transparent one. Then a custom background color can be used with pagecolor.
     # color is for the text color
     url = f"https://latex.codecogs.com/png.latex?{options} {equation}".replace(" ", "%20")
-    async with aiohttp.ClientSession() as session, session.get(url) as response:
+    async with session.get(url) as response:
         response_content = await response.read()
     return discord.File(BytesIO(response_content), filename="equation.png")
 
 
-async def latex_process(message: str) -> discord.File:
+async def latex_process(session: ClientSession, message: str) -> discord.File:
     """Traite un message contenant des équations LaTeX et le renvoie sous forme de fichier."""
     message = await latex_replace(message)
     parts = message.split("$")
@@ -34,7 +34,7 @@ async def latex_process(message: str) -> discord.File:
                     equation += rf" \textrm{{{linebreak}}}"
                 else:
                     equation += rf" \textrm{{{parts[i]}}}"
-    return await latex_render(equation.replace(r" \textrm{}", ""))
+    return await latex_render(session, equation.replace(r" \textrm{}", ""))
 
 
 async def latex_replace(message: str) -> str:
