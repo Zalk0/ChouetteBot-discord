@@ -129,8 +129,10 @@ async def get_stats(session, pseudo, uuid, hypixel_player, profile) -> dict[str,
 
 
 async def pseudo_to_profile(
-    session: ClientSession, client: ChouetteBot, discord_pseudo: str, pseudo: str, name: str | None
+    client: ChouetteBot, discord_pseudo: str, pseudo: str, name: str | None
 ) -> dict | str:
+    session = client.session
+
     """Retourne le profil d'un joueur Skyblock avec l'API."""
     uuid = await minecraft_uuid(session, pseudo)
     if not uuid[0]:

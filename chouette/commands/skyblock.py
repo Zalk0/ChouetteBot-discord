@@ -3,7 +3,6 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Literal
 
-import aiohttp
 import discord
 from discord import app_commands
 
@@ -36,63 +35,61 @@ class Skyblock(app_commands.Group):
         message = f"Version de Minecraft: `{mc_version}`\n"
         api_github = "https://api.github.com/repos"
         api_modrinth = "https://api.modrinth.com/v2"
+        session = interaction.client.session
 
-        async with aiohttp.ClientSession() as session:
-            if mc_version == "1.8.9":
-                # Mod loader: Forge
-                async with session.get(
-                    f"{api_github}/Dungeons-Guide/Skyblock-Dungeons-Guide/releases/latest"
-                ) as response:
-                    dungeonsguide = await response.json()
-                async with session.get(f"{api_modrinth}/project/GGamhqbw/version") as response:
-                    notenoughupdates = (await response.json())[0]
-                async with session.get(f"{api_modrinth}/project/F35D4vTL/version") as response:
-                    skyblockaddons = (await response.json())[0]
-                async with session.get(
-                    f"{api_github}/Skytils/SkytilsMod/releases/latest"
-                ) as response:
-                    skytils = await response.json()
+        if mc_version == "1.8.9":
+            # Mod loader: Forge
+            async with session.get(
+                f"{api_github}/Dungeons-Guide/Skyblock-Dungeons-Guide/releases/latest"
+            ) as response:
+                dungeonsguide = await response.json()
+            async with session.get(f"{api_modrinth}/project/GGamhqbw/version") as response:
+                notenoughupdates = (await response.json())[0]
+            async with session.get(f"{api_modrinth}/project/F35D4vTL/version") as response:
+                skyblockaddons = (await response.json())[0]
+            async with session.get(f"{api_github}/Skytils/SkytilsMod/releases/latest") as response:
+                skytils = await response.json()
 
-                message += (
-                    "Mod loader: `Forge`\n"
-                    "--------------------------------\n"
-                    "Les dernières mises à jour sont :\n"
-                    f"- Dungeons-Guide: `{dungeonsguide['tag_name'].replace('v', '')}` "
-                    f"[lien]({dungeonsguide['assets'][0]['browser_download_url']})\n"
-                    f"- NotEnoughUpdates: `{notenoughupdates['version_number']}` "
-                    f"[lien]({notenoughupdates['files'][0]['url']})\n"
-                    f"- SkyblockAddons (forked by Fix3dll): `{skyblockaddons['version_number']}` "
-                    f"[lien]({skyblockaddons['files'][0]['url']})\n"
-                    f"- Skytils: `{skytils['tag_name'].replace('v', '')}` "
-                    f"[lien]({skytils['assets'][0]['browser_download_url']})"
-                )
+            message += (
+                "Mod loader: `Forge`\n"
+                "--------------------------------\n"
+                "Les dernières mises à jour sont :\n"
+                f"- Dungeons-Guide: `{dungeonsguide['tag_name'].replace('v', '')}` "
+                f"[lien]({dungeonsguide['assets'][0]['browser_download_url']})\n"
+                f"- NotEnoughUpdates: `{notenoughupdates['version_number']}` "
+                f"[lien]({notenoughupdates['files'][0]['url']})\n"
+                f"- SkyblockAddons (forked by Fix3dll): `{skyblockaddons['version_number']}` "
+                f"[lien]({skyblockaddons['files'][0]['url']})\n"
+                f"- Skytils: `{skytils['tag_name'].replace('v', '')}` "
+                f"[lien]({skytils['assets'][0]['browser_download_url']})"
+            )
 
-            elif mc_version == "1.21.1" or mc_version == "1.21.5":
-                # Mod loader: Fabric
-                # Certains mods ne sont disponibles que pour Fabric, mais ils pourraient
-                # être disponibles pour d'autres loaders à l'avenir (ex: NeoForge).
-                message += (
-                    "Mod loader: `Fabric`\n"
-                    "--------------------------------\n"
-                    "Les dernières mises à jour sont :\n"
-                )
-                mod_list = {
-                    "Aaron's Mod": "axe0DxiW",
-                    "Firmament": "IJNUBZ2a",
-                    "Roughly Enough Items (REI)": "nfn13YXA",
-                    "Skyblocker": "y6DuFGwJ",
-                }
+        elif mc_version == "1.21.1" or mc_version == "1.21.5":
+            # Mod loader: Fabric
+            # Certains mods ne sont disponibles que pour Fabric, mais ils pourraient
+            # être disponibles pour d'autres loaders à l'avenir (ex: NeoForge).
+            message += (
+                "Mod loader: `Fabric`\n"
+                "--------------------------------\n"
+                "Les dernières mises à jour sont :\n"
+            )
+            mod_list = {
+                "Aaron's Mod": "axe0DxiW",
+                "Firmament": "IJNUBZ2a",
+                "Roughly Enough Items (REI)": "nfn13YXA",
+                "Skyblocker": "y6DuFGwJ",
+            }
 
-                for mod_name, mod_id in mod_list.items():
-                    async with session.get(f"{api_modrinth}/project/{mod_id}/version") as response:
-                        for entry in await response.json():
-                            if mc_version in entry.get(
-                                "game_versions", []
-                            ) and "fabric" in entry.get("loaders", []):
-                                version = entry["version_number"].split("+")[0].replace("v", "")
-                                link = entry["files"][0]["url"]
-                                message += f"- {mod_name}: `{version}` [lien]({link})\n"
-                                break
+            for mod_name, mod_id in mod_list.items():
+                async with session.get(f"{api_modrinth}/project/{mod_id}/version") as response:
+                    for entry in await response.json():
+                        if mc_version in entry.get("game_versions", []) and "fabric" in entry.get(
+                            "loaders", []
+                        ):
+                            version = entry["version_number"].split("+")[0].replace("v", "")
+                            link = entry["files"][0]["url"]
+                            message += f"- {mod_name}: `{version}` [lien]({link})\n"
+                            break
 
         await interaction.followup.send(message)
 
@@ -170,10 +167,7 @@ class Skyblock(app_commands.Group):
         """Lie le profil Hypixel Skyblock du joueur."""
         await interaction.response.defer(thinking=True)
         discord_pseudo = interaction.user.name
-        async with aiohttp.ClientSession() as session:
-            profile_name = await pseudo_to_profile(
-                session, interaction.client, discord_pseudo, pseudo, profile
-            )
+        profile_name = await pseudo_to_profile(interaction.client, discord_pseudo, pseudo, profile)
         if isinstance(profile_name, str):
             interaction.client.bot_logger.error(profile_name)
             await interaction.followup.send(f"Il y a eu une erreur :\n`{profile_name}`")

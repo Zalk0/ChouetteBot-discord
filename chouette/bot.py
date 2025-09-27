@@ -2,7 +2,7 @@ import logging
 import os
 
 import discord
-from aiohttp import web
+from aiohttp import ClientSession, web
 
 from chouette.commands_list import commands
 from chouette.responses import responses
@@ -69,6 +69,9 @@ class ChouetteBot(discord.Client):
         """Initialise le bot."""
         # Log the current running version
         self.bot_logger.info(await get_version())
+
+        # Start aiohttp client session
+        self.session = ClientSession()
 
         # Call commands and import tasks
         await commands(self)
@@ -172,3 +175,11 @@ class ChouetteBot(discord.Client):
             web_logger.warning(f"Error while starting the webserver: \n{e}")
         else:
             web_logger.info("The webserver has successfully started")
+
+    async def close(self) -> None:
+        # Close aiohttp client session
+        await self.session.close()
+
+        # Do normal close
+        await super().close()
+        self.bot_logger.info("Bot stopped gracefully")
