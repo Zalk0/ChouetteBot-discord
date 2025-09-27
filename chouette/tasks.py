@@ -95,7 +95,7 @@ async def tasks_list(client: ChouetteBot) -> None:
                     embed=embed,
                 )
 
-    # Start loop
+    # Start loops
     poke_ping.start()
     check_birthdays.start()
     skyblock_guild_ranking.start()

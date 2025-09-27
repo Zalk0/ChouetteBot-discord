@@ -11,7 +11,11 @@ from chouette.utils.version import get_version
 
 
 class ChouetteBot(discord.Client):
-    """Classe principale du bot ChouetteBot."""
+    """Classe principale du bot ChouetteBot.
+
+    Args:
+        discord (Client): Instance de la classe Client de discord.py.
+    """
 
     def __init__(self) -> None:
         """Initialise la classe ChouetteBot."""
@@ -96,7 +100,11 @@ class ChouetteBot(discord.Client):
         self.bot_logger.info(f"Number of servers I'm in : {len(self.guilds)}")
 
     async def on_message(self, message: discord.Message) -> None:
-        """Fonction appelée lorsqu'un message est envoyé dans les salons auxquels il a accès."""
+        """Fonction appelée lorsqu'un message est envoyé dans les salons auxquels il a accès.
+
+        Args:
+            message (discord.Message): Le message envoyé.
+        """
         # Ignore messages from bots including self
         if message.author.bot:
             return
@@ -124,7 +132,14 @@ class ChouetteBot(discord.Client):
             self.bot_logger.info(f'{self.user} responded to {author}: "{response[0]}"')
 
     async def is_team_member_or_owner(self, author: discord.User) -> bool:
-        """Vérifie si l'auteur est membre de l'équipe ou le propriétaire de l'application."""
+        """Vérifie si l'auteur est membre de l'équipe ou le propriétaire de l'application.
+
+        Args:
+            author (discord.User): L'utilisateur à vérifier.
+
+        Returns:
+            bool: `True` si l'utilisateur est membre de l'équipe ou le propriétaire, `False` sinon.
+        """
         if self.application.team:
             return author.id in [member.id for member in self.application.team.members]
         return author.id == self.application.owner.id
@@ -177,7 +192,9 @@ class ChouetteBot(discord.Client):
             web_logger.info("The webserver has successfully started")
 
     async def close(self) -> None:
+        """Ferme le bot et libère les ressources."""
         # Close aiohttp client session
+        self.bot_logger.debug("Closing the aiohttp client session")
         await self.session.close()
 
         # Do normal close

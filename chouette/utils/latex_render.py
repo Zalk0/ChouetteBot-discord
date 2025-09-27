@@ -6,7 +6,15 @@ from aiohttp import ClientSession
 
 # Make a LaTeX rendering function using an online equation renderer : https://latex.codecogs.com/
 async def latex_render(session: ClientSession, equation: str) -> discord.File:
-    """Fait le rendu d'une équation LaTeX et le renvoie sous forme de fichier."""
+    """Rend une équation LaTeX et la renvoie sous forme de fichier.
+
+    Args:
+        session (ClientSession): La session HTTP aiohttp.
+        equation (str): L'équation LaTeX à rendre.
+
+    Returns:
+        discord.File: Le fichier contenant l'image de l'équation rendue.
+    """
     options = r"\dpi{200} \bg_black \color[RGB]{240, 240, 240} \pagecolor[RGB]{49, 51, 56}"
     # bg_black is for putting a black background (custom command of the site)
     # instead of the transparent one. Then a custom background color can be used with pagecolor.
@@ -18,7 +26,15 @@ async def latex_render(session: ClientSession, equation: str) -> discord.File:
 
 
 async def latex_process(session: ClientSession, message: str) -> discord.File:
-    """Traite un message contenant des équations LaTeX et le renvoie sous forme de fichier."""
+    """Rend un message contenant des équations LaTeX et le renvoie sous forme de fichier.
+
+    Args:
+        session (ClientSession): La session HTTP aiohttp.
+        message (str): Le message à traiter.
+
+    Returns:
+        discord.File: Le fichier contenant l'image de l'équation rendue.
+    """
     message = await latex_replace(message)
     parts = message.split("$")
     equation = r"\\"
@@ -38,7 +54,14 @@ async def latex_process(session: ClientSession, message: str) -> discord.File:
 
 
 async def latex_replace(message: str) -> str:
-    """Remplace les caractères spéciaux par des commandes LaTeX."""
+    """Remplace les caractères spéciaux par des commandes LaTeX.
+
+    Args:
+        message (str): Le message à traiter.
+
+    Returns:
+        str: Le message avec les caractères remplacés par des commandes LaTeX.
+    """
     return (
         message.replace(r"ù", r"\`u")
         .replace(r"é", r"\'e")

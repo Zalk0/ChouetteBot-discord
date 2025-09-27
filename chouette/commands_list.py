@@ -28,7 +28,11 @@ SPACES = " " * 38
 
 
 async def commands(client: ChouetteBot) -> None:
-    """Ajoute les commandes à l'arbre des commandes."""
+    """Ajoute les commandes à l'arbre des commandes.
+
+    Args:
+        client (ChouetteBot): L'instance du bot.
+    """
     for command in COMMANDS_LIST:
         client.tree.add_command(command)
 
@@ -43,7 +47,12 @@ async def commands(client: ChouetteBot) -> None:
     async def on_command_error(
         interaction: discord.Interaction[ChouetteBot], error: discord.app_commands.AppCommandError
     ) -> None:
-        """Gère les erreurs lors de l'exécution des commandes."""
+        """Gère les erreurs lors de l'exécution des commandes.
+
+        Args:
+            interaction (discord.Interaction[ChouetteBot]): L'interaction qui a causé l'erreur.
+            error (discord.app_commands.AppCommandError): L'erreur qui a été levée.
+        """
         if interaction.response.is_done():
             return
         if isinstance(error, discord.app_commands.BotMissingPermissions):

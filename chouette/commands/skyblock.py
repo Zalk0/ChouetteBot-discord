@@ -30,7 +30,12 @@ class Skyblock(app_commands.Group):
         interaction: discord.Interaction[ChouetteBot],
         mc_version: Literal["1.8.9", "1.21.1", "1.21.5"],
     ) -> None:
-        """Vérifie les dernières mises à jour des mods populaires du Skyblock d'Hypixel."""
+        """Vérifie les dernières mises à jour des mods populaires du Skyblock d'Hypixel.
+
+        Args:
+            interaction (discord.Interaction[ChouetteBot]): L'interaction Discord.
+            mc_version (Literal["1.8.9", "1.21.1", "1.21.5"]): La version de Minecraft.
+        """
         await interaction.response.defer(thinking=True)
         message = f"Version de Minecraft: `{mc_version}`\n"
         api_github = "https://api.github.com/repos"
@@ -95,7 +100,11 @@ class Skyblock(app_commands.Group):
 
     @app_commands.command(name="tuto")
     async def tuto(self, interaction: discord.Interaction[ChouetteBot]) -> None:
-        """Donne le lien du tutoriel pour débuter sur le Skyblock d'Hypixel."""
+        """Donne le lien du tutoriel pour débuter sur le Skyblock d'Hypixel.
+
+        Args:
+            interaction (discord.Interaction[ChouetteBot]): L'interaction Discord.
+        """
         repo_url = "https://github.com/gylfirst/HowToSkyblock"
         strip_color = discord.Colour.from_str(value="#DAA520")  # HTML name: GoldenRod
         embed_tuto = discord.Embed(
@@ -115,7 +124,11 @@ class Skyblock(app_commands.Group):
 
     @app_commands.command(name="spider_rain")
     async def spider(self, interaction: discord.Interaction[ChouetteBot]) -> None:
-        """Indique le temps de la prochaine pluie ou orage sur Spider's Den."""
+        """Indique le temps de la prochaine pluie ou orage sur Spider's Den.
+
+        Args:
+            interaction (discord.Interaction[ChouetteBot]): L'interaction Discord.
+        """
         # The weather cycle for spider den starts at the start of the skyblock (timestamp 1560275700) and repeats
         time_now = round(datetime.now(tz=timezone.utc).timestamp())
         skyblock_age = time_now - 1560275700
@@ -164,7 +177,13 @@ class Skyblock(app_commands.Group):
     async def link(
         self, interaction: discord.Interaction[ChouetteBot], pseudo: str, profile: str | None
     ):
-        """Lie le profil Hypixel Skyblock du joueur."""
+        """Permet de lier son compte Discord à un profil Skyblock d'Hypixel.
+
+        Args:
+            interaction (discord.Interaction[ChouetteBot]): L'interaction Discord.
+            pseudo (str): Le pseudo Minecraft.
+            profile (str | None): Le profil Skyblock préféré.
+        """
         await interaction.response.defer(thinking=True)
         discord_pseudo = interaction.user.name
         profile_name = await pseudo_to_profile(interaction.client, discord_pseudo, pseudo, profile)

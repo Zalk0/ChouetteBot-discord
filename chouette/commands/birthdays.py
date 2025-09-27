@@ -31,7 +31,12 @@ class Birthday(app_commands.Group):
     async def on_error(
         self, interaction: Interaction[ChouetteBot], error: app_commands.AppCommandError
     ) -> None:
-        """Gère les erreurs lors de l'exécution des commandes."""
+        """Gère les erreurs lors de l'exécution des commandes.
+
+        Args:
+            interaction (Interaction[ChouetteBot]): L'interaction Discord.
+            error (app_commands.AppCommandError): L'erreur à gérer.
+        """
         if isinstance(error, InvalidBirthdayDate):
             interaction.client.bot_logger.info(
                 f"{interaction.user} entered an invalid date as his birthday"
@@ -48,7 +53,17 @@ class Birthday(app_commands.Group):
     async def add(
         self, interaction: Interaction[ChouetteBot], day: int, month: int, year: int | None
     ) -> None:
-        """Ajoute l'anniversaire de l'utilisateur dans la base de données."""
+        """Ajoute l'anniversaire de l'utilisateur dans la base de données.
+
+        Args:
+            interaction (Interaction[ChouetteBot]): L'interaction Discord.
+            day (int): Le jour de l'anniversaire.
+            month (int): Le mois de l'anniversaire.
+            year (int | None): L'année de l'anniversaire.
+
+        Raises:
+            InvalidBirthdayDate: Si la date entrée n'est pas valide.
+        """
         try:
             birth_date = await check_date(day, month, year)
         except ValueError as e:
@@ -78,7 +93,17 @@ class Birthday(app_commands.Group):
     async def modify(
         self, interaction: Interaction[ChouetteBot], day: int, month: int, year: int | None
     ) -> None:
-        """Modifie l'anniversaire de l'utilisateur dans la base de données."""
+        """Modifie l'anniversaire de l'utilisateur dans la base de données.
+
+        Args:
+            interaction (Interaction[ChouetteBot]): L'interaction Discord.
+            day (int): Le jour de l'anniversaire.
+            month (int): Le mois de l'anniversaire.
+            year (int | None): L'année de l'anniversaire.
+
+        Raises:
+            InvalidBirthdayDate: Si la date entrée n'est pas valide.
+        """
         try:
             birth_date = await check_date(day, month, year)
         except ValueError as e:
@@ -104,7 +129,11 @@ class Birthday(app_commands.Group):
         description="Permet de supprimer son anniversaire enregistré",
     )
     async def remove(self, interaction: Interaction[ChouetteBot]) -> None:
-        """Supprimer l'anniversaire de l'utilisateur de la base de données."""
+        """Supprime l'anniversaire de l'utilisateur de la base de données.
+
+        Args:
+            interaction (Interaction[ChouetteBot]): L'interaction Discord.
+        """
         user_id = str(interaction.user.id)
         birthdays = await load_birthdays()
         if user_id in birthdays:
@@ -123,7 +152,11 @@ class Birthday(app_commands.Group):
         description="Liste les anniversaires enregistrés",
     )
     async def list(self, interaction: Interaction[ChouetteBot]) -> None:
-        """Liste les anniversaires enregistrés dans la base de données triés par date."""
+        """Liste les anniversaires enregistrés dans la base de données.
+
+        Args:
+            interaction (Interaction[ChouetteBot]): L'interaction Discord.
+        """
         msg = f"Voici les anniversaires de {interaction.guild.name}\n"
         birthdays = sorted(
             (await load_birthdays()).items(), key=lambda x: x[1].get("birthday").replace(4)

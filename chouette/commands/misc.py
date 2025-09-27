@@ -15,20 +15,33 @@ if TYPE_CHECKING:
 
 @app_commands.command(name="latex", description="Fait le rendu d'une équation LaTeX")
 async def latex(interaction: discord.Interaction[ChouetteBot], equation: str) -> None:
-    """Fait le rendu d'une équation LaTeX et envoie la réponse sous forme d'image."""
+    """Fait le rendu d'une équation LaTeX et envoie la réponse sous forme d'image.
+
+    Args:
+        interaction (discord.Interaction[ChouetteBot]): L'interaction Discord.
+        equation (str): L'équation LaTeX à rendre.
+    """
     session = interaction.client.session
     await interaction.response.send_message(file=await latex_render(session, equation))
 
 
 @app_commands.command(name="roll", description="Lance un dé")
 async def die_roll(interaction: discord.Interaction[ChouetteBot]) -> None:
-    """Lance un dé et affiche le résultat."""
+    """Lance un dé et affiche le résultat.
+
+    Args:
+        interaction (discord.Interaction[ChouetteBot]): L'interaction Discord.
+    """
     await interaction.response.send_message(f"{random.randint(1, 6)} \N{GAME DIE}")
 
 
 @app_commands.command(name="ping", description="Test la latence du bot")
 async def ping(interaction: discord.Interaction[ChouetteBot]) -> None:
-    """Test la latence du bot."""
+    """Teste la latence du bot.
+
+    Args:
+        interaction (discord.Interaction[ChouetteBot]): L'interaction Discord.
+    """
     await interaction.response.send_message(
         f"Pong ! En {round(interaction.client.latency * 1000)}ms"
     )
@@ -36,11 +49,14 @@ async def ping(interaction: discord.Interaction[ChouetteBot]) -> None:
 
 @app_commands.command(name="cheh", description="Cheh quelqu'un")
 async def cheh(interaction: discord.Interaction[ChouetteBot], user: discord.Member) -> None:
-    """
-    Envoie le gif du Cheh à quelqu'un.
+    """Envoie le gif du Cheh à quelqu'un.
 
-    On vérifie l'utilisateur qui a été mentionné, si c'est le bot, on envoie un message d'erreur.
-    Si c'est l'utilisateur qui a fait la commande, on envoie **FEUR**.
+    - On vérifie l'utilisateur qui a été mentionné, si c'est le bot, on envoie un message d'erreur.
+    - Si c'est l'utilisateur qui a fait la commande, on envoie **FEUR**.
+
+    Args:
+        interaction (discord.Interaction[ChouetteBot]): L'interaction Discord.
+        user (discord.Member): L'utilisateur à qui on envoie le Cheh.
     """
     if user == interaction.client.user:
         await interaction.response.send_message("Vous ne pouvez pas me **Cheh** !")
@@ -56,7 +72,12 @@ async def cheh(interaction: discord.Interaction[ChouetteBot], user: discord.Memb
 @app_commands.checks.bot_has_permissions(manage_messages=True)
 @app_commands.context_menu(name="Epingler/Déséingler")
 async def pin(interaction: discord.Interaction[ChouetteBot], message: discord.Message) -> None:
-    """Épingle ou désépingle un message."""
+    """Épingle ou désépingle un message.
+
+    Args:
+        interaction (discord.Interaction[ChouetteBot]): L'interaction Discord.
+        message (discord.Message): Le message à épingler ou désépingler.
+    """
     if message.pinned:
         await message.unpin()
         await interaction.response.send_message("Le message a été désépinglé !", ephemeral=True)
@@ -73,15 +94,25 @@ async def pin(interaction: discord.Interaction[ChouetteBot], message: discord.Me
 @app_commands.checks.has_permissions(manage_messages=True)
 @app_commands.context_menu(name="Supprime jusqu'ici")
 async def delete(interaction: discord.Interaction[ChouetteBot], message: discord.Message) -> None:
-    """Supprime les messages jusqu'à celui-ci (inclus)."""
+    """Supprime les messages jusqu'à celui-ci (inclus).
+
+    Args:
+        interaction (discord.Interaction[ChouetteBot]): L'interaction Discord.
+        message (discord.Message): Le message jusqu'où supprimer les messages.
+    """
     await interaction.response.defer(ephemeral=True, thinking=True)
     last_id = interaction.channel.last_message_id
 
     def is_msg(msg: discord.Message) -> bool:
-        """
-        Vérifie si le message est dans l'intervalle (dernier message ↔ message sélectionné).
+        """Vérifie si le message est dans l'intervalle (dernier message ↔ message sélectionné).
 
         On décale les IDs de 22 bits pour obtenir le timestamp du message.
+
+        Args:
+            msg (discord.Message): Le message à vérifier.
+
+        Returns:
+            bool: `True` si le message est dans l'intervalle, `False` sinon.
         """
         return (message.id >> 22) <= (msg.id >> 22) <= (last_id >> 22)
 
@@ -91,7 +122,11 @@ async def delete(interaction: discord.Interaction[ChouetteBot], message: discord
 
 @app_commands.command(name="info", description="Affiche les informations du bot")
 async def info(interaction: discord.Interaction[ChouetteBot]) -> None:
-    """Affiche les informations du bot."""
+    """Affiche les informations du bot.
+
+    Args:
+        interaction (discord.Interaction[ChouetteBot]): L'interaction Discord.
+    """
     creators = "Zalko & Gylfirst"
     session = interaction.client.session
     last_update = await get_last_update(session)

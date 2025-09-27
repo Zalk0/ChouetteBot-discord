@@ -4,18 +4,19 @@ from typing import Optional
 def experience_to_level(
     type_xp: str, xp_amount: float, max_level: Optional[int] = None
 ) -> tuple[float, float]:
-    """
-    Calcule le niveau correspondant à une quantité donnée d'expérience cumulative.
+    """Calcule le niveau correspondant à une quantité donnée d'expérience cumulative.
 
     Args:
-        `type_xp`: Le type d'expérience pour lequel calculer le niveau (compétence, type de slayer, donjon).
+        type_xp (str): Le type d'expérience pour lequel calculer le niveau (`skill`, `slayer_type`, `dungeon`).
             Pour `slayer_type`, utilisez l'un des suivants: `slayer_zombie`, `slayer_spider`, `slayer_wolf`, `slayer_enderman`, `slayer_blaze`,` slayer_vampire`.
-        `xp_amount`: La quantité d'expérience cumulée.
-        `max_level`: Le niveau maximum
+        xp_amount (float): La quantité d'expérience cumulative.
+        max_level (Optional[int], optional): Le niveau maximum. Defaults to None.
+
+    Raises:
+        ValueError: Si le type d'expérience est inconnu ou si la quantité d'expérience est négative.
 
     Returns:
-        `level`: Le niveau correspondant à la quantité donnée d'expérience cumulée.
-        `overflow`: L'expérience restante pour atteindre le prochain niveau.
+        tuple[float, float]: Le niveau correspondant à la quantité donnée d'expérience cumulée et l'expérience restante pour atteindre le prochain niveau.
     """
     skill_xp_data: list[int] = [
         0,
