@@ -3,7 +3,7 @@ from typing import Optional
 
 def experience_to_level(
     type_xp: str, xp_amount: float, max_level: Optional[int] = None
-) -> (float, float):
+) -> tuple[float, float]:
     """
     Calcule le niveau correspondant à une quantité donnée d'expérience cumulative.
 

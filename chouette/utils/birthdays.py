@@ -25,7 +25,7 @@ async def check_date(day: int, month: int, year: int) -> date:
     return date(year, month, day)
 
 
-async def calculate_age(year: int) -> int:
+async def calculate_age(year: int) -> int | None:
     """Calcule l'âge de la personne en fonction de son année de naissance."""
     return date.today().year - year if year != 4 else None
 

@@ -52,7 +52,7 @@ def format_ranking_message(player: str, value: str, i: int, position: int) -> st
     return message
 
 
-async def update_stats(session: ClientSession, api_key: str) -> (str, dict):
+async def update_stats(session: ClientSession, api_key: str) -> tuple[str, dict]:
     """
     Met à jour les statistiques de la guilde sur Hypixel Skyblock.
 
