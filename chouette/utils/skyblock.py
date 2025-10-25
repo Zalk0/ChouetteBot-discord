@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from aiohttp.client import ClientSession
+from aiohttp import ClientSession
 
 from chouette.utils.data_io import data_read, data_write
 
