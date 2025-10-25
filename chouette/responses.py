@@ -17,11 +17,20 @@ async def responses(
     message: str,
     author: discord.User,
 ) -> tuple[str, bool]:
-    """
-    Vérifie si le message de l'utilisateur correspond à une réponse spécifique :
-    On vérifie si le message se termine par "quoi" pour répondre **FEUR**.
-    On vérifie si le message contient des $$ pour afficher une équation LaTeX.
-    On vérifie si le message est égal à la mention du bot suivi de "sync" pour synchroniser les commandes slash.
+    """Gère les réponses du bot en fonction du message de l'utilisateur.
+
+    - On vérifie si le message se termine par "quoi" pour répondre **FEUR**.
+    - On vérifie si le message contient des $$ pour afficher une équation LaTeX.
+    - On vérifie si le message est égal à la mention du bot suivi de "sync" pour synchroniser les commandes slash.
+
+    Args:
+        client (ChouetteBot): L'instance du bot.
+        channel (Messageable): Le canal où envoyer la réponse.
+        message (str): Le message de l'utilisateur.
+        author (discord.User): L'auteur du message.
+
+    Returns:
+        tuple[str, bool]: Le message de réponse et un booléen indiquant si le message est une commande.
     """
     # Checks if a message ends with quoi
     if "".join(filter(str.isalpha, message)).lower().endswith("quoi"):
@@ -30,7 +39,7 @@ async def responses(
     # Checks if a message contains $$ to signify LaTeX expression
     if message.count("$") > 1:
         if (message.count("$") % 2) == 0:
-            await channel.send(file=await latex_process(message))
+            await channel.send(file=await latex_process(client.session, message))
             client.bot_logger.info(f'{client.user} responded to {author}: "equation.png"')
             return "", False
         return (

@@ -26,6 +26,7 @@ except ZoneInfoNotFoundError:
 
 async def tasks_list(client: ChouetteBot) -> None:
     """Liste des tâches à effectuer pour le bot."""
+    session = client.session
 
     # Send message every 2 hours for pokeroll in utc time (default)
     @tasks.loop(time=[time(t) for t in range(0, 24, 2)])
@@ -76,7 +77,7 @@ async def tasks_list(client: ChouetteBot) -> None:
             guild = client.get_guild(int(client.config["HYPIXEL_GUILD_ID"]))
             member = guild.get_role(int(client.config["HYPIXEL_GUILD_ROLE"]))
             api_key = client.config["HYPIXEL_KEY"]
-            update_message, old_ranking_data = await update_stats(api_key=api_key)
+            update_message, old_ranking_data = await update_stats(session=session, api_key=api_key)
             client.bot_logger.info(update_message)
             if not guild.icon:
                 icon_url = "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg"
@@ -94,7 +95,7 @@ async def tasks_list(client: ChouetteBot) -> None:
                     embed=embed,
                 )
 
-    # Start loop
+    # Start loops
     poke_ping.start()
     check_birthdays.start()
     skyblock_guild_ranking.start()

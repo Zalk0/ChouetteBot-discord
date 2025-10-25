@@ -3,8 +3,8 @@ import math
 from datetime import date
 from itertools import chain
 
-import aiohttp
 import discord
+from aiohttp import ClientSession
 
 from chouette.utils.birthdays import month_to_str
 from chouette.utils.hypixel_data import experience_to_level
@@ -20,7 +20,14 @@ SPACES = " " * 38
 
 
 def format_number(number) -> str:
-    """Permet de formater un nombre en K, M ou B."""
+    """Formate un nombre en K, M ou B.
+
+    Args:
+        number (int): Le nombre à formater.
+
+    Returns:
+        str: Le nombre formaté.
+    """
     if number >= 1_000_000_000:
         return f"{number / 1_000_000_000:.2f}B"
     if number >= 1_000_000:
@@ -30,8 +37,18 @@ def format_number(number) -> str:
     return str(number)
 
 
-def format_ranking_message(player: str, value: str, i: int, position: int) -> str:
-    """Formate le message pour les données du classement de la guilde sur Hypixel Skyblock."""
+def format_ranking_message(player: str, value: str, index: int, position: int) -> str:
+    """Formate le message pour les données du classement de la guilde sur Hypixel Skyblock.
+
+    Args:
+        player (str): Le pseudo du joueur.
+        value (str): La valeur à afficher (niveau, networth, etc.).
+        index (int): L'index du joueur dans le classement.
+        position (int): -1 si le joueur a descendu, 0 s'il n'a pas bougé, 1 s'il a monté.
+
+    Returns:
+        str: Le message formaté.
+    """
     # Codes emoji custom pour les positions (discord developer portal app)
     if position == 1:
         # emoji custom 'green_up_arrow'
@@ -41,47 +58,59 @@ def format_ranking_message(player: str, value: str, i: int, position: int) -> st
         message = "<:rda:1319980559581057045> "
     else:
         message = "\U0001f536 "
-    if i == 0:
+    if index == 0:
         message += f"\N{FIRST PLACE MEDAL} **{player}** [{value}]"
-    elif i == 1:
+    elif index == 1:
         message += f"\N{SECOND PLACE MEDAL} **{player}** [{value}]"
-    elif i == 2:
+    elif index == 2:
         message += f"\N{THIRD PLACE MEDAL} **{player}** [{value}]"
     else:
         message += f"\N{MEDIUM BLACK CIRCLE} **{player}** [{value}]"
     return message
 
 
-async def update_stats(api_key: str) -> (str, dict):
-    """
-    Met à jour les statistiques de la guilde sur Hypixel Skyblock.
+async def update_stats(session: ClientSession, api_key: str) -> tuple[str, dict]:
+    """Met à jour les statistiques de la guilde sur Hypixel Skyblock.
 
-    Retourne un message de synchronisation et les anciennes données de la guilde.
+    Args:
+        session (ClientSession): La session HTTP aiohttp.
+        api_key (str): La clé API d'Hypixel pour accéder aux données.
+
+    Raises:
+        Exception: Si une erreur survient lors de la mise à jour des statistiques.
+
+    Returns:
+        tuple[str, dict]: Le message de mise à jour et les anciennes données.
     """
     old_data = await load_skyblock()
     new_data = copy.deepcopy(old_data)
     msg = "Synchro des données de la guilde sur Hypixel Skyblock pour :"
-    async with aiohttp.ClientSession() as session:
-        for uuid in old_data:
-            pseudo = old_data.get(uuid).get("pseudo")
-            profile_name = old_data.get(uuid).get("profile")
-            profile = await get_profile(session, api_key, uuid, profile_name)
-            if not profile[0]:
-                raise Exception("Error while updating stats")
-            profile = profile[1]
-            player = await get_hypixel_player(session, api_key, uuid)
-            new_data.get(uuid).update(await get_stats(session, pseudo, uuid, player, profile))
-            msg += f"\n{SPACES}- {pseudo} sur le profil {profile_name}"
+    for uuid in old_data:
+        pseudo = old_data.get(uuid).get("pseudo")
+        profile_name = old_data.get(uuid).get("profile")
+        profile = await get_profile(session, api_key, uuid, profile_name)
+        if not profile[0]:
+            raise Exception("Error while updating stats")
+        profile = profile[1]
+        player = await get_hypixel_player(session, api_key, uuid)
+        new_data.get(uuid).update(await get_stats(session, pseudo, uuid, player, profile))
+        msg += f"\n{SPACES}- {pseudo} sur le profil {profile_name}"
     await save_skyblock(new_data)
     old_data = parse_data(old_data)
     return msg, old_data
 
 
 def parse_data(data: dict) -> dict:
-    """
-    Parse les données de la guilde sur Hypixel Skyblock. Calcule les niveaux et overflows des joueurs.
+    """Parse les données de la guilde sur Hypixel Skyblock.
 
-    Retourne un dictionnaire avec les données triées.
+    Args:
+        data (dict): Les données à parser.
+
+    Raises:
+        ValueError: Si une catégorie inconnue est rencontrée lors du tri des données.
+
+    Returns:
+        dict: Les données parsées.
     """
     ranking = {}
     skills = [
@@ -177,12 +206,16 @@ def parse_data(data: dict) -> dict:
     return sorted_ranking
 
 
-def generate_ranking_message(data, category, old_data) -> list[str]:
-    """
-    Génère les messages pour les données du classement de la guilde sur Hypixel Skyblock.
-    On compare les anciennes données avec les nouvelles pour déterminer si un joueur a monté, descendu ou n'a pas bougé.
+def generate_ranking_message(data: dict, category: str, old_data: dict) -> list[str]:
+    """Génère les messages pour les données du classement de la guilde sur Hypixel Skyblock.
 
-    Retourne une liste de messages.
+    Args:
+        data (dict): Les données du classement.
+        category (str): La catégorie du classement.
+        old_data (dict): Les anciennes données du classement pour faire la comparaison.
+
+    Returns:
+        list[str]: Les messages formatés.
     """
     skills_list: list[str] = [
         "fishing",
@@ -271,11 +304,17 @@ def generate_ranking_message(data, category, old_data) -> list[str]:
     return messages
 
 
-def calculate_player_position(old_data, new_data, category, player) -> int:
-    """
-    Calcule la position d'un joueur dans le classement.
+def calculate_player_position(old_data: dict, new_data: dict, category: str, player: str) -> int:
+    """Calcule la position d'un joueur dans le classement.
 
-    Retourne `1` si le joueur a monté, `-1` s'il a descendu, `0` s'il n'a pas bougé ou s'il est nouveau.
+    Args:
+        old_data (dict): Les anciennes données du classement.
+        new_data (dict): Les nouvelles données du classement.
+        category (str): La catégorie du classement.
+        player (str): Le pseudo du joueur.
+
+    Returns:
+        int: -1 si le joueur a descendu, 0 s'il n'a pas bougé, 1 s'il a monté.
     """
     # 'Level', 'Networth' and 'Skill average'
     if category in ["level", "networth", "skill average"]:
@@ -299,11 +338,15 @@ def calculate_player_position(old_data, new_data, category, player) -> int:
 
 
 async def display_ranking(img: str, old_ranking: dict) -> list[discord.Embed]:
-    """
-    Crée les embeds pour afficher le classement de la guilde sur Hypixel Skyblock.
-    On les sépare si la taille dépasse 5000 caractères.
+    """Affiche le classement de la guilde sur Hypixel Skyblock. Si la taille dépasse la limite des embeds (5000 caractères),
+    on crée plusieurs embeds.
 
-    Retourne une liste d'embeds.
+    Args:
+        img (str): L'URL de l'image à afficher en miniature.
+        old_ranking (dict): Les anciennes données du classement pour faire la comparaison.
+
+    Returns:
+        list[discord.Embed]: La liste des embeds à afficher.
     """
     month = await month_to_str(date.today().month)
     year = date.today().year
@@ -311,8 +354,7 @@ async def display_ranking(img: str, old_ranking: dict) -> list[discord.Embed]:
     embeds_ranking = []
     ranking = discord.Embed(
         title=f"Classement de début {month} {year}",
-        description="\N{NO ENTRY SIGN} LA NETWORTH N'EST PLUS CALCULÉE !\n"
-        "Voici le classement de la guilde sur Hypixel Skyblock.\n"
+        description="Voici le classement de la guilde sur Hypixel Skyblock.\n"
         "Le skill average est sans progression (comme affiché sur Hypixel dans le menu des skills).",
         color=discord.Colour.from_rgb(0, 170, 255),
     )
@@ -331,8 +373,7 @@ async def display_ranking(img: str, old_ranking: dict) -> list[discord.Embed]:
                 embeds_ranking.append(ranking)
                 ranking = discord.Embed(
                     title=f"Classement de début {month} {year} - Suite",
-                    description="\N{NO ENTRY SIGN} LA NETWORTH N'EST PLUS CALCULÉE !\n"
-                    "Voici la suite du classement de la guilde sur Hypixel Skyblock.\n"
+                    description="Voici la suite du classement de la guilde sur Hypixel Skyblock.\n"
                     "Le skill average est sans progression (comme affiché sur Hypixel dans le menu des skills).",
                     color=discord.Colour.from_rgb(0, 170, 255),
                 )

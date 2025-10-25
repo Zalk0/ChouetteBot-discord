@@ -5,7 +5,11 @@ SPACES = " " * 38
 
 
 async def get_version() -> str:
-    """Génère un message avec les informations de version."""
+    """Génère un message avec les informations de version.
+
+    Returns:
+        str: Le message contenant les informations de version.
+    """
     msg = "Version information:\n"
 
     # Check if the environnement is Docker or not
