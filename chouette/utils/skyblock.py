@@ -166,7 +166,7 @@ async def get_player_networth(
 
 
 async def get_stats(
-    uuid: str, hypixel_player: dict, profile: dict
+    session: ClientSession, uuid: str, hypixel_player: dict, profile: dict
 ) -> dict[str, float | tuple[float, ...] | tuple[int, ...]]:
     """Retourne les statistiques d'un joueur Skyblock avec l'API.
 
