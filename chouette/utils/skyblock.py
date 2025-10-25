@@ -15,17 +15,33 @@ HYPIXEL_API = "https://api.hypixel.net/v2/"
 
 
 async def load_skyblock() -> dict:
-    """Charge les données du Skyblock à partir du disque."""
+    """Charge les données du Skyblock à partir du disque.
+
+    Returns:
+        dict: Les données du Skyblock.
+    """
     return await data_read(SKYBLOCK_FILE)
 
 
 async def save_skyblock(skyblock: dict) -> None:
-    """Sauvegarde les données du Skyblock sur le disque."""
+    """Sauvegarde les données du Skyblock sur le disque.
+
+    Args:
+        skyblock (dict): Les données du Skyblock à sauvegarder.
+    """
     await data_write(skyblock, SKYBLOCK_FILE)
 
 
-async def minecraft_uuid(session: ClientSession, pseudo: str) -> tuple[bool, str]:
-    """Retourne l'UUID d'un joueur Minecraft avec l'API Mojang."""
+async def minecraft_uuid(session: ClientSession, pseudo: str) -> tuple[bool, str | None]:
+    """Retourne l'UUID d'un joueur Minecraft avec l'API Mojang.
+
+    Args:
+        session (ClientSession): La session HTTP aiohttp.
+        pseudo (str): Le pseudo Minecraft du joueur.
+
+    Returns:
+        tuple[bool, str | None]: `True` et l'UUID si le pseudo existe, `False` et un message d'erreur sinon.
+    """
     async with session.get(
         f"https://api.mojang.com/users/profiles/minecraft/{pseudo}"
     ) as response:
@@ -36,7 +52,14 @@ async def minecraft_uuid(session: ClientSession, pseudo: str) -> tuple[bool, str
 
 
 async def hypixel_discord(player: dict) -> tuple[bool, str]:
-    """Retourne le pseudo Discord lié à un compte Hypixel."""
+    """Retourne le pseudo Discord lié à un compte Hypixel.
+
+    Args:
+        player (dict): Les données du joueur Hypixel.
+
+    Returns:
+        tuple[bool, str]: `True` et le pseudo Discord si le compte est lié, `False` et un message d'erreur sinon.
+    """
     if not player.get("player").get("socialMedia", {}).get("links", {}).get("DISCORD", ""):
         return False, "Vous n'avez pas associé votre compte Discord à Hypixel"
     return True, player.get("player").get("socialMedia").get("links").get("DISCORD")
@@ -44,8 +67,17 @@ async def hypixel_discord(player: dict) -> tuple[bool, str]:
 
 async def selected_profile(
     session: ClientSession, api_key: str, uuid: str
-) -> tuple[bool, dict | str]:
-    """Retourne le profil Skyblock sélectionné d'un joueur."""
+) -> tuple[bool, dict | str | None]:
+    """Retourne le profil Skyblock sélectionné d'un joueur.
+
+    Args:
+        session (ClientSession): La session HTTP aiohttp.
+        api_key (str): La clé API Hypixel.
+        uuid (str): L'UUID du joueur.
+
+    Returns:
+        tuple[bool, dict | str | None]: Le profil Skyblock sélectionné du joueur ou un message d'erreur.
+    """
     async with session.get(
         f"{HYPIXEL_API}skyblock/profiles", params={"key": api_key, "uuid": uuid}
     ) as response:
@@ -63,8 +95,18 @@ async def selected_profile(
 
 async def get_profile(
     session: ClientSession, api_key: str, uuid: str, name: str
-) -> tuple[bool, dict | str]:
-    """Retourne le profil Skyblock d'un joueur avec un nom spécifique."""
+) -> tuple[bool, dict | str | None]:
+    """Retourne le profil Skyblock d'un joueur avec un nom spécifique.
+
+    Args:
+        session (ClientSession): La session HTTP aiohttp.
+        api_key (str): La clé API Hypixel.
+        uuid (str): L'UUID du joueur.
+        name (str): Le nom du profil Skyblock.
+
+    Returns:
+        tuple[bool, dict | str | None]: `True` et le profil Skyblock si trouvé, `False` et un message d'erreur sinon.
+    """
     async with session.get(
         f"{HYPIXEL_API}skyblock/profiles", params={"key": api_key, "uuid": uuid}
     ) as response:
@@ -79,7 +121,19 @@ async def get_profile(
 
 
 async def get_hypixel_player(session: ClientSession, api_key: str, uuid: str) -> dict:
-    """Retourne le profil d'un joueur Hypixel."""
+    """Retourne les informations d'un joueur Hypixel.
+
+    Args:
+        session (ClientSession): La session HTTP aiohttp.
+        api_key (str): La clé API Hypixel.
+        uuid (str): L'UUID du joueur.
+
+    Raises:
+        Exception: Une exception est levée en cas d'erreur lors de la récupération des informations du joueur.
+
+    Returns:
+        dict: Les informations du joueur Hypixel.
+    """
     async with session.get(
         f"{HYPIXEL_API}player", params={"key": api_key, "uuid": uuid}
     ) as response:
@@ -111,8 +165,20 @@ async def get_player_networth(
     return await response.json()
 
 
-async def get_stats(session, pseudo, uuid, hypixel_player, profile) -> dict[str, float]:
-    """Retourne les statistiques d'un joueur Skyblock avec l'API."""
+async def get_stats(
+    session: ClientSession, uuid: str, hypixel_player: dict, profile: dict
+) -> dict[str, float | tuple[float, ...] | tuple[int, ...]]:
+    """Retourne les statistiques d'un joueur Skyblock avec l'API.
+
+    Args:
+        uuid (str): L'UUID du joueur.
+        hypixel_player (dict): Les informations du joueur Hypixel.
+        profile (dict): Le profil Skyblock du joueur.
+
+    Returns:
+        dict[str, float | tuple[float, ...] | tuple[int, ...]]: Les statistiques du joueur Skyblock.
+    """
+
     info = profile.get("members").get(uuid)
     level: float = (info.get("leveling").get("experience")) / 100
     networth: dict | int = (
@@ -159,11 +225,20 @@ async def get_stats(session, pseudo, uuid, hypixel_player, profile) -> dict[str,
 
 
 async def pseudo_to_profile(
-    client: ChouetteBot, discord_pseudo: str, pseudo: str, name: str | None
-) -> dict | str:
-    session = client.session
+    client: ChouetteBot, discord_pseudo: str, pseudo: str, profile_name: str | None
+) -> dict | str | None:
+    """Retourne le profil d'un joueur Skyblock avec l'API.
 
-    """Retourne le profil d'un joueur Skyblock avec l'API."""
+    Args:
+        client (ChouetteBot): Le client ChouetteBot.
+        discord_pseudo (str): Le pseudo Discord du joueur.
+        pseudo (str): Le pseudo Minecraft du joueur.
+        profile_name (str | None): Le nom du profil Skyblock du joueur.
+
+    Returns:
+        dict | str | None: Les informations du profil Skyblock ou un message d'erreur.
+    """
+    session: ClientSession = client.session
     uuid = await minecraft_uuid(session, pseudo)
     if not uuid[0]:
         # TODO: better handling
@@ -172,6 +247,9 @@ async def pseudo_to_profile(
     client.bot_logger.debug(f"L'UUID de {pseudo} est {uuid}")
 
     api_key = client.config.get("HYPIXEL_KEY")
+    if not api_key:
+        client.bot_logger.error("La clé API Hypixel n'est pas configurée.")
+        return "La clé API Hypixel n'est pas configurée."
 
     player = await get_hypixel_player(session, api_key, uuid)
     discord = await hypixel_discord(player)
@@ -190,8 +268,8 @@ async def pseudo_to_profile(
         return "Votre pseudo Discord ne correspond pas à celui entré sur le serveur Hypixel"
     client.bot_logger.debug("Les pseudos Discord correspondent")
 
-    if name:
-        profile = await get_profile(session, api_key, uuid, name)
+    if profile_name:
+        profile = await get_profile(session, api_key, uuid, profile_name)
     else:
         profile = await selected_profile(session, api_key, uuid)
     if not profile[0]:
@@ -201,7 +279,7 @@ async def pseudo_to_profile(
     client.bot_logger.debug(f"Le profil {profile.get('cute_name')} a été trouvé")
 
     info = {uuid: {"discord": discord, "pseudo": pseudo, "profile": profile.get("cute_name")}}
-    info.get(uuid).update(await get_stats(session, pseudo, uuid, player, profile))
+    info.get(uuid).update(await get_stats(uuid, player, profile))
     client.bot_logger.debug("Les stats ont bien été calculées")
     file_content = await load_skyblock()
     if file_content.get(uuid, {}).get("profile", "") != profile.get("profile_id"):
