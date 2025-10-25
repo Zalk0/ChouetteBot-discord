@@ -7,6 +7,7 @@
 
 # Python's venv
 venv/
+venv39/
 
 # Python's cache
 __pycache__/
