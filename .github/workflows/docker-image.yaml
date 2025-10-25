@@ -3,6 +3,7 @@ name: Docker Image
 on:
     push:
         branches:
+            - dev
             - main
 
 jobs:
@@ -28,7 +29,7 @@ jobs:
                 uses: docker/build-push-action@v6
                 with:
                     context: .
-                    push: true
+                    push: ${{ github.ref_name == 'main' }}
                     build-args: version=v0.0.${{ github.run_number }}
                     tags: gylfirst/chouettebot:latest,gylfirst/chouettebot:v0.0.${{ github.run_number }}
                     platforms: linux/amd64, linux/arm/v6, linux/arm/v7, linux/arm64

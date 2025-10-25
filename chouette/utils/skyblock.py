@@ -143,6 +143,28 @@ async def get_hypixel_player(session: ClientSession, api_key: str, uuid: str) ->
         return json
 
 
+async def get_player_networth(
+    minecraft_uuid: str, profile_uuid: str, session: ClientSession
+) -> dict:
+    """Retourne le networth d'un joueur Skyblock avec l'API de SkyCrypt.
+
+    Args:
+        minecraft_uuid (str): UUID Minecraft du joueur.
+        profile_uuid (str): UUID du profil Skyblock du joueur.
+
+    Returns:
+        dict: Dictionnaire contenant le networth du joueur.
+    """
+
+    API_URL = "https://sky.shiiyu.moe/api/networth/{MC_UUID}/{PROFILE_UUID}"
+    response = await session.get(API_URL.format(MC_UUID=minecraft_uuid, PROFILE_UUID=profile_uuid))
+    if response.status != 200:
+        return {
+            "error": f"Failed to retrieve networth | status code: {response.status} | {await response.text()}"
+        }
+    return await response.json()
+
+
 async def get_stats(
     uuid: str, hypixel_player: dict, profile: dict
 ) -> dict[str, float | tuple[float, ...] | tuple[int, ...]]:
@@ -156,9 +178,17 @@ async def get_stats(
     Returns:
         dict[str, float | tuple[float, ...] | tuple[int, ...]]: Les statistiques du joueur Skyblock.
     """
+    
     info = profile.get("members").get(uuid)
     level: float = (info.get("leveling").get("experience")) / 100
-    # TODO: new API for networth or use Altpapier/SkyHelper-Networth
+    networth: dict | int = (
+        await get_player_networth(
+            minecraft_uuid=uuid, profile_uuid=profile.get("profile_id"), session=session
+        )
+    ).get("networth", 0)
+    if networth != 0:
+        networth: float = networth["nonCosmetic"]["networth"]
+
     skill = info.get("player_data").get("experience")
     skills: tuple[float, float, float, float, float, float, float, float, float, float] = (
         skill.get("SKILL_FISHING", 0),
@@ -187,6 +217,7 @@ async def get_stats(
     )
     return {
         "level": level,
+        "networth": networth,
         "skills": skills,
         "slayers": slayers,
         "level_cap": level_cap,
