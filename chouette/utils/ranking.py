@@ -93,7 +93,7 @@ async def update_stats(session: ClientSession, api_key: str) -> tuple[str, dict]
             raise Exception("Error while updating stats")
         profile = profile[1]
         player = await get_hypixel_player(session, api_key, uuid)
-        new_data.get(uuid).update(await get_stats(session, pseudo, uuid, player, profile))
+        new_data.get(uuid).update(await get_stats(session, uuid, player, profile))
         msg += f"\n{SPACES}- {pseudo} sur le profil {profile_name}"
     await save_skyblock(new_data)
     old_data = parse_data(old_data)

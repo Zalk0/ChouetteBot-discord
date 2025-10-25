@@ -171,6 +171,7 @@ async def get_stats(
     """Retourne les statistiques d'un joueur Skyblock avec l'API.
 
     Args:
+        session (ClientSession): La session HTTP aiohttp.
         uuid (str): L'UUID du joueur.
         hypixel_player (dict): Les informations du joueur Hypixel.
         profile (dict): Le profil Skyblock du joueur.
@@ -279,7 +280,7 @@ async def pseudo_to_profile(
     client.bot_logger.debug(f"Le profil {profile.get('cute_name')} a été trouvé")
 
     info = {uuid: {"discord": discord, "pseudo": pseudo, "profile": profile.get("cute_name")}}
-    info.get(uuid).update(await get_stats(uuid, player, profile))
+    info.get(uuid).update(await get_stats(session, uuid, player, profile))
     client.bot_logger.debug("Les stats ont bien été calculées")
     file_content = await load_skyblock()
     if file_content.get(uuid, {}).get("profile", "") != profile.get("profile_id"):
