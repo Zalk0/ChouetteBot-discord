@@ -178,7 +178,7 @@ async def get_stats(
     Returns:
         dict[str, float | tuple[float, ...] | tuple[int, ...]]: Les statistiques du joueur Skyblock.
     """
-    
+
     info = profile.get("members").get(uuid)
     level: float = (info.get("leveling").get("experience")) / 100
     networth: dict | int = (
