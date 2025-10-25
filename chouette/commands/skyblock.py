@@ -163,7 +163,7 @@ class Skyblock(app_commands.Group):
                 next_thunderstorm = time_now + cooldown - thunderstorm
             elif (cooldown + duration) <= thunderstorm:
                 next_thunderstorm = (
-                    time_now + (cooldown + duration) * (thunderstorm_interval) + cooldown
+                    time_now + (cooldown + duration) * thunderstorm_interval + cooldown
                 ) - thunderstorm
             thunderstorm_msg = f"Le prochain orage sera <t:{next_thunderstorm}:R>"
 

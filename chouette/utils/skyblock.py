@@ -143,13 +143,11 @@ async def get_hypixel_player(session: ClientSession, api_key: str, uuid: str) ->
         return json
 
 
-async def get_player_networth(
-    minecraft_uuid: str, profile_uuid: str, session: ClientSession
-) -> dict:
+async def get_player_networth(mc_uuid: str, profile_uuid: str, session: ClientSession) -> dict:
     """Retourne le networth d'un joueur Skyblock avec l'API de SkyCrypt.
 
     Args:
-        minecraft_uuid (str): UUID Minecraft du joueur.
+        mc_uuid (str): UUID Minecraft du joueur.
         profile_uuid (str): UUID du profil Skyblock du joueur.
         session (ClientSession): La session HTTP aiohttp.
 
@@ -157,8 +155,8 @@ async def get_player_networth(
         dict: Dictionnaire contenant le networth du joueur.
     """
 
-    API_URL = "https://sky.shiiyu.moe/api/networth/{MC_UUID}/{PROFILE_UUID}"
-    response = await session.get(API_URL.format(MC_UUID=minecraft_uuid, PROFILE_UUID=profile_uuid))
+    api_url = "https://sky.shiiyu.moe/api/networth/{MC_UUID}/{PROFILE_UUID}"
+    response = await session.get(api_url.format(MC_UUID=mc_uuid, PROFILE_UUID=profile_uuid))
     if response.status != 200:
         return {
             "error": f"Failed to retrieve networth | status code: {response.status} | {await response.text()}"
@@ -184,9 +182,7 @@ async def get_stats(
     info = profile.get("members").get(uuid)
     level: float = (info.get("leveling").get("experience")) / 100
     networth: dict | int = (
-        await get_player_networth(
-            minecraft_uuid=uuid, profile_uuid=profile.get("profile_id"), session=session
-        )
+        await get_player_networth(uuid, profile.get("profile_id"), session)
     ).get("networth", 0)
     if networth != 0:
         networth: float = networth["nonCosmetic"]["networth"]
