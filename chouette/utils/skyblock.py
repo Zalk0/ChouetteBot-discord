@@ -151,6 +151,7 @@ async def get_player_networth(
     Args:
         minecraft_uuid (str): UUID Minecraft du joueur.
         profile_uuid (str): UUID du profil Skyblock du joueur.
+        session (ClientSession): La session HTTP aiohttp.
 
     Returns:
         dict: Dictionnaire contenant le networth du joueur.
