@@ -143,8 +143,8 @@ async def get_hypixel_player(session: ClientSession, api_key: str, uuid: str) ->
         return json
 
 
-async def get_player_networth(mc_uuid: str, profile_uuid: str, session: ClientSession) -> dict:
-    """Retourne le networth d'un joueur Skyblock avec l'API de SkyCrypt.
+async def get_player_networth(mc_uuid: str, profile_uuid: str, session: ClientSession) -> float:
+    """Retourne la fortune d'un joueur Skyblock avec l'API de SkyCrypt.
 
     Args:
         mc_uuid (str): UUID Minecraft du joueur.
@@ -152,16 +152,17 @@ async def get_player_networth(mc_uuid: str, profile_uuid: str, session: ClientSe
         session (ClientSession): La session HTTP aiohttp.
 
     Returns:
-        dict: Dictionnaire contenant le networth du joueur.
+        float: La fortune du joueur.
     """
 
     api_url = "https://sky.shiiyu.moe/api/networth/{MC_UUID}/{PROFILE_UUID}"
-    response = await session.get(api_url.format(MC_UUID=mc_uuid, PROFILE_UUID=profile_uuid))
-    if response.status != 200:
-        return {
-            "error": f"Failed to retrieve networth | status code: {response.status} | {await response.text()}"
-        }
-    return await response.json()
+    async with session.get(api_url.format(MC_UUID=mc_uuid, PROFILE_UUID=profile_uuid)) as response:
+        json: dict = await response.json()
+        if response.status != 200:
+            raise Exception(
+                f"Error while fetching Hypixel player networth | Status code: {response.status}\n{json}"
+            )
+        return json.get("nonCosmetic", {}).get("networth", 0)
 
 
 async def get_stats(
@@ -181,11 +182,7 @@ async def get_stats(
 
     info = profile.get("members").get(uuid)
     level: float = (info.get("leveling").get("experience")) / 100
-    networth: dict | int = (
-        await get_player_networth(uuid, profile.get("profile_id"), session)
-    ).get("networth", 0)
-    if networth != 0:
-        networth: float = networth["nonCosmetic"]["networth"]
+    networth = await get_player_networth(uuid, profile.get("profile_id"), session)
 
     skill = info.get("player_data").get("experience")
     skills: tuple[float, float, float, float, float, float, float, float, float, float] = (
@@ -209,9 +206,10 @@ async def get_stats(
         slayer.get("blaze", {}).get("xp", 0),
         slayer.get("vampire", {}).get("xp", 0),
     )
-    level_cap: tuple[int, int] = (
+    level_cap: tuple[int, int, int] = (
         info.get("jacobs_contest", {}).get("perks", {}).get("farming_level_cap", 0),
         hypixel_player.get("player").get("achievements", {}).get("skyblock_domesticator", 0),
+        hypixel_player.get("player").get("achievements", {}).get("skyblock_gatherer", 0),
     )
     return {
         "level": level,
