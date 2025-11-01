@@ -152,7 +152,7 @@ async def get_player_networth(mc_uuid: str, profile_uuid: str, session: ClientSe
         session (ClientSession): La session HTTP aiohttp.
 
     Returns:
-        dict: La fortune du joueur.
+        float: La fortune du joueur.
     """
 
     api_url = "https://sky.shiiyu.moe/api/networth/{MC_UUID}/{PROFILE_UUID}"
