@@ -206,9 +206,10 @@ async def get_stats(
         slayer.get("blaze", {}).get("xp", 0),
         slayer.get("vampire", {}).get("xp", 0),
     )
-    level_cap: tuple[int, int] = (
+    level_cap: tuple[int, int, int] = (
         info.get("jacobs_contest", {}).get("perks", {}).get("farming_level_cap", 0),
         hypixel_player.get("player").get("achievements", {}).get("skyblock_domesticator", 0),
+        hypixel_player.get("player").get("achievements", {}).get("skyblock_gatherer", 0),
     )
     return {
         "level": level,
