@@ -126,7 +126,7 @@ def parse_data(data: dict) -> dict:
         "dungeoneering",
     ]
     slayers = ["zombie", "spider", "wolf", "enderman", "blaze", "vampire"]
-    level_cap = [[], []]
+    level_cap = [[], [], []]
 
     for player in data:
         for key, value in data[player].items():
@@ -150,8 +150,8 @@ def parse_data(data: dict) -> dict:
                         ranking[slayer] = {"level": {}, "overflow": {}}
             # Gère les 'level_cap'
             if key == "level_cap":
-                level_cap[0].append(value[0])
-                level_cap[1].append(value[1])
+                for cap in range(len(value)):
+                    level_cap[cap].append(value[cap])
 
     # Calcule les niveaux et overflows des joueurs
     for player_index, player in enumerate(data):
@@ -165,7 +165,9 @@ def parse_data(data: dict) -> dict:
                 max_level = level_cap[0][player_index] + 50
             if skill == "taming":
                 max_level = level_cap[1][player_index] if level_cap[1][player_index] > 50 else 50
-            if skill in ["fishing", "alchemy", "carpentry", "foraging"]:
+            if skill == "foraging":
+                max_level = level_cap[2][player_index] if level_cap[2][player_index] > 50 else 50
+            if skill in ["fishing", "alchemy", "carpentry"]:
                 max_level = 50
             if skill == "dungeoneering":
                 type_xp = "dungeon"

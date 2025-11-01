@@ -8,7 +8,7 @@ COPY requirements.txt .
 RUN if [ $(uname -m | cut -c 1-3) = "arm" ]; then \
     echo -e "[global]\nextra-index-url=https://www.piwheels.org/simple" > /usr/local/pip.conf; fi \
     && pip --no-cache-dir install -r requirements.txt --only-binary=:all: \
-    && pip --no-cache-dir install -U setuptools
+    && pip --no-cache-dir install -U pip
 
 COPY . .
 

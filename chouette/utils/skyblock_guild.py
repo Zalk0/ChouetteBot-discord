@@ -4,7 +4,7 @@ from os import getenv
 
 from aiohttp import ClientSession
 
-from chouette.utils.skyblock import hypixel_discord, minecraft_uuid
+from chouette.utils.skyblock import get_hypixel_player, hypixel_discord, minecraft_uuid
 
 api_hypixel = "https://api.hypixel.net/v2/"
 
@@ -42,7 +42,8 @@ async def check(session: ClientSession, pseudo, guild, discord):
         return uuid[1]
     uuid = uuid[1]
 
-    discord_mc = await hypixel_discord(session, token_hypixel, uuid)
+    player = await get_hypixel_player(session, token_hypixel, uuid)
+    discord_mc = await hypixel_discord(player)
     if not discord_mc[0]:
         return discord_mc[1]
     if discord_mc != discord:
