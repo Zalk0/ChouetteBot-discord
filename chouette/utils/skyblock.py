@@ -160,7 +160,7 @@ async def get_player_networth(mc_uuid: str, profile_uuid: str, session: ClientSe
         json: dict = await response.json()
         if response.status != 200:
             raise Exception(
-                f"Error while fetching Hypixel player networth | Status code: {response.status}\n{await response.text()}"
+                f"Error while fetching Hypixel player networth | Status code: {response.status}\n{json}"
             )
         return json.get("nonCosmetic", {}).get("networth", 0)
 
