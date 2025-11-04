@@ -52,18 +52,24 @@ jobs:
 
             - name: Checkout code
               uses: actions/checkout@v5
-              with:
-                  fetch-depth: 0 # Récupère tout l'historique pour compter les commits
 
-            - name: Get commit count on main
+            - name: Generate version from date
               id: version
-              run: echo "count=$(git rev-list --count main)" >> $GITHUB_OUTPUT
+              run: |
+                  DATE_VERSION="v$(date +'%Y.%m.%d')"
+                  TODAY_COMMITS=$(git log --since="$(date +'%Y%m%d') 00:00:00" --oneline | wc -l)
+                  if [ $TODAY_COMMITS -gt 1 ]; then
+                      VERSION="${DATE_VERSION}.${TODAY_COMMITS}"
+                  else
+                      VERSION="${DATE_VERSION}"
+                  fi
+                  echo "tag=${VERSION}" >> $GITHUB_OUTPUT
 
             - name: Build and push
               uses: docker/build-push-action@v6
               with:
                   context: .
                   push: true
-                  build-args: version=v0.0.${{ steps.version.outputs.count }}
-                  tags: gylfirst/chouettebot:latest,gylfirst/chouettebot:v0.0.${{ steps.version.outputs.count }}
+                  build-args: version=${{ steps.version.outputs.tag }}
+                  tags: gylfirst/chouettebot:latest,gylfirst/chouettebot:${{ steps.version.outputs.tag }}
                   platforms: linux/amd64, linux/arm/v6, linux/arm/v7, linux/arm64
