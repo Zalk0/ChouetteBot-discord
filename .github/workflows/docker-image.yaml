@@ -52,12 +52,18 @@ jobs:
 
             - name: Checkout code
               uses: actions/checkout@v5
+              with:
+                  fetch-depth: 0 # Récupère tout l'historique pour compter les commits
+
+            - name: Get commit count on main
+              id: version
+              run: echo "count=$(git rev-list --count main)" >> $GITHUB_OUTPUT
 
             - name: Build and push
               uses: docker/build-push-action@v6
               with:
                   context: .
                   push: true
-                  build-args: version=v0.0.${{ github.run_number }}
-                  tags: gylfirst/chouettebot:latest,gylfirst/chouettebot:v0.0.${{ github.run_number }}
+                  build-args: version=v0.0.${{ steps.version.outputs.count }}
+                  tags: gylfirst/chouettebot:latest,gylfirst/chouettebot:v0.0.${{ steps.version.outputs.count }}
                   platforms: linux/amd64, linux/arm/v6, linux/arm/v7, linux/arm64
