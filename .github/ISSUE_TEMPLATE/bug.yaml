@@ -3,70 +3,70 @@ description: Report a bug to help us improve the bot
 title: "[BUG] Concise description of the issue"
 labels: bug
 assignees:
-  - Zalk0
-  - gylfirst
+    - Zalk0
+    - gylfirst
 
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for taking the time to fill out this bug report!
+    -   type: markdown
+        attributes:
+            value: |
+                Thanks for taking the time to fill out this bug report!
 
-  - type: input
-    id: title
-    attributes:
-      label: Bug Title
-      description: A clear and concise title of what the bug is.
-      placeholder: Bug title
+    -   type: input
+        id: title
+        attributes:
+            label: Bug Title
+            description: A clear and concise title of what the bug is.
+            placeholder: Bug title
 
-  - type: textarea
-    id: description
-    attributes:
-      label: Description
-      description: A clear and concise description of what the bug is.
-      placeholder: Describe the bug
+    -   type: textarea
+        id: description
+        attributes:
+            label: Description
+            description: A clear and concise description of what the bug is.
+            placeholder: Describe the bug
 
-  - type: textarea
-    id: steps
-    attributes:
-      label: Steps to Reproduce
-      description: |
-        Steps to reproduce the behavior:
-        1. Go to '...'
-        2. Click on '....'
-        3. Scroll down to '....'
-        4. See error
-      placeholder: Steps to reproduce the bug
+    -   type: textarea
+        id: steps
+        attributes:
+            label: Steps to Reproduce
+            description: |
+                Steps to reproduce the behavior:
+                1. Go to '...'
+                2. Click on '....'
+                3. Scroll down to '....'
+                4. See error
+            placeholder: Steps to reproduce the bug
 
-  - type: textarea
-    id: expected
-    attributes:
-      label: Expected behavior
-      description: A clear and concise description of what you expected to happen.
-      placeholder: Expected behavior
+    -   type: textarea
+        id: expected
+        attributes:
+            label: Expected behavior
+            description: A clear and concise description of what you expected to happen.
+            placeholder: Expected behavior
 
-  - type: textarea
-    id: actual
-    attributes:
-      label: Actual behavior
-      description: A clear and concise description of what actually happened.
-      placeholder: Actual behavior
+    -   type: textarea
+        id: actual
+        attributes:
+            label: Actual behavior
+            description: A clear and concise description of what actually happened.
+            placeholder: Actual behavior
 
-  - type: input
-    id: environment
-    attributes:
-      label: Environment
-      description: |
-        Provide details about the environment running the bot:
-        - OS and version: [e.g. Windows, MacOS, Linux]
-        - Technology: [e.g. Docker, Git clone]
-        - Python version: [e.g. 3.9.5] (if not using Docker)
-        - Bot version [e.g. Docker image tag or git commit hash]
-      placeholder: Environment details
+    -   type: input
+        id: environment
+        attributes:
+            label: Environment
+            description: |
+                Provide details about the environment running the bot:
+                - OS and version: [e.g. Windows, MacOS, Linux]
+                - Technology: [e.g. Docker, Git clone]
+                - Python version: [e.g. 3.12.3] (if not using Docker)
+                - Bot version [e.g. Docker image tag or git commit hash]
+            placeholder: Environment details
 
-  - type: textarea
-    id: additional
-    attributes:
-      label: Additional context
-      description: Add any other context about the problem here.
-      placeholder: Additional context
+    -   type: textarea
+        id: additional
+        attributes:
+            label: Additional context
+            description: Add any other context about the problem here.
+            placeholder: Additional context
