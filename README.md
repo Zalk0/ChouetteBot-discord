@@ -1,12 +1,12 @@
 # ChouetteBot-discord
 
-![Python version 3.9+](https://img.shields.io/badge/Python-3.9+-blue)
+![Python version 3.10+](https://img.shields.io/badge/Python-3.10+-blue)
 [![Ruff status](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml/badge.svg?branch=main)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Zalk0/ChouetteBot-discord/main.svg)](https://results.pre-commit.ci/latest/github/Zalk0/ChouetteBot-discord/main)
 
 Just some random project of doing a Discord bot using
 [discord.py](https://github.com/Rapptz/discord.py).  
-You need to have Python 3.9 or higher installed!
+You need to have Python 3.10 or higher installed!
 
 Clone the projet and install the requirements (preferably in a
 [venv](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments)):
@@ -43,7 +43,8 @@ python -m chouette
 
 ## Contribution
 
-Please check the [contributing guide](CONTRIBUTING.md) if you would like to participate in the project.
+Please check the [contributing guide](CONTRIBUTING.md)
+if you would like to participate in the project.
 
 ---
 
