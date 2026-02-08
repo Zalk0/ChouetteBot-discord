@@ -6,15 +6,14 @@
 
 Just some random project of doing a Discord bot using
 [discord.py](https://github.com/Rapptz/discord.py).  
-You need to have Python 3.10 or higher installed!
+You need to have uv installed!
 
-Clone the projet and install the requirements (preferably in a
-[venv](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments)):
+Clone the projet and sync the environment with uv:
 
 ```bash
-git clone git@github.com:Zalk0/ChouetteBot-discord.git
+git clone https://github.com/Zalk0/ChouetteBot-discord.git
 cd ChouetteBot-discord
-pip install -r requirements.txt
+uv sync --no-dev
 ```
 
 ---
@@ -36,7 +35,7 @@ You also have to fill the other fields in your `.env` file or else you're going 
 After having done all this you can launch the bot :
 
 ```bash
-python -m chouette
+uv run python -m chouette
 ```
 
 ---

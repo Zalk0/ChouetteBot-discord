@@ -1,8 +1,22 @@
 [project]
 name = "ChouetteBot"
+version = "0.0.1"
 license = "MIT"
 readme = "README.md"
 requires-python = ">=3.10"
+dependencies = [
+    "aiohttp~=3.13.3",
+    "discord-py[speed]~=2.6.4",
+    "python-dotenv~=1.2.1",
+    "tomlkit~=0.14.0",
+    "tzdata; os_name=='nt'",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit~=4.0",
+    "ruff==0.15.0",
+]
 
 [tool.ruff]
 line-length = 99
