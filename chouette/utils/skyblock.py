@@ -185,9 +185,10 @@ async def get_stats(
     networth = await get_player_networth(uuid, profile.get("profile_id"), session)
 
     skill = info.get("player_data").get("experience")
-    skills: tuple[float, float, float, float, float, float, float, float, float, float] = (
+    skills: tuple[float, float, float, float, float, float, float, float, float, float, float] = (
         skill.get("SKILL_FISHING", 0),
         skill.get("SKILL_ALCHEMY", 0),
+        skill.get("SKILL_HUNTING", 0),
         skill.get("SKILL_MINING", 0),
         skill.get("SKILL_FARMING", 0),
         skill.get("SKILL_ENCHANTING", 0),
