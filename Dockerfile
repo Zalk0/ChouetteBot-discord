@@ -1,5 +1,12 @@
 # First, build the application in the `/usr/src/chouettebot` directory.
-FROM ghcr.io/astral-sh/uv:python3.13-alpine AS builder
+FROM python:3.13-alpine AS builder
+
+# Install uv
+RUN apk --no-cache add curl
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
+RUN sh /uv-installer.sh && rm /uv-installer.sh
+ENV PATH="/root/.local/bin/:$PATH"
+
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
 # Omit development dependencies
