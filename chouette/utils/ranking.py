@@ -116,6 +116,7 @@ def parse_data(data: dict) -> dict:
     skills = [
         "fishing",
         "alchemy",
+        "hunting",
         "mining",
         "farming",
         "enchanting",
@@ -175,6 +176,14 @@ def parse_data(data: dict) -> dict:
             except IndexError:
                 max_level = 50
 
+            if skill == "hunting":
+                # TODO: Block to remove after stored data has been updated
+                if len(skills) != len(data[player][category]):
+                    ranking[skill]["level"][data[player]["pseudo"]] = 0
+                    ranking[skill]["overflow"][data[player]["pseudo"]] = 0
+                    continue
+                # End of block
+                max_level = 25
             if skill in ["fishing", "alchemy", "carpentry"]:
                 max_level = 50
             if skill == "dungeoneering":
@@ -184,8 +193,14 @@ def parse_data(data: dict) -> dict:
                 category = "slayers"
                 skill_list = slayers
 
+            index = skill_list.index(skill)
+            # TODO: Block to remove after stored data has been updated
+            if index > 2 and len(skills) != len(data[player][category]):
+                index -= 1
+            # End of block
+
             level, overflow = experience_to_level(
-                type_xp, data[player][category][skill_list.index(skill)], max_level
+                type_xp, data[player][category][index], max_level
             )
             ranking[skill]["level"][data[player]["pseudo"]] = level
             ranking[skill]["overflow"][data[player]["pseudo"]] = overflow
@@ -230,6 +245,7 @@ def generate_ranking_message(data: dict, category: str, old_data: dict) -> list[
     skills_list: list[str] = [
         "fishing",
         "alchemy",
+        "hunting",
         "mining",
         "farming",
         "enchanting",
