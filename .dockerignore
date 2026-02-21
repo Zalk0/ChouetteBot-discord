@@ -1,4 +1,3 @@
 *
 !chouette/**/*.py
 !pyproject.toml
-!uv.lock
