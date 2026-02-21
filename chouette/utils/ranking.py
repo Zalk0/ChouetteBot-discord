@@ -195,7 +195,7 @@ def parse_data(data: dict) -> dict:
 
             index = skill_list.index(skill)
             # TODO: Block to remove after stored data has been updated
-            if index > 2 and len(skills) != len(data[player][category]):
+            if index > 2 and len(skill_list) != len(data[player][category]):
                 index -= 1
             # End of block
 
