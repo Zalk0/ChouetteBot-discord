@@ -31,8 +31,8 @@ Thank you for considering contributing to ChouetteBot! We appreciate your suppor
    ```sh
    uv run pre-commit run -a
    # Running ruff is optional as it's included in the pre-commit config
-   ruff check
-   ruff format
+   uv run ruff check
+   uv run ruff format
    ```
 
 7. **Commit Changes**, with a descriptive commit message.
