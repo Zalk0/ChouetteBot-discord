@@ -28,6 +28,9 @@ class ChouetteBot(discord.Client):
         self.log_level = log_level if isinstance(log_level, int) else logging.INFO
         self.bot_logger.setLevel(self.log_level)
 
+        # Define the web logger
+        self.web_logger = logging.getLogger("web")
+
         # Ignore RESUMED session messages
         logging.getLogger("discord.gateway").addFilter(
             lambda record: "successfully RESUMED session" not in record.msg
@@ -75,6 +78,7 @@ class ChouetteBot(discord.Client):
         self.bot_logger.info(await get_version())
 
         # Start aiohttp client session
+        self.bot_logger.debug("Starting the aiohttp client session")
         self.session = ClientSession()
 
         # Call commands and import tasks
@@ -82,7 +86,7 @@ class ChouetteBot(discord.Client):
         await tasks_list(self)
 
         # Start web server
-        await self.start_server()
+        self.runner = await self.start_server()
 
     async def on_ready(self) -> None:
         """Fonction appelée lorsque le bot est prêt."""
@@ -144,10 +148,8 @@ class ChouetteBot(discord.Client):
             return author.id in [member.id for member in self.application.team.members]
         return author.id == self.application.owner.id
 
-    async def start_server(self) -> None:
+    async def start_server(self) -> web.AppRunner:
         """Démarre un serveur HTTP pour vérifier si le bot est en ligne."""
-        # Set a logger for the webserver
-        web_logger = logging.getLogger("web")
 
         # Switch site access log to DEBUG level
         def access_filter(record: logging.LogRecord) -> bool:
@@ -168,7 +170,7 @@ class ChouetteBot(discord.Client):
 
         # Remove the Server header and apply the headers
         async def _default_headers(req: web.Request, res: web.StreamResponse) -> None:
-            """Applique les headers par défaut à la réponse."""
+            """Applique les entêtes par défaut à la réponse."""
             if "Server" in res.headers:
                 del res.headers["Server"]
             res.headers.update(headers)
@@ -187,12 +189,17 @@ class ChouetteBot(discord.Client):
         try:
             await site.start()
         except Exception as e:
-            web_logger.warning(f"Error while starting the webserver: \n{e}")
+            self.web_logger.warning(f"Error while starting the webserver: \n{e}")
         else:
-            web_logger.info("The webserver has successfully started")
+            self.web_logger.info("The aiohttp web server has successfully started")
+        return runner
 
     async def close(self) -> None:
         """Ferme le bot et libère les ressources."""
+        # Shut down the web server
+        self.web_logger.info("Shutting down the aiohttp web server")
+        await self.runner.cleanup()
+
         # Close aiohttp client session
         self.bot_logger.debug("Closing the aiohttp client session")
         await self.session.close()

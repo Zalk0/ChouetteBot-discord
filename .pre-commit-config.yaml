@@ -8,15 +8,13 @@ repos:
         hooks:
             -   id: check-yaml
             -   id: end-of-file-fixer
-            -   id: requirements-txt-fixer
-                files: requirements.*\.txt
             -   id: trailing-whitespace
                 exclude_types:
                     - markdown
 
     -   repo: https://github.com/astral-sh/ruff-pre-commit
         # Ruff version.
-        rev: v0.14.10
+        rev: v0.15.2
         hooks:
             # Run the linter.
             -   id: ruff-check

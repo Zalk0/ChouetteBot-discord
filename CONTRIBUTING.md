@@ -15,7 +15,7 @@ Thank you for considering contributing to ChouetteBot! We appreciate your suppor
 3. **Install dev requirements**:
 
    ```sh
-   pip install -r requirements-dev.txt
+   uv sync
    ```
 
 4. **Create a new Branch** for your feature or bugfix.
@@ -29,9 +29,10 @@ Thank you for considering contributing to ChouetteBot! We appreciate your suppor
 6. **Format Changes**: Run pre-commit and ruff to ensure code quality.
 
    ```sh
-   pre-commit run -a
-   ruff check
-   ruff format
+   uv run pre-commit run -a
+   # Running ruff is optional as it's included in the pre-commit config
+   uv run ruff check
+   uv run ruff format
    ```
 
 7. **Commit Changes**, with a descriptive commit message.
