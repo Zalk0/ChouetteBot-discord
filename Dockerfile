@@ -2,7 +2,7 @@ FROM python:3.13-alpine
 
 # Setup a non-root user and move to workdir
 RUN addgroup -S chouette -g 1000 \
- && adduser -S chouette -u 1000 -G chouette
+    && adduser -S chouette -u 1000 -G chouette
 WORKDIR /usr/src/chouettebot
 
 COPY pyproject.toml .
@@ -15,8 +15,8 @@ RUN if [ $(uname -m | cut -c 1-3) = "arm" ]; then \
 
 COPY . .
 
-# Use the non-root user
-USER chouette
+# Use the root user
+USER root
 
 # Tell the bot that it's running inside a docker image
 ENV DOCKER_RUNNING=true
