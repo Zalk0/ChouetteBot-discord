@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 import copy
 import math
 from datetime import date
 from itertools import chain
+from typing import TYPE_CHECKING
 
 import discord
 
-from chouette.bot import ChouetteBot
 from chouette.utils.birthdays import month_to_str
 from chouette.utils.data_io import DataIO
 from chouette.utils.hypixel_data import experience_to_level
@@ -16,6 +18,9 @@ from chouette.utils.skyblock import (
     load_skyblock,
     save_skyblock,
 )
+
+if TYPE_CHECKING:
+    from chouette.bot import ChouetteBot
 
 SPACES = " " * 38
 
