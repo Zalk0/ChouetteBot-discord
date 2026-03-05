@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from aiohttp import ClientSession
 
-from chouette.utils.data_io import data_read, data_write
+from chouette.utils.data_io import DataIO
 
 if TYPE_CHECKING:
     from chouette.bot import ChouetteBot
@@ -14,22 +14,26 @@ SKYBLOCK_FILE = Path("data", "skyblock.toml")
 HYPIXEL_API = "https://api.hypixel.net/v2/"
 
 
-async def load_skyblock() -> dict:
+async def load_skyblock(data_io: DataIO) -> dict:
     """Charge les données du Skyblock à partir du disque.
+
+    Args:
+        data_io (DataIO): La classe permettant d'interagir avec les fichiers TOML.
 
     Returns:
         dict: Les données du Skyblock.
     """
-    return await data_read(SKYBLOCK_FILE)
+    return await data_io.data_read(SKYBLOCK_FILE)
 
 
-async def save_skyblock(skyblock: dict) -> None:
+async def save_skyblock(data_io: DataIO, skyblock: dict) -> None:
     """Sauvegarde les données du Skyblock sur le disque.
 
     Args:
+        data_io (DataIO): La classe permettant d'interagir avec les fichiers TOML.
         skyblock (dict): Les données du Skyblock à sauvegarder.
     """
-    await data_write(skyblock, SKYBLOCK_FILE)
+    await data_io.data_write(skyblock, SKYBLOCK_FILE)
 
 
 async def minecraft_uuid(session: ClientSession, pseudo: str) -> tuple[bool, str | None]:
@@ -227,7 +231,7 @@ async def pseudo_to_profile(
     """Retourne le profil d'un joueur Skyblock avec l'API.
 
     Args:
-        client (ChouetteBot): Le client ChouetteBot.
+        client (ChouetteBot): L'instance du bot.
         discord_pseudo (str): Le pseudo Discord du joueur.
         pseudo (str): Le pseudo Minecraft du joueur.
         profile_name (str | None): Le nom du profil Skyblock du joueur.
@@ -278,8 +282,8 @@ async def pseudo_to_profile(
     info = {uuid: {"discord": discord, "pseudo": pseudo, "profile": profile.get("cute_name")}}
     info.get(uuid).update(await get_stats(session, uuid, player, profile))
     client.bot_logger.debug("Les stats ont bien été calculées")
-    file_content = await load_skyblock()
+    file_content = await load_skyblock(client.data_io)
     if file_content.get(uuid, {}).get("profile", "") != profile.get("profile_id"):
         file_content.update(info)
-        await save_skyblock(file_content)
+        await save_skyblock(client.data_io, file_content)
     return info.get(uuid)
