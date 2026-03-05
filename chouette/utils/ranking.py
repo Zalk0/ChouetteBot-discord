@@ -177,12 +177,6 @@ def parse_data(data: dict) -> dict:
                 max_level = 50
 
             if skill == "hunting":
-                # TODO: Block to remove after stored data has been updated
-                if len(skills) != len(data[player][category]):
-                    ranking[skill]["level"][data[player]["pseudo"]] = 0
-                    ranking[skill]["overflow"][data[player]["pseudo"]] = 0
-                    continue
-                # End of block
                 max_level = 25
             if skill in ["fishing", "alchemy", "carpentry"]:
                 max_level = 50
@@ -194,10 +188,6 @@ def parse_data(data: dict) -> dict:
                 skill_list = slayers
 
             index = skill_list.index(skill)
-            # TODO: Block to remove after stored data has been updated
-            if index > 2 and len(skill_list) != len(data[player][category]):
-                index -= 1
-            # End of block
 
             level, overflow = experience_to_level(
                 type_xp, data[player][category][index], max_level
