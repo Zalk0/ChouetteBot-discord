@@ -1,12 +1,15 @@
+from __future__ import annotations
+
 import copy
 import math
 from datetime import date
 from itertools import chain
+from typing import TYPE_CHECKING
 
 import discord
-from aiohttp import ClientSession
 
 from chouette.utils.birthdays import month_to_str
+from chouette.utils.data_io import DataIO
 from chouette.utils.hypixel_data import experience_to_level
 from chouette.utils.skyblock import (
     get_hypixel_player,
@@ -15,6 +18,9 @@ from chouette.utils.skyblock import (
     load_skyblock,
     save_skyblock,
 )
+
+if TYPE_CHECKING:
+    from chouette.bot import ChouetteBot
 
 SPACES = " " * 38
 
@@ -69,11 +75,11 @@ def format_ranking_message(player: str, value: str, index: int, position: int) -
     return message
 
 
-async def update_stats(session: ClientSession, api_key: str) -> tuple[str, dict]:
+async def update_stats(client: ChouetteBot, api_key: str) -> tuple[str, dict]:
     """Met à jour les statistiques de la guilde sur Hypixel Skyblock.
 
     Args:
-        session (ClientSession): La session HTTP aiohttp.
+        client (ChouetteBot): L'instance du bot.
         api_key (str): La clé API d'Hypixel pour accéder aux données.
 
     Raises:
@@ -82,20 +88,20 @@ async def update_stats(session: ClientSession, api_key: str) -> tuple[str, dict]
     Returns:
         tuple[str, dict]: Le message de mise à jour et les anciennes données.
     """
-    old_data = await load_skyblock()
+    old_data = await load_skyblock(client.data_io)
     new_data = copy.deepcopy(old_data)
     msg = "Synchro des données de la guilde sur Hypixel Skyblock pour :"
     for uuid in old_data:
         pseudo = old_data.get(uuid).get("pseudo")
         profile_name = old_data.get(uuid).get("profile")
-        profile = await get_profile(session, api_key, uuid, profile_name)
+        profile = await get_profile(client.session, api_key, uuid, profile_name)
         if not profile[0]:
             raise Exception("Error while updating stats")
         profile = profile[1]
-        player = await get_hypixel_player(session, api_key, uuid)
-        new_data.get(uuid).update(await get_stats(session, uuid, player, profile))
+        player = await get_hypixel_player(client.session, api_key, uuid)
+        new_data.get(uuid).update(await get_stats(client.session, uuid, player, profile))
         msg += f"\n{SPACES}- {pseudo} sur le profil {profile_name}"
-    await save_skyblock(new_data)
+    await save_skyblock(client.data_io, new_data)
     old_data = parse_data(old_data)
     return msg, old_data
 
@@ -353,11 +359,12 @@ def calculate_player_position(old_data: dict, new_data: dict, category: str, pla
     return 0
 
 
-async def display_ranking(img: str, old_ranking: dict) -> list[discord.Embed]:
+async def display_ranking(data_io: DataIO, img: str, old_ranking: dict) -> list[discord.Embed]:
     """Affiche le classement de la guilde sur Hypixel Skyblock. Si la taille dépasse la limite des embeds (5000 caractères),
     on crée plusieurs embeds.
 
     Args:
+        data_io (DataIO): La classe permettant d'interagir avec les fichiers TOML.
         img (str): L'URL de l'image à afficher en miniature.
         old_ranking (dict): Les anciennes données du classement pour faire la comparaison.
 
@@ -376,7 +383,7 @@ async def display_ranking(img: str, old_ranking: dict) -> list[discord.Embed]:
     )
     ranking.set_thumbnail(url=img)
     ranking.set_footer(text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00")
-    new_ranking_data = parse_data(await load_skyblock())
+    new_ranking_data = parse_data(await load_skyblock(data_io))
 
     # On génère les messages pour chaque catégorie
     for category in new_ranking_data:

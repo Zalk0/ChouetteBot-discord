@@ -3,27 +3,31 @@ from __future__ import annotations
 from datetime import date, datetime
 from pathlib import Path
 
-from chouette.utils.data_io import data_read, data_write
+from chouette.utils.data_io import DataIO
 
 BIRTHDAY_FILE = Path("data", "birthdays.toml")
 
 
-async def load_birthdays() -> dict:
+async def load_birthdays(data_io: DataIO) -> dict:
     """Charge les anniversaires depuis un fichier TOML sur le disque.
+
+    Args:
+        data_io (DataIO): La classe permettant d'interagir avec les fichiers TOML.
 
     Returns:
         dict: Les anniversaires chargés depuis le fichier.
     """
-    return await data_read(BIRTHDAY_FILE)
+    return await data_io.data_read(BIRTHDAY_FILE)
 
 
-async def save_birthdays(birthdays: dict) -> None:
+async def save_birthdays(data_io: DataIO, birthdays: dict) -> None:
     """Sauvegarde les anniversaires dans un fichier TOML sur le disque.
 
     Args:
+        data_io (DataIO): La classe permettant d'interagir avec les fichiers TOML.
         birthdays (dict): Les anniversaires à sauvegarder.
     """
-    await data_write(birthdays, BIRTHDAY_FILE)
+    await data_io.data_write(birthdays, BIRTHDAY_FILE)
 
 
 async def check_date(day: int, month: int, year: int) -> date:

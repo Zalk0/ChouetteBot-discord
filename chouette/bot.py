@@ -7,6 +7,7 @@ from aiohttp import ClientSession, web
 from chouette.commands_list import commands
 from chouette.responses import responses
 from chouette.tasks import tasks_list
+from chouette.utils.data_io import DataIO
 from chouette.utils.version import get_version
 
 
@@ -71,6 +72,9 @@ class ChouetteBot(discord.Client):
 
         # First declaration to be able to add commands to the guild
         self.my_guild = discord.Object(int(self.config["GUILD_ID"]))
+
+        # Instantiate DataIO class
+        self.data_io = DataIO()
 
     async def setup_hook(self) -> None:
         """Initialise le bot."""
