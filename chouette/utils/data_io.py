@@ -43,6 +43,7 @@ class DataIO:
             Lock: Le verrou associé au chemin.
         """
         return self.FILE_LOCKS.setdefault(file, Lock())
+
     async def data_read(self, file: Path) -> dict:
         """Lit un fichier TOML et retourne un dictionnaire.
 
