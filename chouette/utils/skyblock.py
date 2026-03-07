@@ -283,7 +283,7 @@ async def pseudo_to_profile(
     info.get(uuid).update(await get_stats(session, uuid, player, profile))
     client.bot_logger.debug("Les stats ont bien été calculées")
     file_content = await load_skyblock(client.data_io)
-    if file_content.get(uuid, {}).get("profile", "") != profile.get("profile_id"):
+    if file_content.get(uuid, {}).get("profile", "") != profile.get("cute_name"):
         file_content.update(info)
         await save_skyblock(client.data_io, file_content)
     return info.get(uuid)
