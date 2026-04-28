@@ -5,9 +5,9 @@ license = "MIT"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "aiohttp~=3.13.3",
-    "discord-py[speed]~=2.6.4",
-    "python-dotenv~=1.2.1",
+    "aiohttp~=3.13.5",
+    "discord-py[speed]~=2.7.1",
+    "python-dotenv~=1.2.2",
     "tomlkit~=0.14.0",
     "tzdata; os_name=='nt'",
 ]
@@ -15,7 +15,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pre-commit~=4.0",
-    "ruff==0.15.2",
+    "ruff==0.15.12",
 ]
 
 [tool.ruff]

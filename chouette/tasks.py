@@ -4,6 +4,7 @@ from datetime import date, time, timedelta
 from os import getenv
 from typing import TYPE_CHECKING
 
+from discord.errors import DiscordServerError
 from discord.ext import tasks
 
 from chouette.utils.birthdays import calculate_age, load_birthdays
@@ -26,7 +27,6 @@ except ZoneInfoNotFoundError:
 
 async def tasks_list(client: ChouetteBot) -> None:
     """Liste des tâches à effectuer pour le bot."""
-    session = client.session
 
     # Send message every 2 hours for pokeroll in utc time (default)
     @tasks.loop(time=[time(t) for t in range(0, 24, 2)])
@@ -46,7 +46,7 @@ async def tasks_list(client: ChouetteBot) -> None:
         role = guild.get_role(int(client.config["BIRTHDAY_ROLE"]))
         for member in role.members:
             await member.remove_roles(role, reason="Birthday ended")
-        for user_id, info in (await load_birthdays()).items():
+        for user_id, info in (await load_birthdays(client.data_io)).items():
             birthday: date = info.get("birthday")
             if (birthday.day == date.today().day and birthday.month == date.today().month) or (
                 birthday.day == 29
@@ -77,13 +77,14 @@ async def tasks_list(client: ChouetteBot) -> None:
             guild = client.get_guild(int(client.config["HYPIXEL_GUILD_ID"]))
             member = guild.get_role(int(client.config["HYPIXEL_GUILD_ROLE"]))
             api_key = client.config["HYPIXEL_KEY"]
-            update_message, old_ranking_data = await update_stats(session=session, api_key=api_key)
+            update_message, old_ranking_data = await update_stats(client=client, api_key=api_key)
             client.bot_logger.info(update_message)
             if not guild.icon:
                 icon_url = "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg"
             else:
                 icon_url = guild.icon.url
             embeds = await display_ranking(
+                data_io=client.data_io,
                 img=icon_url,
                 old_ranking=old_ranking_data,
             )
@@ -99,3 +100,24 @@ async def tasks_list(client: ChouetteBot) -> None:
     poke_ping.start()
     check_birthdays.start()
     skyblock_guild_ranking.start()
+
+    @poke_ping.error
+    @check_birthdays.error
+    @skyblock_guild_ranking.error
+    async def on_task_error(error: BaseException) -> None:
+        """Gère les erreurs lors de l'exécution des taches.
+
+        Args:
+            error (BaseException): L'erreur qui a été levée.
+        """
+        client.bot_logger.error(f"Error while executing a task:\n{error}")
+        if isinstance(error, DiscordServerError):
+            if poke_ping.failed():
+                poke_ping.restart()
+                client.bot_logger.info("poke_ping task has been restarted")
+            if check_birthdays.failed():
+                check_birthdays.restart()
+                client.bot_logger.info("check_birthdays task has been restarted")
+            if skyblock_guild_ranking.failed():
+                skyblock_guild_ranking.restart()
+                client.bot_logger.info("skyblock_guild_ranking task has been restarted")

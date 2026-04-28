@@ -69,13 +69,13 @@ class Birthday(app_commands.Group):
         except ValueError as e:
             raise InvalidBirthdayDate() from e
         user_id = str(interaction.user.id)
-        birthdays = await load_birthdays()
+        birthdays = await load_birthdays(interaction.client.data_io)
         if user_id not in birthdays:
             user_info = table()
             user_info["name"] = interaction.user.name
             user_info["birthday"] = birth_date
             birthdays.update({user_id: user_info})
-            await save_birthdays(birthdays)
+            await save_birthdays(interaction.client.data_io, birthdays)
             await interaction.response.send_message("Anniversaire enregistré !", ephemeral=True)
         else:
             await interaction.response.send_message(
@@ -109,13 +109,13 @@ class Birthday(app_commands.Group):
         except ValueError as e:
             raise InvalidBirthdayDate() from e
         user_id = str(interaction.user.id)
-        birthdays = await load_birthdays()
+        birthdays = await load_birthdays(interaction.client.data_io)
         if user_id in birthdays:
             user_info = table()
             user_info["name"] = interaction.user.name
             user_info["birthday"] = birth_date
             birthdays.update({user_id: user_info})
-            await save_birthdays(birthdays)
+            await save_birthdays(interaction.client.data_io, birthdays)
             await interaction.response.send_message("Anniversaire modifié !", ephemeral=True)
         else:
             await interaction.response.send_message(
@@ -135,10 +135,10 @@ class Birthday(app_commands.Group):
             interaction (Interaction[ChouetteBot]): L'interaction Discord.
         """
         user_id = str(interaction.user.id)
-        birthdays = await load_birthdays()
+        birthdays = await load_birthdays(interaction.client.data_io)
         if user_id in birthdays:
             birthdays.pop(user_id)
-            await save_birthdays(birthdays)
+            await save_birthdays(interaction.client.data_io, birthdays)
             await interaction.response.send_message("Anniversaire supprimé !", ephemeral=True)
         else:
             await interaction.response.send_message(
@@ -159,7 +159,8 @@ class Birthday(app_commands.Group):
         """
         msg = f"Voici les anniversaires de {interaction.guild.name}\n"
         birthdays = sorted(
-            (await load_birthdays()).items(), key=lambda x: x[1].get("birthday").replace(4)
+            (await load_birthdays(interaction.client.data_io)).items(),
+            key=lambda x: x[1].get("birthday").replace(4),
         )
         if not birthdays:
             await interaction.response.send_message(msg + "\nListe des anniversaires vide")
@@ -174,7 +175,7 @@ class Birthday(app_commands.Group):
             if len(name) > 25:
                 name = name[:22] + "..."
             if len(name) < 25:
-                name = name + (25 - len(name)) * " "
+                name += (25 - len(name)) * " "
             msg += f"{name} : {birthday.day}/{birthday.month}\n"
         if not next_birthday:
             if (
