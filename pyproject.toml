@@ -7,7 +7,7 @@ requires-python = ">=3.10"
 dependencies = [
     "aiohttp~=3.13.5",
     "discord-py[speed]~=2.7.1",
-    "python-dotenv~=1.2.1",
+    "python-dotenv~=1.2.2",
     "tomlkit~=0.14.0",
     "tzdata; os_name=='nt'",
 ]

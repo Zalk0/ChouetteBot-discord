@@ -389,7 +389,7 @@ dev = [
 requires-dist = [
     { name = "aiohttp", specifier = "~=3.13.5" },
     { name = "discord-py", extras = ["speed"], specifier = "~=2.7.1" },
-    { name = "python-dotenv", specifier = "~=1.2.1" },
+    { name = "python-dotenv", specifier = "~=1.2.2" },
     { name = "tomlkit", specifier = "~=0.14.0" },
     { name = "tzdata", marker = "os_name == 'nt'" },
 ]
