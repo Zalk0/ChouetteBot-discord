@@ -4,7 +4,7 @@ from datetime import date, time, timedelta
 from os import getenv
 from typing import TYPE_CHECKING
 
-import discord.errors
+from discord.errors import DiscordServerError
 from discord.ext import tasks
 
 from chouette.utils.birthdays import calculate_age, load_birthdays
@@ -111,7 +111,7 @@ async def tasks_list(client: ChouetteBot) -> None:
             error (BaseException): L'erreur qui a été levée.
         """
         client.bot_logger.error(f"Error while executing a task:\n{error}")
-        if isinstance(error, discord.DiscordServerError):
+        if isinstance(error, DiscordServerError):
             if poke_ping.failed():
                 poke_ping.restart()
                 client.bot_logger.info("poke_ping task has been restarted")

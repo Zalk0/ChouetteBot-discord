@@ -30,8 +30,8 @@ def _file_write(data: dict, file: Path) -> None:
 
 
 class DataIO:
-    def __init__(self):
-        self.FILE_LOCKS = {}
+    def __init__(self) -> None:
+        self._file_locks: dict[Path, Lock] = {}
 
     def _get_lock(self, file: Path) -> Lock:
         """Retourne le verrou associé à un chemin et le crée s'il n'existe pas.
@@ -42,7 +42,7 @@ class DataIO:
         Returns:
             Lock: Le verrou associé au chemin.
         """
-        return self.FILE_LOCKS.setdefault(file, Lock())
+        return self._file_locks.setdefault(file, Lock())
 
     async def data_read(self, file: Path) -> dict:
         """Lit un fichier TOML et retourne un dictionnaire.
