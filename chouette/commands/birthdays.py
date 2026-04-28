@@ -175,7 +175,7 @@ class Birthday(app_commands.Group):
             if len(name) > 25:
                 name = name[:22] + "..."
             if len(name) < 25:
-                name = name + (25 - len(name)) * " "
+                name += (25 - len(name)) * " "
             msg += f"{name} : {birthday.day}/{birthday.month}\n"
         if not next_birthday:
             if (
