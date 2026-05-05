@@ -203,4 +203,4 @@ class Skyblock(app_commands.Group):
         """Permet d'afficher le classement de la guilde."""
         await interaction.response.defer(thinking=True)
         await guild_ranking(interaction.client, interaction.channel_id)
-        await interaction.followup.send("Classement affiché !")
+        await interaction.followup.send("Commande terminée !")

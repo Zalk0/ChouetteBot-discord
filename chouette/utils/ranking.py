@@ -413,7 +413,7 @@ async def display_ranking(data_io: DataIO, img: str, old_ranking: dict) -> list[
     return embeds_ranking
 
 
-async def guild_ranking(client: ChouetteBot, channel: int | None = None):
+async def guild_ranking(client: ChouetteBot, channel_id: int | None = None):
     guild = client.get_guild(int(client.config["HYPIXEL_GUILD_ID"]))
     member = guild.get_role(int(client.config["HYPIXEL_GUILD_ROLE"]))
     api_key = client.config["HYPIXEL_KEY"]
@@ -428,8 +428,8 @@ async def guild_ranking(client: ChouetteBot, channel: int | None = None):
         img=icon_url,
         old_ranking=old_ranking_data,
     )
-    if channel:
-        channel = client.get_channel(channel)
+    if channel_id:
+        channel = client.get_channel(channel_id)
     else:
         channel = guild.get_channel(int(client.config["HYPIXEL_RANK_CHANNEL"]))
         if not channel:
