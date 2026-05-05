@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING, Literal
 import discord
 from discord import app_commands
 
+from chouette.commands.admin import is_admin
+from chouette.utils.ranking import guild_ranking
 from chouette.utils.skyblock import pseudo_to_profile
 
 if TYPE_CHECKING:
@@ -176,7 +178,7 @@ class Skyblock(app_commands.Group):
     @app_commands.checks.cooldown(rate=1, per=60)
     async def link(
         self, interaction: discord.Interaction[ChouetteBot], pseudo: str, profile: str | None
-    ):
+    ) -> None:
         """Permet de lier son compte Discord à un profil Skyblock d'Hypixel.
 
         Args:
@@ -194,3 +196,11 @@ class Skyblock(app_commands.Group):
         await interaction.followup.send(
             f"Vous êtes bien connecté et le profil {profile_name.get('profile')} a été enregistré."
         )
+
+    @app_commands.check(is_admin)
+    @app_commands.command(name="ranking")
+    async def ranking(self, interaction: discord.Interaction[ChouetteBot]) -> None:
+        """Permet d'afficher le classement de la guilde."""
+        await interaction.response.defer(thinking=True)
+        await guild_ranking(interaction.client, interaction.channel_id)
+        await interaction.followup.send("Classement affiché !")

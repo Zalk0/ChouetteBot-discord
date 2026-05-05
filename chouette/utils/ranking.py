@@ -411,3 +411,32 @@ async def display_ranking(data_io: DataIO, img: str, old_ranking: dict) -> list[
     ranking.set_footer(text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00")
     embeds_ranking.append(ranking)
     return embeds_ranking
+
+
+async def guild_ranking(client: ChouetteBot, channel: int | None = None):
+    guild = client.get_guild(int(client.config["HYPIXEL_GUILD_ID"]))
+    member = guild.get_role(int(client.config["HYPIXEL_GUILD_ROLE"]))
+    api_key = client.config["HYPIXEL_KEY"]
+    update_message, old_ranking_data = await update_stats(client=client, api_key=api_key)
+    client.bot_logger.info(update_message)
+    if not guild.icon:
+        icon_url = "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg"
+    else:
+        icon_url = guild.icon.url
+    embeds = await display_ranking(
+        data_io=client.data_io,
+        img=icon_url,
+        old_ranking=old_ranking_data,
+    )
+    if channel:
+        channel = client.get_channel(channel)
+    else:
+        channel = guild.get_channel(int(client.config["HYPIXEL_RANK_CHANNEL"]))
+        if not channel:
+            client.bot_logger.error("Ranking channel is not in Hypixel Guild")
+            return
+    await channel.send(f"||{member.mention}||")
+    for embed in embeds:
+        await channel.send(
+            embed=embed,
+        )
