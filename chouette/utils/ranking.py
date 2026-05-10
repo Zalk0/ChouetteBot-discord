@@ -382,7 +382,9 @@ async def display_ranking(data_io: DataIO, img: str, old_ranking: dict) -> list[
         color=discord.Colour.from_rgb(0, 170, 255),
     )
     ranking.set_thumbnail(url=img)
-    ranking.set_footer(text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00")
+    ranking.set_footer(
+        text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00\nou via la commande /skyblock ranking (admin only)",
+    )
     new_ranking_data = parse_data(await load_skyblock(data_io))
 
     # On génère les messages pour chaque catégorie
@@ -408,7 +410,9 @@ async def display_ranking(data_io: DataIO, img: str, old_ranking: dict) -> list[
             )
     # On ajoute la miniature ainsi que le footer aux autres embeds
     ranking.set_thumbnail(url=img)
-    ranking.set_footer(text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00")
+    ranking.set_footer(
+        text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00\nou via la commande /skyblock ranking (admin only)"
+    )
     embeds_ranking.append(ranking)
     return embeds_ranking
 

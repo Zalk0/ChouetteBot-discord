@@ -201,6 +201,8 @@ class Skyblock(app_commands.Group):
     @app_commands.command(name="ranking")
     async def ranking(self, interaction: discord.Interaction[ChouetteBot]) -> None:
         """Permet d'afficher le classement de la guilde."""
-        await interaction.response.defer(thinking=True)
+        await interaction.response.defer(
+            thinking=True,
+            ephemeral=True)
         await guild_ranking(interaction.client, interaction.channel_id)
         await interaction.followup.send("Commande terminée !")
