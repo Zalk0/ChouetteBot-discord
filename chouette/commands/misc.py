@@ -138,5 +138,5 @@ async def info(interaction: discord.Interaction[ChouetteBot]) -> None:
         "Vous pouvez demander des fonctionnalités sur GitHub.\n"
         f"[Code source](<{github_link}>)\n"
         f"[Image Docker](<{dockerhub_link}>)\n\n"
-        f"Dernière mise à jour : {last_update}"
+        f"Dernière mise à jour : {last_update.strftime('%d/%m/%Y')}"
     )

@@ -8,7 +8,7 @@ from discord.errors import DiscordServerError
 from discord.ext import tasks
 
 from chouette.utils.birthdays import calculate_age, load_birthdays
-from chouette.utils.ranking import display_ranking, update_stats
+from chouette.utils.ranking import guild_ranking
 
 if TYPE_CHECKING:
     from chouette.bot import ChouetteBot
@@ -74,27 +74,7 @@ async def tasks_list(client: ChouetteBot) -> None:
     async def skyblock_guild_ranking() -> None:
         """Affiche le classement de la guilde Hypixel Skyblock."""
         if date.today().day == 1:
-            guild = client.get_guild(int(client.config["HYPIXEL_GUILD_ID"]))
-            member = guild.get_role(int(client.config["HYPIXEL_GUILD_ROLE"]))
-            api_key = client.config["HYPIXEL_KEY"]
-            update_message, old_ranking_data = await update_stats(client=client, api_key=api_key)
-            client.bot_logger.info(update_message)
-            if not guild.icon:
-                icon_url = "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg"
-            else:
-                icon_url = guild.icon.url
-            embeds = await display_ranking(
-                data_io=client.data_io,
-                img=icon_url,
-                old_ranking=old_ranking_data,
-            )
-            await client.get_channel(int(client.config["HYPIXEL_RANK_CHANNEL"])).send(
-                f"||{member.mention}||"
-            )
-            for embed in embeds:
-                await client.get_channel(int(client.config["HYPIXEL_RANK_CHANNEL"])).send(
-                    embed=embed,
-                )
+            await guild_ranking(client)
 
     # Start loops
     poke_ping.start()

@@ -83,7 +83,7 @@ async def selected_profile(
         tuple[bool, dict | str | None]: Le profil Skyblock sélectionné du joueur ou un message d'erreur.
     """
     async with session.get(
-        f"{HYPIXEL_API}skyblock/profiles", params={"key": api_key, "uuid": uuid}
+        f"{HYPIXEL_API}skyblock/profiles", headers={"API-Key": api_key}, params={"uuid": uuid}
     ) as response:
         json: dict = await response.json()
         if response.status != 200:
@@ -112,7 +112,7 @@ async def get_profile(
         tuple[bool, dict | str | None]: `True` et le profil Skyblock si trouvé, `False` et un message d'erreur sinon.
     """
     async with session.get(
-        f"{HYPIXEL_API}skyblock/profiles", params={"key": api_key, "uuid": uuid}
+        f"{HYPIXEL_API}skyblock/profiles", headers={"API-Key": api_key}, params={"uuid": uuid}
     ) as response:
         json: dict = await response.json()
         if response.status != 200:
@@ -139,7 +139,7 @@ async def get_hypixel_player(session: ClientSession, api_key: str, uuid: str) ->
         dict: Les informations du joueur Hypixel.
     """
     async with session.get(
-        f"{HYPIXEL_API}player", params={"key": api_key, "uuid": uuid}
+        f"{HYPIXEL_API}player", headers={"API-Key": api_key}, params={"uuid": uuid}
     ) as response:
         json: dict = await response.json()
         if response.status != 200:
