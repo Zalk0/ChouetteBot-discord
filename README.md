@@ -1,6 +1,6 @@
 # ChouetteBot-discord
 
-![Python version 3.10+](https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white)
+![Python version 3.11+](https://img.shields.io/badge/Python-3.11+-blue?logo=python&logoColor=white)
 [![Ruff status](https://img.shields.io/github/actions/workflow/status/Zalk0/ChouetteBot-discord/ruff.yaml?branch=main&logo=github&label=Ruff)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Zalk0/ChouetteBot-discord/main.svg)](https://results.pre-commit.ci/latest/github/Zalk0/ChouetteBot-discord/main)
 

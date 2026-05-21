@@ -20,9 +20,9 @@ try:
     TIMEZONE = ZoneInfo(getenv("TZ", "localtime"))
 # Use timezone UTC as a fallback
 except ZoneInfoNotFoundError:
-    from datetime import timezone
+    from datetime import UTC
 
-    TIMEZONE = timezone.utc
+    TIMEZONE = UTC
 
 
 async def tasks_list(client: ChouetteBot) -> None:

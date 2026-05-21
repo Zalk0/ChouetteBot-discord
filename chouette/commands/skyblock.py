@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal
 
 import discord
@@ -132,7 +132,7 @@ class Skyblock(app_commands.Group):
             interaction (discord.Interaction[ChouetteBot]): L'interaction Discord.
         """
         # The weather cycle for spider den starts at the start of the skyblock (timestamp 1560275700) and repeats
-        time_now = round(datetime.now(tz=timezone.utc).timestamp())
+        time_now = round(datetime.now(tz=UTC).timestamp())
         skyblock_age = time_now - 1560275700
 
         # variables for cooldown, duration and interval for thunderstorm and rain
