@@ -72,8 +72,7 @@ async def datetime_to_timestamp(birthday: date) -> str:
     Returns:
         str: Le timestamp Discord correspondant.
     """
-    birthday_dt = datetime.fromisoformat(str(birthday))
-    unix_timestamp = birthday_dt.timestamp()
+    unix_timestamp = datetime.fromisoformat(birthday.strftime("%Y-%m-%d")).timestamp()
     return f"<t:{int(unix_timestamp)}:R>"
 
 

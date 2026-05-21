@@ -171,7 +171,12 @@ class Birthday(app_commands.Group):
             birthday: date = info.get("birthday")
             if not next_birthday and date.today().replace(birthday.year) < birthday:
                 next_birthday = birthday.replace(date.today().year)
-            name = interaction.guild.get_member(int(user_id)).display_name
+            if (member := interaction.guild.get_member(int(user_id))) or (
+                member := interaction.client.get_user(int(user_id))
+            ):
+                name = member.display_name
+            else:
+                name = info.get("name")
             if len(name) > 25:
                 name = name[:22] + "..."
             if len(name) < 25:
