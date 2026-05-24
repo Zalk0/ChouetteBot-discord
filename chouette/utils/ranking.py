@@ -22,8 +22,6 @@ from chouette.utils.skyblock import (
 if TYPE_CHECKING:
     from chouette.bot import ChouetteBot
 
-SPACES = " " * 38
-
 
 def format_number(number) -> str:
     """Formate un nombre en K, M ou B.
@@ -75,7 +73,7 @@ def format_ranking_message(player: str, value: str, index: int, position: int) -
     return message
 
 
-async def update_stats(client: ChouetteBot, api_key: str) -> tuple[str, dict]:
+async def update_stats(client: ChouetteBot, api_key: str) -> dict:
     """Met à jour les statistiques de la guilde sur Hypixel Skyblock.
 
     Args:
@@ -90,7 +88,7 @@ async def update_stats(client: ChouetteBot, api_key: str) -> tuple[str, dict]:
     """
     old_data = await load_skyblock(client.data_io)
     new_data = copy.deepcopy(old_data)
-    msg = "Synchro des données de la guilde sur Hypixel Skyblock pour :"
+    client.bot_logger.info("Synchro des données de la guilde sur Hypixel Skyblock pour :")
     for uuid in old_data:
         pseudo = old_data.get(uuid).get("pseudo")
         profile_name = old_data.get(uuid).get("profile")
@@ -100,10 +98,9 @@ async def update_stats(client: ChouetteBot, api_key: str) -> tuple[str, dict]:
         profile = profile[1]
         player = await get_hypixel_player(client.session, api_key, uuid)
         new_data.get(uuid).update(await get_stats(client.session, uuid, player, profile))
-        msg += f"\n{SPACES}- {pseudo} sur le profil {profile_name}"
+        client.bot_logger.info(f"- {pseudo} sur le profil {profile_name}")
     await save_skyblock(client.data_io, new_data)
-    old_data = parse_data(old_data)
-    return msg, old_data
+    return parse_data(old_data)
 
 
 def parse_data(data: dict) -> dict:
@@ -421,8 +418,7 @@ async def guild_ranking(client: ChouetteBot, channel_id: int | None = None):
     guild = client.get_guild(int(client.config["HYPIXEL_GUILD_ID"]))
     member = guild.get_role(int(client.config["HYPIXEL_GUILD_ROLE"]))
     api_key = client.config["HYPIXEL_KEY"]
-    update_message, old_ranking_data = await update_stats(client=client, api_key=api_key)
-    client.bot_logger.info(update_message)
+    old_ranking_data = await update_stats(client=client, api_key=api_key)
     if not guild.icon:
         icon_url = "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg"
     else:
