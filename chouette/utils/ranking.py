@@ -349,6 +349,11 @@ class Ranking:
             player = await self.sb_utils.get_hypixel_player(api_key, uuid)
             new_data.get(uuid).update(await self.sb_utils.get_stats(uuid, player, profile))
             self.client.bot_logger.info(f"- {pseudo} sur le profil {profile_name}")
+
+            # In case we can't get networth properly, we keep the old value
+            if new_data.get(uuid).get("networth") == 0:
+                new_data.get(uuid).update({"networth": old_data.get(uuid).get("networth")})
+
         await self.sb_utils.save_skyblock(new_data)
         return parse_data(old_data)
 
