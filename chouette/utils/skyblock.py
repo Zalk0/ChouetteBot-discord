@@ -153,7 +153,9 @@ class SkyblockUtils:
         ) as response:
             json: dict = await response.json()
             if response.status == 401:  # Unauthorized
-                self.client.bot_logger.error("Unauthorized access to SkyCrypt API for networth, returning 0 networth")
+                self.client.bot_logger.error(
+                    "Unauthorized access to SkyCrypt API for networth, returning 0 networth"
+                )
                 return 0
             if response.status != 200:
                 raise Exception(
