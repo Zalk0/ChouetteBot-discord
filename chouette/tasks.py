@@ -8,7 +8,7 @@ from discord.errors import DiscordServerError
 from discord.ext import tasks
 
 from chouette.utils.birthdays import calculate_age, load_birthdays
-from chouette.utils.ranking import guild_ranking
+from chouette.utils.skyblock import SkyblockUtils
 
 if TYPE_CHECKING:
     from chouette.bot import ChouetteBot
@@ -74,7 +74,8 @@ async def tasks_list(client: ChouetteBot) -> None:
     async def skyblock_guild_ranking() -> None:
         """Affiche le classement de la guilde Hypixel Skyblock."""
         if date.today().day == 1:
-            await guild_ranking(client)
+            sb_utils = SkyblockUtils(client)
+            await sb_utils.ranking.guild_ranking()
 
     # Start loops
     poke_ping.start()
