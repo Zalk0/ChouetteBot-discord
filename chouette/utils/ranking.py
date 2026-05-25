@@ -334,7 +334,7 @@ class Ranking:
             Exception: Si une erreur survient lors de la mise à jour des statistiques.
 
         Returns:
-            tuple[str, dict]: Le message de mise à jour et les anciennes données.
+            dict: Les anciennes données.
         """
         old_data = await self.sb_utils.load_skyblock()
         new_data = copy.deepcopy(old_data)
