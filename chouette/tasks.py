@@ -27,6 +27,7 @@ except ZoneInfoNotFoundError:
 
 async def tasks_list(client: ChouetteBot) -> None:
     """Liste des tâches à effectuer pour le bot."""
+    sb_utils = SkyblockUtils(client)
 
     # Send message every 2 hours for pokeroll in utc time (default)
     @tasks.loop(time=[time(t) for t in range(0, 24, 2)])
@@ -74,7 +75,6 @@ async def tasks_list(client: ChouetteBot) -> None:
     async def skyblock_guild_ranking() -> None:
         """Affiche le classement de la guilde Hypixel Skyblock."""
         if date.today().day == 1:
-            sb_utils = SkyblockUtils(client)
             await sb_utils.ranking.guild_ranking()
 
     # Start loops
