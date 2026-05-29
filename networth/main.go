@@ -23,7 +23,7 @@ func main() {
 func getNetworth(c *gin.Context) {
     var payload struct {
         UserProfile *skycrypttypes.Member `json:"profile" binding:"required"`
-        MuseumData  *skycrypttypes.Museum `json:"museum" binding:"required"`
+        MuseumData  *skycrypttypes.Museum `json:"museum"  binding:"required"`
         BankBalance float64               `json:"balance" binding:"required"`
     }
 
@@ -43,7 +43,7 @@ func getNetworth(c *gin.Context) {
 		})
         return
 	}
-    nonCosmeticNetworth := calculator.GetNonCosmeticNetworth()
+    nonCosmeticNetworth := calculator.GetNonCosmeticNetworth(skyhelpernetworthgo.NetworthOptions{OnlyNetworth: true})
 
     c.IndentedJSON(http.StatusOK, gin.H{
         "success": true,
