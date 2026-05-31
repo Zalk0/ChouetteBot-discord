@@ -7,8 +7,7 @@ import discord
 from discord import app_commands
 
 from chouette.commands.admin import is_admin
-from chouette.utils.ranking import guild_ranking
-from chouette.utils.skyblock import pseudo_to_profile
+from chouette.utils.skyblock import SkyblockUtils
 
 if TYPE_CHECKING:
     from chouette.bot import ChouetteBot
@@ -17,9 +16,11 @@ if TYPE_CHECKING:
 class Skyblock(app_commands.Group):
     """Classe qui permet de gérer le Skyblock d'Hypixel."""
 
-    def __init__(self) -> None:
+    def __init__(self, client: ChouetteBot) -> None:
         """Initialise la classe Skyblock."""
         super().__init__(name="skyblock", description="Commandes relatives au Skyblock d'Hypixel")
+        self.sb_utils = SkyblockUtils(client)
+        self.guild_ranking = self.sb_utils.ranking.guild_ranking
 
     @app_commands.command(
         name="mods",
@@ -188,7 +189,7 @@ class Skyblock(app_commands.Group):
         """
         await interaction.response.defer(thinking=True)
         discord_pseudo = interaction.user.name
-        profile_name = await pseudo_to_profile(interaction.client, discord_pseudo, pseudo, profile)
+        profile_name = await self.sb_utils.pseudo_to_profile(discord_pseudo, pseudo, profile)
         if isinstance(profile_name, str):
             interaction.client.bot_logger.error(profile_name)
             await interaction.followup.send(f"Il y a eu une erreur :\n`{profile_name}`")
@@ -202,5 +203,5 @@ class Skyblock(app_commands.Group):
     async def ranking(self, interaction: discord.Interaction[ChouetteBot]) -> None:
         """Permet d'afficher le classement de la guilde."""
         await interaction.response.defer(thinking=True, ephemeral=True)
-        await guild_ranking(interaction.client, interaction.channel_id)
+        await self.guild_ranking(interaction.channel_id)
         await interaction.followup.send("Commande terminée !")
