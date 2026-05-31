@@ -1,7 +1,7 @@
 # ChouetteBot-discord
 
-![Python version 3.10+](https://img.shields.io/badge/Python-3.10+-blue)
-[![Ruff status](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml/badge.svg?branch=main)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml)
+![Python version 3.11+](https://img.shields.io/badge/Python-3.11+-blue?logo=python&logoColor=white)
+[![Ruff status](https://img.shields.io/github/actions/workflow/status/Zalk0/ChouetteBot-discord/ruff.yaml?branch=main&logo=github&label=Ruff)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ruff.yaml)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Zalk0/ChouetteBot-discord/main.svg)](https://results.pre-commit.ci/latest/github/Zalk0/ChouetteBot-discord/main)
 
 Just some random project of doing a Discord bot using
@@ -49,8 +49,8 @@ if you would like to participate in the project.
 
 ## Docker
 
-[![Docker Image](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yaml/badge.svg?branch=main)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yaml)
-[![Docker Image Version](https://img.shields.io/docker/v/gylfirst/chouettebot?style=flat)](https://hub.docker.com/r/gylfirst/chouettebot)
+[![Docker Image](https://img.shields.io/github/actions/workflow/status/Zalk0/ChouetteBot-discord/docker-image.yaml?branch=main&logo=github&label=Build)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yaml)
+[![Docker Image Version](https://img.shields.io/docker/v/gylfirst/chouettebot?logo=docker&logoColor=white&label=Version)](https://hub.docker.com/r/gylfirst/chouettebot)
 
 You can use a Docker image to deploy the bot.
 It's currently supporting amd64, armv6, armv7 and arm64 architectures.

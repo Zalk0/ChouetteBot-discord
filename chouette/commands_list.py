@@ -37,7 +37,7 @@ async def commands(client: ChouetteBot) -> None:
         client.tree.add_command(command)
 
     # Add the Skyblock command group to my Hypixel guild
-    client.tree.add_command(Skyblock(), guild=client.hypixel_guild)
+    client.tree.add_command(Skyblock(client), guild=client.hypixel_guild)
 
     # Add the Birthday command group to my guild
     client.tree.add_command(Birthday(), guild=client.my_guild)

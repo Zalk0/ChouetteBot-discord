@@ -9,20 +9,11 @@ from typing import TYPE_CHECKING
 import discord
 
 from chouette.utils.birthdays import month_to_str
-from chouette.utils.data_io import DataIO
 from chouette.utils.hypixel_data import experience_to_level
-from chouette.utils.skyblock import (
-    get_hypixel_player,
-    get_profile,
-    get_stats,
-    load_skyblock,
-    save_skyblock,
-)
 
 if TYPE_CHECKING:
     from chouette.bot import ChouetteBot
-
-SPACES = " " * 38
+    from chouette.utils.skyblock import SkyblockUtils
 
 
 def format_number(number) -> str:
@@ -73,37 +64,6 @@ def format_ranking_message(player: str, value: str, index: int, position: int) -
     else:
         message += f"\N{MEDIUM BLACK CIRCLE} **{player}** [{value}]"
     return message
-
-
-async def update_stats(client: ChouetteBot, api_key: str) -> tuple[str, dict]:
-    """Met à jour les statistiques de la guilde sur Hypixel Skyblock.
-
-    Args:
-        client (ChouetteBot): L'instance du bot.
-        api_key (str): La clé API d'Hypixel pour accéder aux données.
-
-    Raises:
-        Exception: Si une erreur survient lors de la mise à jour des statistiques.
-
-    Returns:
-        tuple[str, dict]: Le message de mise à jour et les anciennes données.
-    """
-    old_data = await load_skyblock(client.data_io)
-    new_data = copy.deepcopy(old_data)
-    msg = "Synchro des données de la guilde sur Hypixel Skyblock pour :"
-    for uuid in old_data:
-        pseudo = old_data.get(uuid).get("pseudo")
-        profile_name = old_data.get(uuid).get("profile")
-        profile = await get_profile(client.session, api_key, uuid, profile_name)
-        if not profile[0]:
-            raise Exception("Error while updating stats")
-        profile = profile[1]
-        player = await get_hypixel_player(client.session, api_key, uuid)
-        new_data.get(uuid).update(await get_stats(client.session, uuid, player, profile))
-        msg += f"\n{SPACES}- {pseudo} sur le profil {profile_name}"
-    await save_skyblock(client.data_io, new_data)
-    old_data = parse_data(old_data)
-    return msg, old_data
 
 
 def parse_data(data: dict) -> dict:
@@ -359,88 +319,123 @@ def calculate_player_position(old_data: dict, new_data: dict, category: str, pla
     return 0
 
 
-async def display_ranking(data_io: DataIO, img: str, old_ranking: dict) -> list[discord.Embed]:
-    """Affiche le classement de la guilde sur Hypixel Skyblock. Si la taille dépasse la limite des embeds (5000 caractères),
-    on crée plusieurs embeds.
+class Ranking:
+    def __init__(self, client: ChouetteBot, sb_utils: SkyblockUtils) -> None:
+        self.client = client
+        self.sb_utils = sb_utils
 
-    Args:
-        data_io (DataIO): La classe permettant d'interagir avec les fichiers TOML.
-        img (str): L'URL de l'image à afficher en miniature.
-        old_ranking (dict): Les anciennes données du classement pour faire la comparaison.
+    async def update_stats(self, api_key: str) -> dict:
+        """Met à jour les statistiques de la guilde sur Hypixel Skyblock.
 
-    Returns:
-        list[discord.Embed]: La liste des embeds à afficher.
-    """
-    month = await month_to_str(date.today().month)
-    year = date.today().year
+        Args:
+            api_key (str): La clé API d'Hypixel pour accéder aux données.
 
-    embeds_ranking = []
-    ranking = discord.Embed(
-        title=f"Classement de début {month} {year}",
-        description="Voici le classement de la guilde sur Hypixel Skyblock.\n"
-        "Le skill average est sans progression (comme affiché sur Hypixel dans le menu des skills).",
-        color=discord.Colour.from_rgb(0, 170, 255),
-    )
-    ranking.set_thumbnail(url=img)
-    ranking.set_footer(
-        text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00\nou via la commande /skyblock ranking (admin only)",
-    )
-    new_ranking_data = parse_data(await load_skyblock(data_io))
+        Raises:
+            Exception: Si une erreur survient lors de la mise à jour des statistiques.
 
-    # On génère les messages pour chaque catégorie
-    for category in new_ranking_data:
-        if isinstance(new_ranking_data[category], dict):
-            messages = generate_ranking_message(new_ranking_data, category, old_ranking)
-            field_value = "\n".join(messages)
-            # La limite des embeds est de 6000 caractères
-            # on split avant de dépasser cette limite pour éviter une coupure dans les catégories
-            if len(ranking) + len(field_value) > 5000:
-                embeds_ranking.append(ranking)
-                ranking = discord.Embed(
-                    title=f"Classement de début {month} {year} - Suite",
-                    description="Voici la suite du classement de la guilde sur Hypixel Skyblock.\n"
-                    "Le skill average est sans progression (comme affiché sur Hypixel dans le menu des skills).",
-                    color=discord.Colour.from_rgb(0, 170, 255),
-                )
-            # On ajoute les catégories dans les embeds
-            ranking.add_field(
-                name=f"**[ {category.capitalize()} ]**",
-                value=field_value,
-                inline=False,
-            )
-    # On ajoute la miniature ainsi que le footer aux autres embeds
-    ranking.set_thumbnail(url=img)
-    ranking.set_footer(
-        text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00\nou via la commande /skyblock ranking (admin only)"
-    )
-    embeds_ranking.append(ranking)
-    return embeds_ranking
+        Returns:
+            dict: Les anciennes données.
+        """
+        old_data = await self.sb_utils.load_skyblock()
+        new_data = copy.deepcopy(old_data)
+        self.client.bot_logger.info("Synchro des données de la guilde sur Hypixel Skyblock pour :")
+        for uuid in old_data:
+            pseudo = old_data.get(uuid).get("pseudo")
+            profile_name = old_data.get(uuid).get("profile")
+            profile = await self.sb_utils.get_profile(api_key, uuid, profile_name)
+            if not profile[0]:
+                raise Exception("Error while updating stats")
+            profile = profile[1]
+            player = await self.sb_utils.get_hypixel_player(api_key, uuid)
+            new_data.get(uuid).update(await self.sb_utils.get_stats(uuid, player, profile))
+            self.client.bot_logger.info(f"- {pseudo} sur le profil {profile_name}")
 
+            # In case we can't get networth properly, we keep the old value
+            if new_data.get(uuid).get("networth") == 0:
+                new_data.get(uuid).update({"networth": old_data.get(uuid).get("networth")})
 
-async def guild_ranking(client: ChouetteBot, channel_id: int | None = None):
-    guild = client.get_guild(int(client.config["HYPIXEL_GUILD_ID"]))
-    member = guild.get_role(int(client.config["HYPIXEL_GUILD_ROLE"]))
-    api_key = client.config["HYPIXEL_KEY"]
-    update_message, old_ranking_data = await update_stats(client=client, api_key=api_key)
-    client.bot_logger.info(update_message)
-    if not guild.icon:
-        icon_url = "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg"
-    else:
-        icon_url = guild.icon.url
-    embeds = await display_ranking(
-        data_io=client.data_io,
-        img=icon_url,
-        old_ranking=old_ranking_data,
-    )
-    if channel_id:
-        channel = client.get_channel(channel_id)
-    else:
-        channel = guild.get_channel(int(client.config["HYPIXEL_RANK_CHANNEL"]))
-        if not channel:
-            client.bot_logger.error("Ranking channel is not in Hypixel Guild")
-            return
-    await channel.send(f"||{member.mention}||")
-    for embed in embeds:
-        await channel.send(
-            embed=embed,
+        await self.sb_utils.save_skyblock(new_data)
+        return parse_data(old_data)
+
+    async def display_ranking(self, img: str, old_ranking: dict) -> list[discord.Embed]:
+        """Affiche le classement de la guilde sur Hypixel Skyblock. Si la taille dépasse la limite des embeds (5000 caractères),
+        on crée plusieurs embeds.
+
+        Args:
+            img (str): L'URL de l'image à afficher en miniature.
+            old_ranking (dict): Les anciennes données du classement pour faire la comparaison.
+
+        Returns:
+            list[discord.Embed]: La liste des embeds à afficher.
+        """
+        month = await month_to_str(date.today().month)
+        year = date.today().year
+
+        embeds_ranking = []
+        ranking = discord.Embed(
+            title=f"Classement de début {month} {year}",
+            description="Voici le classement de la guilde sur Hypixel Skyblock.\n"
+            "Le skill average est sans progression (comme affiché sur Hypixel dans le menu des skills).",
+            color=discord.Colour.from_rgb(0, 170, 255),
         )
+        ranking.set_thumbnail(url=img)
+        ranking.set_footer(
+            text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00\nou via la commande /skyblock ranking (admin only)",
+        )
+        new_ranking_data = parse_data(await self.sb_utils.load_skyblock())
+
+        # On génère les messages pour chaque catégorie
+        for category in new_ranking_data:
+            if isinstance(new_ranking_data[category], dict):
+                messages = generate_ranking_message(new_ranking_data, category, old_ranking)
+                field_value = "\n".join(messages)
+                # La limite des embeds est de 6000 caractères
+                # on split avant de dépasser cette limite pour éviter une coupure dans les catégories
+                if len(ranking) + len(field_value) > 5000:
+                    embeds_ranking.append(ranking)
+                    ranking = discord.Embed(
+                        title=f"Classement de début {month} {year} - Suite",
+                        description="Voici la suite du classement de la guilde sur Hypixel Skyblock.\n"
+                        "Le skill average est sans progression (comme affiché sur Hypixel dans le menu des skills).",
+                        color=discord.Colour.from_rgb(0, 170, 255),
+                    )
+                # On ajoute les catégories dans les embeds
+                ranking.add_field(
+                    name=f"**[ {category.capitalize()} ]**",
+                    value=field_value,
+                    inline=False,
+                )
+        # On ajoute la miniature ainsi que le footer aux autres embeds
+        ranking.set_thumbnail(url=img)
+        ranking.set_footer(
+            text="\N{WHITE HEAVY CHECK MARK} Mis à jour le 1er de chaque mois à 8h00\nou via la commande /skyblock ranking (admin only)"
+        )
+        embeds_ranking.append(ranking)
+        return embeds_ranking
+
+    async def guild_ranking(self, channel_id: int | None = None):
+        client = self.client
+        guild = client.get_guild(int(client.config["HYPIXEL_GUILD_ID"]))
+        member = guild.get_role(int(client.config["HYPIXEL_GUILD_ROLE"]))
+        api_key = client.config["HYPIXEL_KEY"]
+        old_ranking_data = await self.update_stats(api_key)
+        if not guild.icon:
+            icon_url = "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg"
+        else:
+            icon_url = guild.icon.url
+        embeds = await self.display_ranking(
+            img=icon_url,
+            old_ranking=old_ranking_data,
+        )
+        if channel_id:
+            channel = client.get_channel(channel_id)
+        else:
+            channel = guild.get_channel(int(client.config["HYPIXEL_RANK_CHANNEL"]))
+            if not channel:
+                client.bot_logger.error("Ranking channel is not in Hypixel Guild")
+                return
+        await channel.send(f"||{member.mention}||")
+        for embed in embeds:
+            await channel.send(
+                embed=embed,
+            )
