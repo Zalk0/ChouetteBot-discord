@@ -49,22 +49,22 @@ class SkyblockUtils:
         """
         await self.data_io.data_write(skyblock, SKYBLOCK_FILE)
 
-    async def minecraft_uuid(self, pseudo: str) -> tuple[bool, str | None]:
+    async def minecraft_uuid(self, pseudo: str) -> tuple[bool, str]:
         """Retourne l'UUID d'un joueur Minecraft avec l'API Mojang.
 
         Args:
             pseudo (str): Le pseudo Minecraft du joueur.
 
         Returns:
-            tuple[bool, str | None]: `True` et l'UUID si le pseudo existe, `False` et un message d'erreur sinon.
+            tuple[bool, str]: `True` et l'UUID si le pseudo existe, `False` et un message d'erreur sinon.
         """
         async with self.session.get(
             f"https://api.mojang.com/users/profiles/minecraft/{pseudo}"
         ) as response:
             json: dict = await response.json()
             if response.status != 200:
-                return False, json.get("errorMessage")
-            return True, json.get("id")
+                return False, json.get("errorMessage", "error in getting minecraft uuid")
+            return True, json.get("id", "")
 
     async def selected_profile(self, api_key: str, uuid: str) -> tuple[bool, dict | str | None]:
         """Retourne le profil Skyblock sélectionné d'un joueur.
