@@ -15,7 +15,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pre-commit~=4.0",
-    "ruff==0.15.14",
+    "ruff==0.15.15",
 ]
 
 [tool.ruff]
