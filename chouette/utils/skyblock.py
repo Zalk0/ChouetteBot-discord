@@ -206,11 +206,9 @@ class SkyblockUtils:
             slayer.get("blaze", {}).get("xp", 0),
             slayer.get("vampire", {}).get("xp", 0),
         )
-        level_cap: tuple[int, int, int] = (
+        level_cap: tuple[int, int, int] = (  # Farming, Taming, Foraging
             info.get("jacobs_contest", {}).get("perks", {}).get("farming_level_cap", 0),
-            hypixel_player.get("player", {})
-            .get("achievements", {})
-            .get("skyblock_domesticator", 0),
+            len(info.get("pets_data", {}).get("pet_care", {}).get("pet_types_sacrificed", [])),
             hypixel_player.get("player", {}).get("achievements", {}).get("skyblock_gatherer", 0),
         )
         return {
