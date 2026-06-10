@@ -132,9 +132,7 @@ def parse_data(data: dict) -> dict:
                 if skill == "farming":
                     max_level = level_cap[0][player_index] + 50
                 if skill == "taming":
-                    max_level = (
-                        level_cap[1][player_index] if level_cap[1][player_index] > 50 else 50
-                    )
+                    max_level = level_cap[1][player_index] + 50
                 if skill == "foraging":
                     max_level = (
                         level_cap[2][player_index] if level_cap[2][player_index] > 50 else 50
