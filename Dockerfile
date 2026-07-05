@@ -11,7 +11,7 @@ COPY pyproject.toml .
 RUN if [ $(uname -m | cut -c 1-3) = "arm" ]; then \
     echo -e "[global]\nextra-index-url=https://www.piwheels.org/simple" > /usr/local/pip.conf; fi \
     && pip --no-cache-dir install -U pip \
-    && pip --no-cache-dir install --only-binary=:all: . \
+    && pip --no-cache-dir install --only-binary=:all:,!amulet-mutf8 . \
     && pip --no-cache-dir uninstall -y ChouetteBot && rm -rf *
 
 COPY . .
