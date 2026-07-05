@@ -322,11 +322,8 @@ class Ranking:
         self.client = client
         self.sb_utils = sb_utils
 
-    async def update_stats(self, api_key: str) -> dict:
+    async def update_stats(self) -> dict:
         """Met à jour les statistiques de la guilde sur Hypixel Skyblock.
-
-        Args:
-            api_key (str): La clé API d'Hypixel pour accéder aux données.
 
         Raises:
             Exception: Si une erreur survient lors de la mise à jour des statistiques.
@@ -340,11 +337,11 @@ class Ranking:
         for uuid in old_data:
             pseudo = old_data.get(uuid).get("pseudo")
             profile_name = old_data.get(uuid).get("profile")
-            profile = await self.sb_utils.get_profile(api_key, uuid, profile_name)
+            profile = await self.sb_utils.get_profile(uuid, profile_name)
             if not profile[0]:
                 raise Exception("Error while updating stats")
             profile = profile[1]
-            player = await self.sb_utils.get_hypixel_player(api_key, uuid)
+            player = await self.sb_utils.get_hypixel_player(uuid)
             new_data.get(uuid).update(await self.sb_utils.get_stats(uuid, player, profile))
             self.client.bot_logger.info(f"- {pseudo} sur le profil {profile_name}")
 
@@ -415,8 +412,7 @@ class Ranking:
         client = self.client
         guild = client.get_guild(int(client.config["HYPIXEL_GUILD_ID"]))
         member = guild.get_role(int(client.config["HYPIXEL_GUILD_ROLE"]))
-        api_key = client.config["HYPIXEL_KEY"]
-        old_ranking_data = await self.update_stats(api_key)
+        old_ranking_data = await self.update_stats()
         if not guild.icon:
             icon_url = "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg"
         else:
