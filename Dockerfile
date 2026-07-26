@@ -9,9 +9,11 @@ WORKDIR /usr/src/chouettebot
 COPY pyproject.toml .
 # If platform is arm then we add the piwheels index for prebuilt arm wheels
 RUN if [ $(uname -m | cut -c 1-3) = "arm" ]; then \
-    echo -e "[global]\nextra-index-url=https://www.piwheels.org/simple" > /usr/local/pip.conf; fi \
+    echo -e "[global]\nextra-index-url=https://www.piwheels.org/simple" > /usr/local/pip.conf \
     && pip --no-cache-dir install -U pip \
-    && pip --no-cache-dir install --only-binary=:all: . \
+    && pip --no-cache-dir install --only-binary=:all: .; else \
+    pip --no-cache-dir install -U pip \
+    && pip --no-cache-dir install --only-binary=:all: --no-binary=amulet-mutf8 .; fi \
     && pip --no-cache-dir uninstall -y ChouetteBot && rm -rf *
 
 COPY . .
