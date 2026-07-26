@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from skyhelper_networth import ProfileNetworthCalculator
+from skyhelper_networth import ItemsError, PricesError, ProfileNetworthCalculator
 from skyhelper_networth.types import Museum
 
 from chouette.utils.ranking import Ranking
@@ -161,7 +161,10 @@ class SkyblockUtils:
         ) as response:
             json: dict = await response.json()
             if response.status != 200:
-                raise Exception("Error while fetching Skyblock museum info")
+                raise Exception(
+                    f"Error while fetching Skyblock museum info, status: {response.status}"
+                    + (f", cause: {json.get('cause')}" if json.get("cause") else "")
+                )
             return json.get("members").get(uuid)
 
     async def get_player_networth(self, uuid: str, profile: dict, bank_balance: int) -> float:
@@ -175,12 +178,21 @@ class SkyblockUtils:
         Returns:
             float: La fortune du joueur.
         """
-        museum = await self.get_museum(uuid, profile.get("profile_id"))
-        calculator = ProfileNetworthCalculator(
-            profile.get("members").get(uuid), museum, bank_balance, session=self.session
-        )
-        networth = await calculator.get_non_cosmetic_networth(only_networth=True)
-        return networth.networth
+        try:
+            museum = await self.get_museum(uuid, profile.get("profile_id"))
+        except Exception as e:
+            self.client.bot_logger.error(e)
+            museum = None
+
+        try:
+            calculator = ProfileNetworthCalculator(
+                profile.get("members").get(uuid), museum, bank_balance, session=self.session
+            )
+            networth = await calculator.get_non_cosmetic_networth(only_networth=True)
+            return networth.networth
+        except (ItemsError, PricesError) as e:
+            self.client.bot_logger.error(e)
+            return 0
 
     async def get_stats(
         self, uuid: str, hypixel_player: dict, profile: dict

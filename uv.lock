@@ -318,7 +318,7 @@ requires-dist = [
     { name = "aiohttp", specifier = "~=3.14.3" },
     { name = "discord-py", extras = ["speed"], specifier = "~=2.7.1" },
     { name = "python-dotenv", specifier = "~=1.2.2" },
-    { name = "skyhelper-networth", specifier = "~=0.0.1a7" },
+    { name = "skyhelper-networth", specifier = "~=0.0.1a8" },
     { name = "tomlkit", specifier = "~=0.15.1" },
     { name = "tzdata", marker = "os_name == 'nt'" },
 ]
@@ -824,16 +824,16 @@ wheels = [
 
 [[package]]
 name = "skyhelper-networth"
-version = "0.0.1a7"
+version = "0.0.1a8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
     { name = "amulet-mutf8" },
     { name = "propcache" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/40/de/3d98ac1bde873db8cc0553a709aff1835a9bc4cd9952664f17a6605151c3/skyhelper_networth-0.0.1a7.tar.gz", hash = "sha256:cbde4a8508597d0dc1b34192d6c9e0c0b1d9425e9eccd573a03ede428f50fd8f", size = 26719, upload-time = "2026-07-23T16:53:49.507Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/44/c3/1eff6d90e786dab8e05768dfac06c8f75faad376c743e2857dac69777d0b/skyhelper_networth-0.0.1a8.tar.gz", hash = "sha256:97c9802ff27aa9ec3b58d984c3552675ca44d9902c550118805d075d4755bf46", size = 27663, upload-time = "2026-07-26T13:25:18.77Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2d/6f/d40346d0f3d01466ff3ffdb1b01b41fa6cdaede8df451ce9a2a17c788f8f/skyhelper_networth-0.0.1a7-py3-none-any.whl", hash = "sha256:4532b2b3176882d3c6a06802d8ce8e5638cd9e81a207296a5510c4fc80793528", size = 52817, upload-time = "2026-07-23T16:53:48.175Z" },
+    { url = "https://files.pythonhosted.org/packages/fa/98/5929d0cd0f604c91a8715e927deb217d17d65a664c254a61ad980ffd7eca/skyhelper_networth-0.0.1a8-py3-none-any.whl", hash = "sha256:1425653a51004e3610870d2143681d053a4b4de3a570c1f3c2b2325746fe6322", size = 55448, upload-time = "2026-07-26T13:25:19.825Z" },
 ]
 
 [[package]]
