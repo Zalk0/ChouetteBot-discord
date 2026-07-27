@@ -16,11 +16,11 @@ if TYPE_CHECKING:
     from chouette.utils.skyblock import SkyblockUtils
 
 
-def format_number(number) -> str:
+def format_number(number: float) -> str:
     """Formate un nombre en K, M ou B.
 
     Args:
-        number (int): Le nombre à formater.
+        number (float): Le nombre à formater.
 
     Returns:
         str: Le nombre formaté.
@@ -408,7 +408,7 @@ class Ranking:
         embeds_ranking.append(ranking)
         return embeds_ranking
 
-    async def guild_ranking(self, channel_id: int | None = None):
+    async def guild_ranking(self, channel_id: int | None = None) -> None:
         client = self.client
         guild = client.get_guild(int(client.config["HYPIXEL_GUILD_ID"]))
         member = guild.get_role(int(client.config["HYPIXEL_GUILD_ROLE"]))
