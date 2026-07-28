@@ -26,11 +26,11 @@ Thank you for considering contributing to ChouetteBot! We appreciate your suppor
 
 5. **Make Changes**.
 
-6. **Format Changes**: Run pre-commit and ruff to ensure code quality.
+6. **Format Changes**: Run prek and Ruff to ensure code quality.
 
    ```sh
-   uv run pre-commit run -a
-   # Running ruff is optional as it's included in the pre-commit config
+   uv run prek run -a
+   # Running Ruff is optional as it's included in the pre-commit config
    uv run ruff check
    uv run ruff format
    ```
