@@ -1,16 +1,19 @@
 FROM python:3.13-alpine AS builder
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+RUN apk add --no-cache curl
+
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
+
+RUN source /uv-installer.sh && rm /uv-installer.sh
+
+ENV PATH="/root/.local/bin/:$PATH"
 
 WORKDIR /app
 
 COPY pyproject.toml uv.lock ./
 
 ENV UV_LINK_MODE=copy
-RUN if [ $(uname -m | cut -c 1-3) = "arm" ]; then \
-    uv sync --no-dev --frozen \
-    --extra-index-url https://www.piwheels.org/simple; else \
-    uv sync --no-dev --frozen; fi
+RUN uv sync --no-default-groups --frozen
 
 FROM python:3.13-alpine
 
