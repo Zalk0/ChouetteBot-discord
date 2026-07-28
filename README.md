@@ -5,7 +5,7 @@
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Zalk0/ChouetteBot-discord/main.svg)](https://results.pre-commit.ci/latest/github/Zalk0/ChouetteBot-discord/main)
 
 Just some random project of doing a Discord bot using
-[discord.py](https://github.com/Rapptz/discord.py).  
+[discord.py](https://github.com/Rapptz/discord.py).\
 You need to have uv installed!
 
 Clone the projet and sync the environment with uv:
@@ -20,14 +20,12 @@ uv sync --no-dev
 
 Before launching the bot, you need to fill in a `.env` file (using the
 [template](https://github.com/Zalk0/ChouetteBot-discord/blob/main/.env.example)
-I provide in the repo) and put a Discord bot token inside.  
+I provide in the repo) and put a Discord bot token inside.\
 To have one, go to the
-[Discord Developer Portal](https://discord.com/developers) and create a new
-application.  
-Go to the Bot section and click the Reset Token button, you can now claim the
-token.  
-You need to enable the message content and members Privileged Gateway Intents as I assume
-they're enabled in the code (or change them).  
+[Discord Developer Portal](https://discord.com/developers) and create a new application.\
+Go to the Bot section and click the Reset Token button, you can now claim the token.\
+You need to enable the message content and members Privileged Gateway Intents as I assume they're
+enabled in the code (or change them).\
 You also have to fill the other fields in your `.env` file or else you're going to have errors.
 
 ---
@@ -52,9 +50,8 @@ if you would like to participate in the project.
 [![Docker Image](https://img.shields.io/github/actions/workflow/status/Zalk0/ChouetteBot-discord/docker-image.yaml?branch=main&logo=github&label=Build)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/docker-image.yaml)
 [![Docker Image Version](https://img.shields.io/docker/v/gylfirst/chouettebot?logo=docker&logoColor=white&label=Version)](https://hub.docker.com/r/gylfirst/chouettebot)
 
-You can use a Docker image to deploy the bot.
-It's currently supporting amd64, armv6, armv7 and arm64 architectures.
-We provide deployment information on the
+You can use a Docker image to deploy the bot. It's currently supporting amd64, armv6, armv7 and
+arm64 architectures. We provide deployment information on the
 [Docker Hub repository](https://hub.docker.com/r/gylfirst/chouettebot).
 
 You can build it from source with:

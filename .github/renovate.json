@@ -1,0 +1,28 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices",
+    "schedule:weekly"
+  ],
+  "baseBranchPatterns": [ "dev" ],
+  "timezone": "Europe/Paris",
+  "prHourlyLimit": 0,
+  "packageRules": [
+    {
+      "matchManagers": [ "pep621", "pre-commit" ],
+      "matchDepNames": [ "ruff", "astral-sh/ruff-pre-commit" ],
+      "groupName": "Ruff",
+      "automerge": true
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "branchTopic": "lockfile",
+    "commitMessageAction": "lockfile maintenance"
+  },
+  "platformAutomerge": true,
+  "pre-commit": {
+    "enabled": true
+  }
+}

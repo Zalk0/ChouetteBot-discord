@@ -1,8 +1,8 @@
 [project]
 name = "ChouetteBot"
 version = "0.0.1"
-license = "MIT"
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.13"
 dependencies = [
     "aiohttp~=3.14.3",
@@ -15,18 +15,39 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pre-commit~=4.0",
+    "prek~=0.4",
     "ruff==0.15.22",
 ]
 
 [tool.ruff]
 line-length = 99
 
-[tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "RET", "SIM", "RUF", "T20", "ERA", "ASYNC"]
-ignore = ["E501"]
-
 [tool.ruff.format]
 indent-style = "space"
-line-ending = "lf"
 quote-style = "double"
+line-ending = "lf"
+
+[tool.ruff.lint]
+select = [
+    "A",
+    "ANN",
+    "ASYNC",
+    "B",
+    "C4",
+    "E",
+    "ERA",
+    "F",
+    "I",
+    "ICN",
+    "N",
+    "RET",
+    "RUF",
+    "SIM",
+    "T10",
+    "T20",
+    "TID",
+    "UP",
+    "W",
+]
+ignore = ["E501"]
+flake8-tidy-imports.ban-relative-imports = "all"

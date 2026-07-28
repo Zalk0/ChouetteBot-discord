@@ -1,75 +1,74 @@
 name: Docker Image
-
 on:
-    push:
-        branches:
-            - dev
-            - main
-    pull_request:
-        branches:
-            - main
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-    # Job pour tester la build sans push (PR et commits sur dev)
-    test-build:
-        runs-on: ubuntu-latest
-        if: github.event_name == 'pull_request' || github.ref_name == 'dev'
-        steps:
-            -   name: Set up QEMU
-                uses: docker/setup-qemu-action@v4
+  # Job pour tester la build sans push (PR et commits sur dev)
+  test-build:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.ref_name == 'dev'
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
 
-            -   name: Set up Docker Buildx
-                uses: docker/setup-buildx-action@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
 
-            -   name: Checkout code
-                uses: actions/checkout@v7
+      - name: Checkout code
+        uses: actions/checkout@v7
 
-            -   name: Build (test only, no push)
-                uses: docker/build-push-action@v7
-                with:
-                    context: .
-                    push: false
-                    build-args: version=dev-test
-                    tags: gylfirst/chouettebot:dev-test
-                    platforms: linux/amd64, linux/arm/v6, linux/arm/v7, linux/arm64
+      - name: Build (test only, no push)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: false
+          build-args: version=dev-test
+          tags: gylfirst/chouettebot:dev-test
+          platforms: linux/amd64, linux/arm/v6, linux/arm/v7, linux/arm64
 
-    # Job pour build et push en production (commits sur main uniquement)
-    production-build:
-        runs-on: ubuntu-latest
-        if: github.event_name == 'push' && github.ref_name == 'main'
-        steps:
-            -   name: Set up QEMU
-                uses: docker/setup-qemu-action@v4
+  # Job pour build et push en production (commits sur main uniquement)
+  production-build:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref_name == 'main'
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
 
-            -   name: Set up Docker Buildx
-                uses: docker/setup-buildx-action@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
 
-            -   name: Login to Docker Hub
-                uses: docker/login-action@v4
-                with:
-                    username: ${{ secrets.DOCKERHUB_USERNAME }}
-                    password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-            -   name: Checkout code
-                uses: actions/checkout@v7
+      - name: Checkout code
+        uses: actions/checkout@v7
 
-            -   name: Generate version from date
-                id: version
-                run: |
-                    DATE_VERSION="v$(date +'%Y.%m.%d')"
-                    TODAY_COMMITS=$(git log --since="$(date +'%Y%m%d') 00:00:00" --oneline | wc -l)
-                    if [ $TODAY_COMMITS -gt 1 ]; then
-                        VERSION="${DATE_VERSION}.${TODAY_COMMITS}"
-                    else
-                        VERSION="${DATE_VERSION}"
-                    fi
-                    echo "tag=${VERSION}" >> $GITHUB_OUTPUT
+      - name: Generate version from date
+        id: version
+        run: |
+          DATE_VERSION="v$(date +'%Y.%m.%d')"
+          TODAY_COMMITS=$(git log --since="$(date +'%Y%m%d') 00:00:00" --oneline | wc -l)
+          if [ $TODAY_COMMITS -gt 1 ]; then
+              VERSION="${DATE_VERSION}.${TODAY_COMMITS}"
+          else
+              VERSION="${DATE_VERSION}"
+          fi
+          echo "tag=${VERSION}" >> $GITHUB_OUTPUT
 
-            -   name: Build and push
-                uses: docker/build-push-action@v7
-                with:
-                    context: .
-                    push: true
-                    build-args: version=${{ steps.version.outputs.tag }}
-                    tags: gylfirst/chouettebot:latest,gylfirst/chouettebot:${{ steps.version.outputs.tag }}
-                    platforms: linux/amd64, linux/arm/v6, linux/arm/v7, linux/arm64
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          build-args: version=${{ steps.version.outputs.tag }}
+          tags: gylfirst/chouettebot:latest,gylfirst/chouettebot:${{ steps.version.outputs.tag }}
+          platforms: linux/amd64, linux/arm/v6, linux/arm/v7, linux/arm64
