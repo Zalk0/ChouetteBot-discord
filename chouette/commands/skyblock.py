@@ -131,7 +131,7 @@ class Skyblock(app_commands.Group):
 
         # thunderstorm
         if (cooldown <= thunderstorm) and (thunderstorm < (cooldown + duration)):
-            time_left = (cooldown + duration) - rain
+            time_left = (cooldown + duration) - thunderstorm
             thunderstorm_duration = time_now + time_left
             thunderstorm_msg = f"Le prochain orage s'arrêtera <t:{thunderstorm_duration}:R>"
         else:
@@ -141,6 +141,8 @@ class Skyblock(app_commands.Group):
                 next_thunderstorm = (
                     time_now + (cooldown + duration) * thunderstorm_interval + cooldown
                 ) - thunderstorm
+            else:
+                next_thunderstorm = time_now + cooldown - thunderstorm
             thunderstorm_msg = f"Le prochain orage sera <t:{next_thunderstorm}:R>"
 
         await interaction.response.send_message(f"{rain_msg}\n{thunderstorm_msg}")

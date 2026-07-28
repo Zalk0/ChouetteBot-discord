@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import math
 from datetime import date
 from itertools import chain
@@ -386,7 +387,7 @@ class Ranking:
                 field_value = "\n".join(messages)
                 # La limite des embeds est de 6000 caractères
                 # on split avant de dépasser cette limite pour éviter une coupure dans les catégories
-                if len(ranking) + len(field_value) > 5000:
+                if len(json.dumps(ranking.to_dict())) + len(field_value) > 5000:
                     embeds_ranking.append(ranking)
                     ranking = discord.Embed(
                         title=f"Classement de début {month} {year} - Suite",

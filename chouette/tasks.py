@@ -77,7 +77,6 @@ async def tasks_list(client: ChouetteBot) -> None:
         if date.today().day == 1:
             await sb_utils.ranking.guild_ranking()
 
-    # Start loops
     poke_ping.start()
     check_birthdays.start()
     skyblock_guild_ranking.start()

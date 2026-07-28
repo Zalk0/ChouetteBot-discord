@@ -208,13 +208,14 @@ class SkyblockUtils:
             dict[str, float | tuple[float, ...] | tuple[int, ...]]: Les statistiques du joueur Skyblock.
         """
 
-        info = profile.get("members").get(uuid)
-        level: float = (info.get("leveling").get("experience")) / 100
+        info = profile.get("members", {}).get(uuid, {})
+        level: float = (info.get("leveling", {}).get("experience", 0)) / 100
         networth = await self.get_player_networth(
             uuid, profile, profile.get("banking", {}).get("balance", 0)
         )
 
-        skill = info.get("player_data").get("experience")
+        player_data = info.get("player_data", {})
+        skill = player_data.get("experience", {})
         skills: tuple[
             float, float, float, float, float, float, float, float, float, float, float
         ] = (
@@ -228,16 +229,20 @@ class SkyblockUtils:
             skill.get("SKILL_FORAGING", 0),
             skill.get("SKILL_CARPENTRY", 0),
             skill.get("SKILL_COMBAT", 0),
-            info.get("dungeons").get("dungeon_types").get("catacombs").get("experience", 0),
+            info.get("dungeons", {})
+            .get("dungeon_types", {})
+            .get("catacombs", {})
+            .get("experience", 0),
         )
-        slayer = info.get("slayer").get("slayer_bosses")
+        slayer = info.get("slayer", {})
+        slayer_bosses = slayer.get("slayer_bosses", {})
         slayers: tuple[int, int, int, int, int, int] = (
-            slayer.get("zombie", {}).get("xp", 0),
-            slayer.get("spider", {}).get("xp", 0),
-            slayer.get("wolf", {}).get("xp", 0),
-            slayer.get("enderman", {}).get("xp", 0),
-            slayer.get("blaze", {}).get("xp", 0),
-            slayer.get("vampire", {}).get("xp", 0),
+            slayer_bosses.get("zombie", {}).get("xp", 0),
+            slayer_bosses.get("spider", {}).get("xp", 0),
+            slayer_bosses.get("wolf", {}).get("xp", 0),
+            slayer_bosses.get("enderman", {}).get("xp", 0),
+            slayer_bosses.get("blaze", {}).get("xp", 0),
+            slayer_bosses.get("vampire", {}).get("xp", 0),
         )
         level_cap: tuple[int, int, int] = (  # Farming, Taming, Foraging
             info.get("jacobs_contest", {}).get("perks", {}).get("farming_level_cap", 0),
@@ -273,11 +278,11 @@ class SkyblockUtils:
         self.client.bot_logger.debug(f"L'UUID de {pseudo} est {uuid}")
 
         player = await self.get_hypixel_player(uuid)
-        discord = await hypixel_discord(player)
-        if not discord[0]:
+        has_discord = await hypixel_discord(player)
+        if not has_discord[0]:
             # TODO: better handling
-            return discord[1]
-        discord = discord[1]
+            return has_discord[1]
+        discord = has_discord[1]
         if discord != discord_pseudo:
             if discord.lower() == discord_pseudo:
                 return (

@@ -1,30 +1,34 @@
+FROM python:3.13-alpine AS builder
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+WORKDIR /app
+
+COPY pyproject.toml uv.lock ./
+
+ENV UV_LINK_MODE=copy
+RUN if [ $(uname -m | cut -c 1-3) = "arm" ]; then \
+    uv sync --no-dev --frozen \
+    --extra-index-url https://www.piwheels.org/simple; else \
+    uv sync --no-dev --frozen; fi
+
 FROM python:3.13-alpine
 
-# Setup a non-root user and move to workdir
 RUN addgroup -S chouette -g 1000 \
     && adduser -S chouette -u 1000 -G chouette
-# Move to workdir
+
 WORKDIR /usr/src/chouettebot
 
-COPY pyproject.toml .
-# If platform is arm then we add the piwheels index for prebuilt arm wheels
-RUN if [ $(uname -m | cut -c 1-3) = "arm" ]; then \
-    echo -e "[global]\nextra-index-url=https://www.piwheels.org/simple" > /usr/local/pip.conf \
-    && pip --no-cache-dir install -U pip \
-    && pip --no-cache-dir install --only-binary=:all: .; else \
-    pip --no-cache-dir install -U pip \
-    && pip --no-cache-dir install --only-binary=:all: --no-binary=amulet-mutf8 .; fi \
-    && pip --no-cache-dir uninstall -y ChouetteBot && rm -rf *
+COPY --from=builder /app/.venv .venv
 
 COPY . .
 
-# Use the root user
+ENV PATH="/usr/src/chouettebot/.venv/bin:$PATH"
+
 USER chouette
 
-# Tell the bot that it's running inside a docker image
 ENV DOCKER_RUNNING=true
 
-# Permit to get the image tag inside of it (default version=local)
 ARG version=local
 ENV IMAGE_TAG=$version
 

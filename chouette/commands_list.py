@@ -12,8 +12,7 @@ from chouette.commands.skyblock import Skyblock
 if TYPE_CHECKING:
     from chouette.bot import ChouetteBot
 
-# List the commands
-COMMANDS_LIST: tuple = (
+COMMANDS_LIST: tuple[discord.app_commands.Command, ...] = (
     cheh,
     delete,
     die_roll,
@@ -61,16 +60,10 @@ async def commands(client: ChouetteBot) -> None:
                 f"{interaction.client.user} is missing {bot_perms} "
                 f"to do /{interaction.command.qualified_name} in #{interaction.channel}"
             )
-            if len(error.missing_permissions) == 1:
-                await interaction.response.send_message(
-                    f"Je n'ai pas cette permission : {bot_perms}",
-                    ephemeral=True,
-                )
-            else:
-                await interaction.response.send_message(
-                    f"Je n'ai pas cette permission : {bot_perms}",
-                    ephemeral=True,
-                )
+            await interaction.response.send_message(
+                f"Je n'ai pas cette permission : {bot_perms}",
+                ephemeral=True,
+            )
             return
         if isinstance(error, discord.app_commands.MissingPermissions):
             user_perms = ", ".join(error.missing_permissions)
@@ -78,16 +71,10 @@ async def commands(client: ChouetteBot) -> None:
                 f"{interaction.user} is missing {user_perms} "
                 f"to do /{interaction.command.qualified_name} in #{interaction.channel}"
             )
-            if len(error.missing_permissions) == 1:
-                await interaction.response.send_message(
-                    f"Vous n'avez pas ces permissions : {user_perms}",
-                    ephemeral=True,
-                )
-            else:
-                await interaction.response.send_message(
-                    f"Vous n'avez pas ces permissions : {user_perms}",
-                    ephemeral=True,
-                )
+            await interaction.response.send_message(
+                f"Vous n'avez pas ces permissions : {user_perms}",
+                ephemeral=True,
+            )
             return
         if isinstance(error, discord.app_commands.CommandOnCooldown):
             interaction.client.bot_logger.error(
