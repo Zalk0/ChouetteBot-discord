@@ -4,9 +4,15 @@
     "config:best-practices",
     "schedule:weekly"
   ],
+  "ignorePresets": [ "helpers:pinGitHubActionDigests" ],
   "baseBranchPatterns": [ "dev" ],
   "timezone": "Europe/Paris",
   "prHourlyLimit": 0,
+  "enabledManagers": [
+    "github-actions",
+    "pep621",
+    "pre-commit"
+  ],
   "packageRules": [
     {
       "matchManagers": [ "pep621", "pre-commit" ],
