@@ -1,7 +1,5 @@
 FROM python:3.13-alpine AS builder
 
-RUN apk add --no-cache curl
-
 # Install uv from script
 ADD https://astral.sh/uv/install.sh /uv-installer.sh
 RUN sh /uv-installer.sh && rm /uv-installer.sh
