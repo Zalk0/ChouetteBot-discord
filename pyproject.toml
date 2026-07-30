@@ -58,6 +58,13 @@ select = [
 ignore = ["E501"]
 flake8-tidy-imports.ban-relative-imports = "all"
 
+[tool.uv]
+required-environments = [
+    "sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "sys_platform == 'linux' and platform_machine == 'armv7l'",
+    "sys_platform == 'linux' and platform_machine == 'aarch64'",
+]
+
 [[tool.uv.index]]
 name = "piwheels"
 url = "https://piwheels.org/simple"
