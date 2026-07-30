@@ -1,8 +1,9 @@
 FROM python:3.13-alpine AS builder
 
-# Install uv from script
+# Install uv from script + C toolchain to build packages without wheels for the target arch
 ADD https://astral.sh/uv/install.sh /uv-installer.sh
-RUN sh /uv-installer.sh && rm /uv-installer.sh
+RUN sh /uv-installer.sh && rm /uv-installer.sh \
+    && apk add --no-cache build-base
 
 ENV PATH="/root/.local/bin/:$PATH"
 
