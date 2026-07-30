@@ -1,6 +1,6 @@
 # ChouetteBot-discord
 
-![Python version 3.13+](https://img.shields.io/badge/Python-3.13+-blue?logo=python&logoColor=white)
+![Python version 3.13](https://img.shields.io/badge/Python-3.13-blue?logo=python&logoColor=white)
 [![CI status](https://img.shields.io/github/actions/workflow/status/Zalk0/ChouetteBot-discord/ci.yaml?branch=main&logo=github&label=CI)](https://github.com/Zalk0/ChouetteBot-discord/actions/workflows/ci.yaml)
 
 Just some random project of doing a Discord bot using
