@@ -13,7 +13,7 @@ dependencies = [
     "discord-py[speed]~=2.7.1",
     "pycares",
     "python-dotenv~=1.2.2",
-    "skyhelper-networth~=0.0.1a8",
+    "skyhelper-networth~=0.0.1",
     "tomlkit~=0.15.1",
     "tzdata; os_name=='nt'",
     "zstandard",

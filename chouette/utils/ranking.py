@@ -141,9 +141,7 @@ def parse_data(data: dict) -> dict:
             except IndexError:
                 max_level = 50
 
-            if skill == "hunting":
-                max_level = 25
-            if skill in ["fishing", "alchemy", "carpentry"]:
+            if skill in ["alchemy", "carpentry", "fishing", "hunting"]:
                 max_level = 50
             if skill == "dungeoneering":
                 type_xp = "dungeon"

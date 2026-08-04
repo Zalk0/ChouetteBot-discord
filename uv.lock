@@ -293,7 +293,7 @@ requires-dist = [
     { name = "pycares", marker = "platform_machine != 'armv7l' or sys_platform != 'linux'" },
     { name = "pycares", marker = "platform_machine == 'armv7l' and sys_platform == 'linux'", index = "https://piwheels.org/simple" },
     { name = "python-dotenv", specifier = "~=1.2.2" },
-    { name = "skyhelper-networth", specifier = "~=0.0.1a8" },
+    { name = "skyhelper-networth", specifier = "~=0.0.1" },
     { name = "tomlkit", specifier = "~=0.15.1" },
     { name = "tzdata", marker = "os_name == 'nt'" },
     { name = "zstandard", marker = "platform_machine != 'armv7l' or sys_platform != 'linux'" },
@@ -600,7 +600,7 @@ wheels = [
 
 [[package]]
 name = "skyhelper-networth"
-version = "0.0.1a9"
+version = "0.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -608,9 +608,9 @@ dependencies = [
     { name = "amulet-mutf8", version = "1.0.7", source = { registry = "https://pypi.org/simple" }, marker = "platform_machine != 'armv7l' or sys_platform != 'linux'" },
     { name = "propcache" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5d/07/ca672cdda474a2c7d33ca625a76773fead6735d290e432ec3a5c8770b6d6/skyhelper_networth-0.0.1a9.tar.gz", hash = "sha256:84a5be0d9e9cd8957f196b861fd26948a9007a6f857efd084b6afe55128b8e05", size = 30951, upload-time = "2026-07-29T12:30:35.978Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ff/8f/3457c364af1123a0dcb70aeb0355ceb41d42075803f5f97dc81508faf951/skyhelper_networth-0.0.1.tar.gz", hash = "sha256:60c74301e939ac0dbc307381d7972b4e4cf401370ac7570d0335b9b8cce6324d", size = 32690, upload-time = "2026-08-03T13:17:39.066Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9b/c4/364403247f38425267da4364a5ac5f01239c518bd1b176db036de1eca45e/skyhelper_networth-0.0.1a9-py3-none-any.whl", hash = "sha256:ae1015dd8a0738dd6cf21f1cc0f6db4c21f6be6223d3578c1a67fd5775ed9c0c", size = 62646, upload-time = "2026-07-29T12:30:37.003Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/da/528060decb95dced39e7a6ba1598884dcb8f134a6b807402db338487b2ab/skyhelper_networth-0.0.1-py3-none-any.whl", hash = "sha256:ee3b4bf1356f53a88fc65e066dfe64ee59f5b8fd0781a9f230a58f4090b81754", size = 65006, upload-time = "2026-08-03T13:17:37.861Z" },
 ]
 
 [[package]]
