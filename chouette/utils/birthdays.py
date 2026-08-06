@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, time
 from pathlib import Path
 
 from chouette.utils.data_io import DataIO
@@ -72,7 +72,7 @@ async def datetime_to_timestamp(birthday: date) -> str:
     Returns:
         str: Le timestamp Discord correspondant.
     """
-    dt = datetime.combine(birthday, datetime.min.time())
+    dt = datetime.combine(birthday, time.min)
     unix_timestamp = dt.timestamp()
     return f"<t:{int(unix_timestamp)}:R>"
 

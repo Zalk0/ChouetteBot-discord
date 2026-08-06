@@ -199,28 +199,26 @@ class SkyblockUtils:
             uuid, profile, profile.get("banking", {}).get("balance", 0)
         )
 
-        player_data = info.get("player_data", {})
-        skill = player_data.get("experience", {})
+        exp = info.get("player_data", {}).get("experience", {})
         skills: tuple[
             float, float, float, float, float, float, float, float, float, float, float
         ] = (
-            skill.get("SKILL_FISHING", 0),
-            skill.get("SKILL_ALCHEMY", 0),
-            skill.get("SKILL_HUNTING", 0),
-            skill.get("SKILL_MINING", 0),
-            skill.get("SKILL_FARMING", 0),
-            skill.get("SKILL_ENCHANTING", 0),
-            skill.get("SKILL_TAMING", 0),
-            skill.get("SKILL_FORAGING", 0),
-            skill.get("SKILL_CARPENTRY", 0),
-            skill.get("SKILL_COMBAT", 0),
+            exp.get("SKILL_FISHING", 0),
+            exp.get("SKILL_ALCHEMY", 0),
+            exp.get("SKILL_HUNTING", 0),
+            exp.get("SKILL_MINING", 0),
+            exp.get("SKILL_FARMING", 0),
+            exp.get("SKILL_ENCHANTING", 0),
+            exp.get("SKILL_TAMING", 0),
+            exp.get("SKILL_FORAGING", 0),
+            exp.get("SKILL_CARPENTRY", 0),
+            exp.get("SKILL_COMBAT", 0),
             info.get("dungeons", {})
             .get("dungeon_types", {})
             .get("catacombs", {})
             .get("experience", 0),
         )
-        slayer = info.get("slayer", {})
-        slayer_bosses = slayer.get("slayer_bosses", {})
+        slayer_bosses = info.get("slayer", {}).get("slayer_bosses", {})
         slayers: tuple[int, int, int, int, int, int] = (
             slayer_bosses.get("zombie", {}).get("xp", 0),
             slayer_bosses.get("spider", {}).get("xp", 0),
@@ -229,10 +227,12 @@ class SkyblockUtils:
             slayer_bosses.get("blaze", {}).get("xp", 0),
             slayer_bosses.get("vampire", {}).get("xp", 0),
         )
+        achievements = hypixel_player.get("player", {}).get("achievements", {})
         level_cap: tuple[int, int, int] = (  # Farming, Taming, Foraging
-            info.get("jacobs_contest", {}).get("perks", {}).get("farming_level_cap", 0),
-            len(info.get("pets_data", {}).get("pet_care", {}).get("pet_types_sacrificed", [])),
-            hypixel_player.get("player", {}).get("achievements", {}).get("skyblock_gatherer", 0),
+            50 + info.get("jacobs_contest", {}).get("perks", {}).get("farming_level_cap", 0),
+            50
+            + len(info.get("pets_data", {}).get("pet_care", {}).get("pet_types_sacrificed", [])),
+            max(50, achievements.get("skyblock_gatherer", 0)),
         )
         return {
             "level": level,

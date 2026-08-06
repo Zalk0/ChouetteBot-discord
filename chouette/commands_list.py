@@ -13,7 +13,7 @@ from chouette.utils.mojang_api import MojangAPIError
 if TYPE_CHECKING:
     from chouette.bot import ChouetteBot
 
-COMMANDS_LIST: tuple[discord.app_commands.Command, ...] = (
+COMMANDS_LIST: tuple[discord.app_commands.Command | discord.app_commands.ContextMenu, ...] = (
     cheh,
     delete,
     die_roll,
@@ -66,8 +66,11 @@ async def commands(client: ChouetteBot) -> None:
                 f"{interaction.client.user} is missing {bot_perms} "
                 f"to do /{interaction.command.qualified_name} in #{interaction.channel}"
             )
+            perm = "ces permissions"
+            if len(error.missing_permissions) == 1:
+                perm = "cette permission"
             await interaction.response.send_message(
-                f"Je n'ai pas cette permission : {bot_perms}",
+                f"Je n'ai pas {perm} : {bot_perms}",
                 ephemeral=True,
             )
             return
@@ -77,8 +80,11 @@ async def commands(client: ChouetteBot) -> None:
                 f"{interaction.user} is missing {user_perms} "
                 f"to do /{interaction.command.qualified_name} in #{interaction.channel}"
             )
+            perm = "ces permissions"
+            if len(error.missing_permissions) == 1:
+                perm = "cette permission"
             await interaction.response.send_message(
-                f"Vous n'avez pas ces permissions : {user_perms}",
+                f"Vous n'avez pas {perm} : {user_perms}",
                 ephemeral=True,
             )
             return
