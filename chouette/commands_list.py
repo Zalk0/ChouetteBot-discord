@@ -8,6 +8,7 @@ from chouette.commands.admin import whisper
 from chouette.commands.birthdays import Birthday
 from chouette.commands.misc import cheh, delete, die_roll, info, latex, pin, ping
 from chouette.commands.skyblock import Skyblock
+from chouette.utils.mojang_api import MojangAPIError
 
 if TYPE_CHECKING:
     from chouette.bot import ChouetteBot
@@ -36,7 +37,12 @@ async def commands(client: ChouetteBot) -> None:
         client.tree.add_command(command)
 
     # Add the Skyblock command group to my Hypixel guild
-    client.tree.add_command(Skyblock(client), guild=client.hypixel_guild)
+    sb = Skyblock(client)
+    try:
+        await sb.sb_utils.mojang_api.set_minecraft_releases()
+    except MojangAPIError as e:
+        client.bot_logger.error(e.message)
+    client.tree.add_command(sb, guild=client.hypixel_guild)
 
     # Add the Birthday command group to my guild
     client.tree.add_command(Birthday(), guild=client.my_guild)

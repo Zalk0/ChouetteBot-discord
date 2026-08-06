@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from skyhelper_networth import ItemsError, PricesError, ProfileNetworthCalculator
 from skyhelper_networth.types import Museum
 
+from chouette.utils.mojang_api import MojangAPI, MojangAPIError
 from chouette.utils.ranking import Ranking
 
 if TYPE_CHECKING:
@@ -38,6 +39,7 @@ class SkyblockUtils:
         if not self.api_key:
             self.client.bot_logger.error("La clé API Hypixel n'est pas configurée.")
         self.ranking = Ranking(client, self)
+        self.mojang_api = MojangAPI(client)
 
     async def load_skyblock(self) -> dict:
         """Charge les données du Skyblock à partir du disque.
@@ -54,23 +56,6 @@ class SkyblockUtils:
             skyblock (dict): Les données du Skyblock à sauvegarder.
         """
         await self.data_io.data_write(skyblock, SKYBLOCK_FILE)
-
-    async def minecraft_uuid(self, pseudo: str) -> tuple[bool, str]:
-        """Retourne l'UUID d'un joueur Minecraft avec l'API Mojang.
-
-        Args:
-            pseudo (str): Le pseudo Minecraft du joueur.
-
-        Returns:
-            tuple[bool, str]: `True` et l'UUID si le pseudo existe, `False` et un message d'erreur sinon.
-        """
-        async with self.session.get(
-            f"https://api.mojang.com/users/profiles/minecraft/{pseudo}"
-        ) as response:
-            json: dict = await response.json()
-            if response.status != 200:
-                return False, json.get("errorMessage", "error in getting minecraft uuid")
-            return True, json.get("id", "")
 
     async def selected_profile(self, uuid: str) -> tuple[bool, dict | str | None]:
         """Retourne le profil Skyblock sélectionné d'un joueur.
@@ -270,11 +255,10 @@ class SkyblockUtils:
         Returns:
             dict | str | None: Les informations du profil Skyblock ou un message d'erreur.
         """
-        uuid = await self.minecraft_uuid(pseudo)
-        if not uuid[0]:
-            # TODO: better handling
-            return uuid[1]
-        uuid = uuid[1]
+        try:
+            uuid = await self.mojang_api.pseudo_to_uuid(pseudo)
+        except MojangAPIError as e:
+            return e.message
         self.client.bot_logger.debug(f"L'UUID de {pseudo} est {uuid}")
 
         player = await self.get_hypixel_player(uuid)
