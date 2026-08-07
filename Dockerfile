@@ -1,11 +1,7 @@
-FROM python:3.13-alpine AS builder
+FROM ghcr.io/astral-sh/uv:python3.14-alpine AS builder
 
-# Install uv from script + C toolchain to build packages without wheels for the target arch
-ADD https://astral.sh/uv/install.sh /uv-installer.sh
-RUN sh /uv-installer.sh && rm /uv-installer.sh \
-    && apk add --no-cache build-base
-
-ENV PATH="/root/.local/bin/:$PATH"
+# Install C toolchain to build packages without wheels for the target arch (amulet-mutf8)
+RUN apk add --no-cache build-base
 
 # Set uv environment to production
 ENV UV_COMPILE_BYTECODE=1 \
@@ -27,7 +23,7 @@ COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv run python -m compileall chouette/
 
-FROM python:3.13-alpine
+FROM docker.io/library/python:3.14-alpine
 
 RUN addgroup -S chouette -g 1000 \
     && adduser -S chouette -u 1000 -G chouette
