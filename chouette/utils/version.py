@@ -29,9 +29,18 @@ async def get_version() -> str:
         info = data.decode("ascii").splitlines()
 
         # Split the list into specific variables
-        branch = info[0].split(",")[0].split("->")[1].strip()
-        commit_hash = info[1].strip()
-        date = info[2].strip()
+        if len(info) >= 3:
+            branch = info[0].split(",")[0]
+            if "->" in branch:
+                branch = branch.split("->")[1].strip()
+            else:
+                branch = branch.split("->")[0].strip()
+            commit_hash = info[1].strip()
+            date = info[2].strip()
+        else:
+            branch = "unknown"
+            commit_hash = ""
+            date = ""
 
         # Wait for the subprocess exit
         await proc.wait()

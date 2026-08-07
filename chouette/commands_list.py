@@ -8,12 +8,12 @@ from chouette.commands.admin import whisper
 from chouette.commands.birthdays import Birthday
 from chouette.commands.misc import cheh, delete, die_roll, info, latex, pin, ping
 from chouette.commands.skyblock import Skyblock
+from chouette.utils.mojang_api import MojangAPIError
 
 if TYPE_CHECKING:
     from chouette.bot import ChouetteBot
 
-# List the commands
-COMMANDS_LIST: tuple = (
+COMMANDS_LIST: tuple[discord.app_commands.Command | discord.app_commands.ContextMenu, ...] = (
     cheh,
     delete,
     die_roll,
@@ -37,7 +37,12 @@ async def commands(client: ChouetteBot) -> None:
         client.tree.add_command(command)
 
     # Add the Skyblock command group to my Hypixel guild
-    client.tree.add_command(Skyblock(client), guild=client.hypixel_guild)
+    sb = Skyblock(client)
+    try:
+        await sb.sb_utils.mojang_api.set_minecraft_releases()
+    except MojangAPIError as e:
+        client.bot_logger.error(e.message)
+    client.tree.add_command(sb, guild=client.hypixel_guild)
 
     # Add the Birthday command group to my guild
     client.tree.add_command(Birthday(), guild=client.my_guild)
@@ -61,16 +66,13 @@ async def commands(client: ChouetteBot) -> None:
                 f"{interaction.client.user} is missing {bot_perms} "
                 f"to do /{interaction.command.qualified_name} in #{interaction.channel}"
             )
+            perm = "ces permissions"
             if len(error.missing_permissions) == 1:
-                await interaction.response.send_message(
-                    f"Je n'ai pas cette permission : {bot_perms}",
-                    ephemeral=True,
-                )
-            else:
-                await interaction.response.send_message(
-                    f"Je n'ai pas cette permission : {bot_perms}",
-                    ephemeral=True,
-                )
+                perm = "cette permission"
+            await interaction.response.send_message(
+                f"Je n'ai pas {perm} : {bot_perms}",
+                ephemeral=True,
+            )
             return
         if isinstance(error, discord.app_commands.MissingPermissions):
             user_perms = ", ".join(error.missing_permissions)
@@ -78,16 +80,13 @@ async def commands(client: ChouetteBot) -> None:
                 f"{interaction.user} is missing {user_perms} "
                 f"to do /{interaction.command.qualified_name} in #{interaction.channel}"
             )
+            perm = "ces permissions"
             if len(error.missing_permissions) == 1:
-                await interaction.response.send_message(
-                    f"Vous n'avez pas ces permissions : {user_perms}",
-                    ephemeral=True,
-                )
-            else:
-                await interaction.response.send_message(
-                    f"Vous n'avez pas ces permissions : {user_perms}",
-                    ephemeral=True,
-                )
+                perm = "cette permission"
+            await interaction.response.send_message(
+                f"Vous n'avez pas {perm} : {user_perms}",
+                ephemeral=True,
+            )
             return
         if isinstance(error, discord.app_commands.CommandOnCooldown):
             interaction.client.bot_logger.error(
