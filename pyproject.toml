@@ -3,20 +3,14 @@ name = "ChouetteBot"
 version = "0.0.1"
 readme = "README.md"
 license = "MIT"
-requires-python = "==3.13.*"
+requires-python = ">=3.13"
 dependencies = [
     "aiohttp~=3.14.3",
-    "amulet-mutf8",
-    "audioop-lts",
-    "brotli",
-    "cffi",
     "discord-py[speed]~=2.7.1",
-    "pycares",
     "python-dotenv~=1.2.2",
     "skyhelper-networth~=0.0.1",
     "tomlkit~=0.15.1",
     "tzdata; os_name=='nt'",
-    "zstandard",
 ]
 
 [dependency-groups]
@@ -61,19 +55,5 @@ flake8-tidy-imports.ban-relative-imports = "all"
 [tool.uv]
 required-environments = [
     "sys_platform == 'linux' and platform_machine == 'x86_64'",
-    "sys_platform == 'linux' and platform_machine == 'armv7l'",
     "sys_platform == 'linux' and platform_machine == 'aarch64'",
 ]
-
-[[tool.uv.index]]
-name = "piwheels"
-url = "https://piwheels.org/simple"
-explicit = true
-
-[tool.uv.sources]
-amulet-mutf8 = { index = "piwheels", marker = "sys_platform == 'linux' and platform_machine == 'armv7l'" }
-audioop-lts = { index = "piwheels", marker = "sys_platform == 'linux' and platform_machine == 'armv7l'" }
-brotli = { index = "piwheels", marker = "sys_platform == 'linux' and platform_machine == 'armv7l'" }
-cffi = { index = "piwheels", marker = "sys_platform == 'linux' and platform_machine == 'armv7l'" }
-pycares = { index = "piwheels", marker = "sys_platform == 'linux' and platform_machine == 'armv7l'" }
-zstandard = { index = "piwheels", marker = "sys_platform == 'linux' and platform_machine == 'armv7l'" }

@@ -30,7 +30,7 @@ jobs:
           push: false
           build-args: version=dev-test
           tags: gylfirst/chouettebot:dev-test
-          platforms: linux/amd64, linux/arm/v6, linux/arm/v7, linux/arm64
+          platforms: linux/amd64, linux/arm64
 
   # Job pour build et push en production (commits sur main uniquement)
   production-build:
@@ -70,5 +70,7 @@ jobs:
           context: .
           push: true
           build-args: version=${{ steps.version.outputs.tag }}
-          tags: gylfirst/chouettebot:latest,gylfirst/chouettebot:${{ steps.version.outputs.tag }}
-          platforms: linux/amd64, linux/arm/v6, linux/arm/v7, linux/arm64
+          tags: |
+            gylfirst/chouettebot:latest
+            gylfirst/chouettebot:${{ steps.version.outputs.tag }}
+          platforms: linux/amd64, linux/arm64
