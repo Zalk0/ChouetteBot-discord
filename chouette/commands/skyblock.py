@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import fields
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
@@ -243,9 +242,6 @@ class Skyblock(app_commands.Group):
             url=f"https://sky.shiiyu.moe/stats/{uuid}/{profile[1].get('profile_id')}",
             description=f"Networth sans cosmétiques : **{format_number(networth.networth)}**",
         )
-        for field in fields(networth.types):
-            embed.add_field(
-                name=title_case(field.name),
-                value=format_number(getattr(networth.types, field.name).total),
-            )
+        for cat, net in networth.types.items():
+            embed.add_field(name=title_case(cat), value=format_number(net.total))
         await interaction.followup.send(embed=embed)
