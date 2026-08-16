@@ -4,7 +4,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from skyhelper_networth import ItemsError, PricesError, ProfileNetworthCalculator
-from skyhelper_networth.types import Museum
+from skyhelper_networth.types import Museum, Networth
+from skyhelper_networth.types.networth import NetworthTypes
 
 from chouette.utils.mojang_api import MojangAPI, MojangAPIError
 from chouette.utils.ranking import Ranking
@@ -150,9 +151,10 @@ class SkyblockUtils:
                     f"Error while fetching Skyblock museum info, status: {response.status}"
                     + (f", cause: {json.get('cause')}" if json.get("cause") else "")
                 )
+            self.client.bot_logger.debug(f"Le musée de {uuid} a été récupéré")
             return json.get("members").get(uuid)
 
-    async def get_player_networth(self, uuid: str, profile: dict, bank_balance: int) -> float:
+    async def get_player_networth(self, uuid: str, profile: dict, bank_balance: int) -> Networth:
         """Retourne la fortune d'un joueur Skyblock avec le package `skyhelper-networth`.
 
         Args:
@@ -173,11 +175,10 @@ class SkyblockUtils:
             calculator = ProfileNetworthCalculator(
                 profile.get("members").get(uuid), museum, bank_balance, session=self.session
             )
-            networth = await calculator.get_non_cosmetic_networth(only_networth=True)
-            return networth.networth
+            return await calculator.get_non_cosmetic_networth(only_networth=True)
         except (ItemsError, PricesError) as e:
             self.client.bot_logger.error(e)
-            return 0
+            return Networth(0, 0, False, True, 0, 0, 0, NetworthTypes())
 
     async def get_stats(
         self, uuid: str, hypixel_player: dict, profile: dict
@@ -195,9 +196,11 @@ class SkyblockUtils:
 
         info = profile.get("members", {}).get(uuid, {})
         level: float = (info.get("leveling", {}).get("experience", 0)) / 100
-        networth = await self.get_player_networth(
-            uuid, profile, profile.get("banking", {}).get("balance", 0)
-        )
+        networth = (
+            await self.get_player_networth(
+                uuid, profile, profile.get("banking", {}).get("balance", 0)
+            )
+        ).networth
 
         exp = info.get("player_data", {}).get("experience", {})
         skills: tuple[

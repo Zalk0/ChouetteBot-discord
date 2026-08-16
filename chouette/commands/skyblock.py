@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+from dataclasses import fields
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 import discord
 from discord import app_commands
+from skyhelper_networth.helpers import title_case
 
 from chouette.commands.admin import is_admin
+from chouette.utils.mojang_api import MojangAPIError
+from chouette.utils.ranking import format_number
 from chouette.utils.skyblock import SkyblockUtils
 
 if TYPE_CHECKING:
@@ -199,3 +203,49 @@ class Skyblock(app_commands.Group):
         await interaction.response.defer(thinking=True, ephemeral=True)
         await self.guild_ranking(interaction.channel_id)
         await interaction.followup.send("Commande terminée !")
+
+    @app_commands.command(name="networth")
+    @app_commands.rename(pseudo="pseudo_mc", profile_name="profile")
+    @app_commands.describe(
+        pseudo="Ton pseudo Minecraft", profile_name="Ton profil Skyblock préféré"
+    )
+    async def networth(
+        self, interaction: discord.Interaction[ChouetteBot], pseudo: str, profile_name: str | None
+    ) -> None:
+        await interaction.response.defer(thinking=True)
+
+        try:
+            uuid = await self.sb_utils.mojang_api.pseudo_to_uuid(pseudo)
+        except MojangAPIError as e:
+            interaction.client.bot_logger.error(e.message)
+            await interaction.followup.send("Erreur lors de la recherche du pseudo")
+            return
+        interaction.client.bot_logger.debug(f"L'UUID de {pseudo} est {uuid}")
+
+        if profile_name:
+            profile = await self.sb_utils.get_profile(uuid, profile_name)
+        else:
+            profile = await self.sb_utils.selected_profile(uuid)
+        if not profile[0]:
+            interaction.client.bot_logger.error(profile[1])
+            await interaction.followup.send("Erreur lors de la récupération du profil")
+            return
+        interaction.client.bot_logger.debug(
+            f"Le profil {profile[1].get('cute_name')} a été trouvé"
+        )
+
+        networth = await self.sb_utils.get_player_networth(
+            uuid, profile[1], profile[1].get("banking", {}).get("balance", 0)
+        )
+
+        embed = discord.Embed(
+            title=f"Networth de {pseudo} sur {profile[1].get('cute_name')}",
+            url=f"https://sky.shiiyu.moe/stats/{uuid}/{profile[1].get('profile_id')}",
+            description=f"Networth sans cosmétiques : **{format_number(networth.networth)}**",
+        )
+        for field in fields(networth.types):
+            embed.add_field(
+                name=title_case(field.name),
+                value=format_number(getattr(networth.types, field.name).total),
+            )
+        await interaction.followup.send(embed=embed)
