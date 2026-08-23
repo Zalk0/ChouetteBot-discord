@@ -71,8 +71,9 @@ class Skyblock(app_commands.Group):
             "Aaron's Mod": "axe0DxiW",
             "Catharsis": "fc4wBpRx",
             "Firmament": "IJNUBZ2a",
-            "Roughly Enough Items (REI)": "nfn13YXA",
+            "SkyBlock Item List": "OaKmV2nB",
             "Skyblocker": "y6DuFGwJ",
+            "SkyHanni": "byNkmv5G",
         }
 
         for mod_name, mod_id in mod_list.items():
@@ -83,12 +84,14 @@ class Skyblock(app_commands.Group):
                     ):
                         version = entry["version_number"].split("+")[0].replace("v", "")
                         link = entry["files"][0]["url"]
-                        message += f"- {mod_name}: `{version}` [lien]({link})\n"
+                        message += f"- [{mod_name}](https://modrinth.com/project/{mod_id}): `{version}` [lien]({link})\n"
                         break
                 else:
-                    message += f"- {mod_name}: Non disponible\n"
+                    message += (
+                        f"- [{mod_name}](https://modrinth.com/project/{mod_id}): Non disponible\n"
+                    )
 
-        await interaction.followup.send(message)
+        await interaction.followup.send(message, suppress_embeds=True)
 
     @app_commands.command(name="tuto")
     async def tuto(self, interaction: discord.Interaction[ChouetteBot]) -> None:
