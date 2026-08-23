@@ -18,12 +18,12 @@ def main() -> None:
     # Create an instance of the ChouetteBot
     client = ChouetteBot()
 
-    # Setup the logging
+    # Set up the logging
     Path("logs").mkdir(exist_ok=True)
     handler = handlers.RotatingFileHandler(
         filename=Path("logs", "bot.log"),
         backupCount=3,
-        encoding="utf-8",
+        encoding="utf8",
         delay=True,
     )
     handler.doRollover()

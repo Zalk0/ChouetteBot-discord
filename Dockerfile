@@ -1,30 +1,44 @@
-FROM python:3.13-alpine
+FROM ghcr.io/astral-sh/uv:python3.14-alpine AS builder
 
-# Setup a non-root user and move to workdir
+# Install C toolchain to build packages without wheels for the target arch (amulet-mutf8)
+RUN apk add --no-cache build-base
+
+# Set uv environment to production
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_NO_DEFAULT_GROUPS=1 \
+    UV_NO_MANAGED_PYTHON=1
+
+# Set workdir
+WORKDIR /app
+
+# Install requirements
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    uv sync --locked --no-install-project
+
+# Copy project files and compile bytecode of project files
+COPY . .
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv run python -m compileall chouette/
+
+FROM docker.io/library/python:3.14-alpine
+
 RUN addgroup -S chouette -g 1000 \
     && adduser -S chouette -u 1000 -G chouette
-# Move to workdir
-WORKDIR /usr/src/chouettebot
 
-COPY pyproject.toml .
-# If platform is arm then we add the piwheels index for prebuilt arm wheels
-RUN if [ $(uname -m | cut -c 1-3) = "arm" ]; then \
-    echo -e "[global]\nextra-index-url=https://www.piwheels.org/simple" > /usr/local/pip.conf \
-    && pip --no-cache-dir install -U pip \
-    && pip --no-cache-dir install --only-binary=:all: .; else \
-    pip --no-cache-dir install -U pip \
-    && pip --no-cache-dir install --only-binary=:all: --no-binary=amulet-mutf8 .; fi \
-    && pip --no-cache-dir uninstall -y ChouetteBot && rm -rf *
+WORKDIR /home/chouette/app
 
-COPY . .
+COPY --from=builder /app .
 
-# Use the root user
+ENV PATH="/home/chouette/app/.venv/bin:$PATH" \
+    PYTHONUNBUFFERED=1
+
 USER chouette
 
-# Tell the bot that it's running inside a docker image
 ENV DOCKER_RUNNING=true
 
-# Permit to get the image tag inside of it (default version=local)
 ARG version=local
 ENV IMAGE_TAG=$version
 

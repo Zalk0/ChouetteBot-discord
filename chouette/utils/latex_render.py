@@ -39,7 +39,7 @@ async def latex_process(session: ClientSession, message: str) -> discord.File:
     parts = message.split("$")
     equation = r"\\"
     for i in range(len(parts)):
-        if i != "":
+        if parts[i] != "":
             if i % 2:  # It's maths, so nothing to do
                 equation += f" {parts[i]}"
             else:  # It's text

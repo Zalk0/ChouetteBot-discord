@@ -39,6 +39,8 @@ async def responses(
     # Checks if a message contains $$ to signify LaTeX expression
     if message.count("$") > 1:
         if (message.count("$") % 2) == 0:
+            if message.count("$") == 2 and "$$" in message:
+                return "", False
             await channel.send(file=await latex_process(client.session, message))
             client.bot_logger.info(f'{client.user} responded to {author}: "equation.png"')
             return "", False

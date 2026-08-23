@@ -1,5 +1,6 @@
 import logging
 import os
+from http import HTTPStatus
 
 import discord
 from aiohttp import ClientSession, web
@@ -43,17 +44,8 @@ class ChouetteBot(discord.Client):
         intents.typing = False
         intents.voice_states = False
 
-        # Set activity of the bot
-        activity_type = {
-            "playing": 0,
-            "streaming": 1,
-            "listening": 2,
-            "watching": 3,
-            "custom": 4,  # IDK what it is
-            "competing": 5,
-        }
         activity = discord.Activity(
-            type=activity_type.get(self.config["BOT_ACTIVITY_TYPE"]),
+            type=getattr(discord.ActivityType, self.config["BOT_ACTIVITY_TYPE"]),
             name=self.config["BOT_ACTIVITY_NAME"],
         )
 
@@ -61,7 +53,7 @@ class ChouetteBot(discord.Client):
         super().__init__(
             intents=intents,
             activity=activity,
-            status=self.config["BOT_STATUS"],
+            status=discord.Status(self.config["BOT_STATUS"]),
         )
 
         # Declare command tree
@@ -148,9 +140,11 @@ class ChouetteBot(discord.Client):
         Returns:
             bool: `True` si l'utilisateur est membre de l'équipe ou le propriétaire, `False` sinon.
         """
-        if self.application.team:
-            return author.id in [member.id for member in self.application.team.members]
-        return author.id == self.application.owner.id
+        if self.application is not None:
+            if self.application.team is not None:
+                return author.id in [member.id for member in self.application.team.members]
+            return author.id == self.application.owner.id
+        return False
 
     async def start_server(self) -> web.AppRunner:
         """Démarre un serveur HTTP pour vérifier si le bot est en ligne."""
@@ -182,7 +176,11 @@ class ChouetteBot(discord.Client):
         # This is the response
         async def handler(req: web.Request) -> web.Response:
             """Réponse du serveur web."""
-            return web.Response(text=f"{self.user.name} is up")
+            if self.user is not None:
+                return web.Response(text=f"{self.user.name} is up")
+            return web.Response(
+                status=HTTPStatus.INTERNAL_SERVER_ERROR, text="Not connected to Discord"
+            )
 
         app = web.Application()
         app.on_response_prepare.append(_default_headers)

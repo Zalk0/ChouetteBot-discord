@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import math
 from datetime import date
 from itertools import chain
@@ -130,19 +131,15 @@ def parse_data(data: dict) -> dict:
 
             try:
                 if skill == "farming":
-                    max_level = level_cap[0][player_index] + 50
+                    max_level = level_cap[0][player_index]
                 if skill == "taming":
-                    max_level = level_cap[1][player_index] + 50
+                    max_level = level_cap[1][player_index]
                 if skill == "foraging":
-                    max_level = (
-                        level_cap[2][player_index] if level_cap[2][player_index] > 50 else 50
-                    )
+                    max_level = level_cap[2][player_index]
             except IndexError:
                 max_level = 50
 
-            if skill == "hunting":
-                max_level = 25
-            if skill in ["fishing", "alchemy", "carpentry"]:
+            if skill in ["alchemy", "carpentry", "fishing", "hunting"]:
                 max_level = 50
             if skill == "dungeoneering":
                 type_xp = "dungeon"
@@ -386,7 +383,7 @@ class Ranking:
                 field_value = "\n".join(messages)
                 # La limite des embeds est de 6000 caractères
                 # on split avant de dépasser cette limite pour éviter une coupure dans les catégories
-                if len(ranking) + len(field_value) > 5000:
+                if len(json.dumps(ranking.to_dict())) + len(field_value) > 5000:
                     embeds_ranking.append(ranking)
                     ranking = discord.Embed(
                         title=f"Classement de début {month} {year} - Suite",
