@@ -1,8 +1,5 @@
 FROM ghcr.io/astral-sh/uv:python3.14-alpine AS builder
 
-# Install C toolchain to build packages without wheels for the target arch (amulet-mutf8)
-RUN apk add --no-cache build-base
-
 # Set uv environment to production
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
