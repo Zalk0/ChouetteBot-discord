@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from skyhelper_networth import ItemsError, PricesError, ProfileNetworthCalculator
 from skyhelper_networth.types import Museum
 
+from chouette.utils.mojang_api import MojangAPI, MojangAPIError
 from chouette.utils.ranking import Ranking
 
 if TYPE_CHECKING:
@@ -38,6 +39,7 @@ class SkyblockUtils:
         if not self.api_key:
             self.client.bot_logger.error("La clé API Hypixel n'est pas configurée.")
         self.ranking = Ranking(client, self)
+        self.mojang_api = MojangAPI(client)
 
     async def load_skyblock(self) -> dict:
         """Charge les données du Skyblock à partir du disque.
@@ -54,23 +56,6 @@ class SkyblockUtils:
             skyblock (dict): Les données du Skyblock à sauvegarder.
         """
         await self.data_io.data_write(skyblock, SKYBLOCK_FILE)
-
-    async def minecraft_uuid(self, pseudo: str) -> tuple[bool, str]:
-        """Retourne l'UUID d'un joueur Minecraft avec l'API Mojang.
-
-        Args:
-            pseudo (str): Le pseudo Minecraft du joueur.
-
-        Returns:
-            tuple[bool, str]: `True` et l'UUID si le pseudo existe, `False` et un message d'erreur sinon.
-        """
-        async with self.session.get(
-            f"https://api.mojang.com/users/profiles/minecraft/{pseudo}"
-        ) as response:
-            json: dict = await response.json()
-            if response.status != 200:
-                return False, json.get("errorMessage", "error in getting minecraft uuid")
-            return True, json.get("id", "")
 
     async def selected_profile(self, uuid: str) -> tuple[bool, dict | str | None]:
         """Retourne le profil Skyblock sélectionné d'un joueur.
@@ -208,41 +193,46 @@ class SkyblockUtils:
             dict[str, float | tuple[float, ...] | tuple[int, ...]]: Les statistiques du joueur Skyblock.
         """
 
-        info = profile.get("members").get(uuid)
-        level: float = (info.get("leveling").get("experience")) / 100
+        info = profile.get("members", {}).get(uuid, {})
+        level: float = (info.get("leveling", {}).get("experience", 0)) / 100
         networth = await self.get_player_networth(
             uuid, profile, profile.get("banking", {}).get("balance", 0)
         )
 
-        skill = info.get("player_data").get("experience")
+        exp = info.get("player_data", {}).get("experience", {})
         skills: tuple[
             float, float, float, float, float, float, float, float, float, float, float
         ] = (
-            skill.get("SKILL_FISHING", 0),
-            skill.get("SKILL_ALCHEMY", 0),
-            skill.get("SKILL_HUNTING", 0),
-            skill.get("SKILL_MINING", 0),
-            skill.get("SKILL_FARMING", 0),
-            skill.get("SKILL_ENCHANTING", 0),
-            skill.get("SKILL_TAMING", 0),
-            skill.get("SKILL_FORAGING", 0),
-            skill.get("SKILL_CARPENTRY", 0),
-            skill.get("SKILL_COMBAT", 0),
-            info.get("dungeons").get("dungeon_types").get("catacombs").get("experience", 0),
+            exp.get("SKILL_FISHING", 0),
+            exp.get("SKILL_ALCHEMY", 0),
+            exp.get("SKILL_HUNTING", 0),
+            exp.get("SKILL_MINING", 0),
+            exp.get("SKILL_FARMING", 0),
+            exp.get("SKILL_ENCHANTING", 0),
+            exp.get("SKILL_TAMING", 0),
+            exp.get("SKILL_FORAGING", 0),
+            exp.get("SKILL_CARPENTRY", 0),
+            exp.get("SKILL_COMBAT", 0),
+            info.get("dungeons", {})
+            .get("dungeon_types", {})
+            .get("catacombs", {})
+            .get("experience", 0),
         )
-        slayer = info.get("slayer").get("slayer_bosses")
+        slayer_bosses = info.get("slayer", {}).get("slayer_bosses", {})
         slayers: tuple[int, int, int, int, int, int] = (
-            slayer.get("zombie", {}).get("xp", 0),
-            slayer.get("spider", {}).get("xp", 0),
-            slayer.get("wolf", {}).get("xp", 0),
-            slayer.get("enderman", {}).get("xp", 0),
-            slayer.get("blaze", {}).get("xp", 0),
-            slayer.get("vampire", {}).get("xp", 0),
+            slayer_bosses.get("zombie", {}).get("xp", 0),
+            slayer_bosses.get("spider", {}).get("xp", 0),
+            slayer_bosses.get("wolf", {}).get("xp", 0),
+            slayer_bosses.get("enderman", {}).get("xp", 0),
+            slayer_bosses.get("blaze", {}).get("xp", 0),
+            slayer_bosses.get("vampire", {}).get("xp", 0),
         )
+        achievements = hypixel_player.get("player", {}).get("achievements", {})
         level_cap: tuple[int, int, int] = (  # Farming, Taming, Foraging
-            info.get("jacobs_contest", {}).get("perks", {}).get("farming_level_cap", 0),
-            len(info.get("pets_data", {}).get("pet_care", {}).get("pet_types_sacrificed", [])),
-            hypixel_player.get("player", {}).get("achievements", {}).get("skyblock_gatherer", 0),
+            50 + info.get("jacobs_contest", {}).get("perks", {}).get("farming_level_cap", 0),
+            50
+            + len(info.get("pets_data", {}).get("pet_care", {}).get("pet_types_sacrificed", [])),
+            max(50, achievements.get("skyblock_gatherer", 0)),
         )
         return {
             "level": level,
@@ -265,19 +255,18 @@ class SkyblockUtils:
         Returns:
             dict | str | None: Les informations du profil Skyblock ou un message d'erreur.
         """
-        uuid = await self.minecraft_uuid(pseudo)
-        if not uuid[0]:
-            # TODO: better handling
-            return uuid[1]
-        uuid = uuid[1]
+        try:
+            uuid = await self.mojang_api.pseudo_to_uuid(pseudo)
+        except MojangAPIError as e:
+            return e.message
         self.client.bot_logger.debug(f"L'UUID de {pseudo} est {uuid}")
 
         player = await self.get_hypixel_player(uuid)
-        discord = await hypixel_discord(player)
-        if not discord[0]:
+        has_discord = await hypixel_discord(player)
+        if not has_discord[0]:
             # TODO: better handling
-            return discord[1]
-        discord = discord[1]
+            return has_discord[1]
+        discord = has_discord[1]
         if discord != discord_pseudo:
             if discord.lower() == discord_pseudo:
                 return (

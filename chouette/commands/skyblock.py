@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import discord
 from discord import app_commands
@@ -20,7 +20,17 @@ class Skyblock(app_commands.Group):
         """Initialise la classe Skyblock."""
         super().__init__(name="skyblock", description="Commandes relatives au Skyblock d'Hypixel")
         self.sb_utils = SkyblockUtils(client)
+        self.minecraft_releases = self.sb_utils.mojang_api.minecraft_releases
         self.guild_ranking = self.sb_utils.ranking.guild_ranking
+
+    async def mc_version_autocomplete(
+        self, interaction: discord.Interaction[ChouetteBot], current: str
+    ) -> list:
+        return [
+            app_commands.Choice(name=version, value=version)
+            for version in self.minecraft_releases
+            if version.startswith(current)
+        ][:25]  # Discord can't display more than 25 choices
 
     @app_commands.command(
         name="mods",
@@ -28,10 +38,11 @@ class Skyblock(app_commands.Group):
     )
     @app_commands.rename(mc_version="version")
     @app_commands.describe(mc_version="Ta version de Minecraft")
+    @app_commands.autocomplete(mc_version=mc_version_autocomplete)
     async def mods(
         self,
         interaction: discord.Interaction[ChouetteBot],
-        mc_version: Literal["1.21.10", "1.21.11", "26.1.2"],
+        mc_version: str,
     ) -> None:
         """Vérifie les dernières mises à jour des mods populaires du Skyblock d'Hypixel.
 
@@ -39,6 +50,11 @@ class Skyblock(app_commands.Group):
             interaction (discord.Interaction[ChouetteBot]): L'interaction Discord.
             mc_version (Literal): La version de Minecraft.
         """
+        if mc_version not in self.minecraft_releases:
+            await interaction.response.send_message(
+                f"La version de Minecraft entrée, `{mc_version}`, est incorrecte !"
+            )
+            return
         await interaction.response.defer(thinking=True)
         message = f"Version de Minecraft: `{mc_version}`\n"
         api_modrinth = "https://api.modrinth.com/v2"
@@ -55,8 +71,9 @@ class Skyblock(app_commands.Group):
             "Aaron's Mod": "axe0DxiW",
             "Catharsis": "fc4wBpRx",
             "Firmament": "IJNUBZ2a",
-            "Roughly Enough Items (REI)": "nfn13YXA",
+            "SkyBlock Item List": "OaKmV2nB",
             "Skyblocker": "y6DuFGwJ",
+            "SkyHanni": "byNkmv5G",
         }
 
         for mod_name, mod_id in mod_list.items():
@@ -67,12 +84,14 @@ class Skyblock(app_commands.Group):
                     ):
                         version = entry["version_number"].split("+")[0].replace("v", "")
                         link = entry["files"][0]["url"]
-                        message += f"- {mod_name}: `{version}` [lien]({link})\n"
+                        message += f"- [{mod_name}](https://modrinth.com/project/{mod_id}): `{version}` [lien]({link})\n"
                         break
                 else:
-                    message += f"- {mod_name}: Non disponible\n"
+                    message += (
+                        f"- [{mod_name}](https://modrinth.com/project/{mod_id}): Non disponible\n"
+                    )
 
-        await interaction.followup.send(message)
+        await interaction.followup.send(message, suppress_embeds=True)
 
     @app_commands.command(name="tuto")
     async def tuto(self, interaction: discord.Interaction[ChouetteBot]) -> None:
@@ -131,7 +150,7 @@ class Skyblock(app_commands.Group):
 
         # thunderstorm
         if (cooldown <= thunderstorm) and (thunderstorm < (cooldown + duration)):
-            time_left = (cooldown + duration) - rain
+            time_left = (cooldown + duration) - thunderstorm
             thunderstorm_duration = time_now + time_left
             thunderstorm_msg = f"Le prochain orage s'arrêtera <t:{thunderstorm_duration}:R>"
         else:
@@ -141,6 +160,8 @@ class Skyblock(app_commands.Group):
                 next_thunderstorm = (
                     time_now + (cooldown + duration) * thunderstorm_interval + cooldown
                 ) - thunderstorm
+            else:
+                next_thunderstorm = time_now + cooldown - thunderstorm
             thunderstorm_msg = f"Le prochain orage sera <t:{next_thunderstorm}:R>"
 
         await interaction.response.send_message(f"{rain_msg}\n{thunderstorm_msg}")

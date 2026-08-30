@@ -15,4 +15,4 @@ jobs:
         with:
           persist-credentials: false
       - name: Run prek
-        uses: j178/prek-action@v2
+        uses: j178/prek-action@v3.0.0
