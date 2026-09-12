@@ -167,8 +167,8 @@ class SkyblockUtils:
         """
         try:
             museum = await self.get_museum(uuid, profile.get("profile_id"))
-        except Exception as e:
-            self.client.bot_logger.error(e)
+        except Exception:
+            self.client.bot_logger.exception("There was an error while getting the networth")
             museum = None
 
         try:
@@ -177,8 +177,8 @@ class SkyblockUtils:
             )
             networth = await calculator.get_non_cosmetic_networth(only_networth=True)
             return networth.networth
-        except (ItemsError, PricesError) as e:
-            self.client.bot_logger.error(e)
+        except (ItemsError, PricesError):
+            self.client.bot_logger.exception("There was an error while getting the networth")
             return 0
 
     async def get_stats(
