@@ -1,6 +1,8 @@
 import logging
 import os
+from datetime import UTC, timezone
 from http import HTTPStatus
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import discord
 from aiohttp import ClientSession, web
@@ -37,6 +39,12 @@ class ChouetteBot(discord.Client):
         logging.getLogger("discord.gateway").addFilter(
             lambda record: "successfully RESUMED session" not in record.msg
         )
+
+        # Get local timezone with fallback to UTC
+        try:
+            self.TZ: ZoneInfo | timezone = ZoneInfo(self.config.get("TZ", "localtime"))
+        except ZoneInfoNotFoundError:
+            self.TZ = UTC
 
         # Set intents for the bot
         intents = discord.Intents.all()

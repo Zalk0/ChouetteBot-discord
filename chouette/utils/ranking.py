@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import math
-from datetime import date
+from datetime import datetime
 from itertools import chain
 from typing import TYPE_CHECKING
 
@@ -360,8 +360,9 @@ class Ranking:
         Returns:
             list[discord.Embed]: La liste des embeds à afficher.
         """
-        month = await month_to_str(date.today().month)
-        year = date.today().year
+        today = datetime.now(self.client.TZ)
+        month = month_to_str(today.month)
+        year = today.year
 
         embeds_ranking = []
         ranking = discord.Embed(
