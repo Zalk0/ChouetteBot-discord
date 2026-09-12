@@ -1,15 +1,17 @@
 from __future__ import annotations
 
+from http import HTTPStatus
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 from skyhelper_networth import ItemsError, PricesError, ProfileNetworthCalculator
-from skyhelper_networth.types import Museum
 
 from chouette.utils.mojang_api import MojangAPI, MojangAPIError
 from chouette.utils.ranking import Ranking
 
 if TYPE_CHECKING:
+    from skyhelper_networth.types import Museum
+
     from chouette.bot import ChouetteBot
 
 SKYBLOCK_FILE = Path("data", "skyblock.toml")
@@ -72,7 +74,7 @@ class SkyblockUtils:
             params={"uuid": uuid},
         ) as response:
             json: dict = await response.json()
-            if response.status != 200:
+            if response.status != HTTPStatus.OK:
                 return False, json.get("cause")
             profiles = json.get("profiles")
             for profile in profiles:
@@ -98,7 +100,7 @@ class SkyblockUtils:
             params={"uuid": uuid},
         ) as response:
             json: dict = await response.json()
-            if response.status != 200:
+            if response.status != HTTPStatus.OK:
                 return False, json.get("cause")
             profiles = json.get("profiles")
             for profile in profiles:
@@ -122,7 +124,7 @@ class SkyblockUtils:
             f"{HYPIXEL_API}player", headers={"API-Key": self.api_key}, params={"uuid": uuid}
         ) as response:
             json: dict = await response.json()
-            if response.status != 200:
+            if response.status != HTTPStatus.OK:
                 raise Exception("Error while fetching Hypixel player info")
             return json
 
@@ -145,7 +147,7 @@ class SkyblockUtils:
             params={"profile": profile_id},
         ) as response:
             json: dict = await response.json()
-            if response.status != 200:
+            if response.status != HTTPStatus.OK:
                 raise Exception(
                     f"Error while fetching Skyblock museum info, status: {response.status}"
                     + (f", cause: {json.get('cause')}" if json.get("cause") else "")

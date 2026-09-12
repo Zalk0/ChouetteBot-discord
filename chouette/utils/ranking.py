@@ -99,7 +99,7 @@ def parse_data(data: dict) -> dict:
     for player in data:
         for key, value in data[player].items():
             # Gère 'level' et 'networth'
-            if key == "level" or key == "networth":
+            if key in {"level", "networth"}:
                 if key not in ranking:
                     ranking[key] = {}
                 ranking[key][data[player]["pseudo"]] = value

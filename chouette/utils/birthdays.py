@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from datetime import date, datetime, time
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from chouette.utils.data_io import DataIO
+if TYPE_CHECKING:
+    from chouette.utils.data_io import DataIO
 
 BIRTHDAY_FILE = Path("data", "birthdays.toml")
 
