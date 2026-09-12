@@ -67,7 +67,7 @@ class Birthday(app_commands.Group):
         try:
             birth_date = await check_date(day, month, year)
         except ValueError as e:
-            raise InvalidBirthdayDate() from e
+            raise InvalidBirthdayDate from e
         user_id = str(interaction.user.id)
         birthdays = await load_birthdays(interaction.client.data_io)
         if user_id not in birthdays:
@@ -107,7 +107,7 @@ class Birthday(app_commands.Group):
         try:
             birth_date = await check_date(day, month, year)
         except ValueError as e:
-            raise InvalidBirthdayDate() from e
+            raise InvalidBirthdayDate from e
         user_id = str(interaction.user.id)
         birthdays = await load_birthdays(interaction.client.data_io)
         if user_id in birthdays:

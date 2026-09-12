@@ -3,11 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import discord
-from discord.abc import Messageable
 
 from chouette.utils.latex_render import latex_process
 
 if TYPE_CHECKING:
+    from discord.abc import Messageable
+
     from chouette.bot import ChouetteBot
 
 
@@ -45,8 +46,10 @@ async def responses(
             client.bot_logger.info(f'{client.user} responded to {author}: "equation.png"')
             return "", False
         return (
-            "Nombre de $ impair, "
-            "veuillez en mettre un nombre pair pour que je puisse afficher les équations LaTeX !",
+            (
+                "Nombre de $ impair, "
+                "veuillez en mettre un nombre pair pour que je puisse afficher les équations LaTeX !"
+            ),
             False,
         )
 

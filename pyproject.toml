@@ -1,5 +1,5 @@
 [project]
-name = "ChouetteBot"
+name = "chouettebot"
 version = "0.0.1"
 readme = "README.md"
 license = "MIT"
@@ -19,6 +19,12 @@ dev = [
     "ruff==0.16.5",
 ]
 
+[tool.uv]
+required-environments = [
+    "sys_platform == 'linux' and platform_machine == 'aarch64'",
+    "sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+
 [tool.ruff]
 line-length = 99
 
@@ -29,31 +35,48 @@ line-ending = "lf"
 
 [tool.ruff.lint]
 select = [
-    "A",
-    "ANN",
-    "ASYNC",
-    "B",
-    "C4",
-    "E",
-    "ERA",
-    "F",
-    "I",
-    "ICN",
-    "N",
-    "RET",
-    "RUF",
-    "SIM",
-    "T10",
-    "T20",
-    "TID",
-    "UP",
-    "W",
+    "A",     # flake8-builtins
+    "ANN",   # flake8-annotations
+    "ASYNC", # flake8-async
+    "B",     # flake8-bugbear
+    "BLE",   # flake8-blind-except
+    "C4",    # flake8-comprehensions
+    "DTZ",   # flake8-datetimez
+    "E",     # pycodestyle-errors
+    "ERA",   # eradicate
+    "F",     # pyflakes
+    "FA",    # flake8-future-annotations
+    "FBT",   # flake8-boolean-trap
+    "FLY",   # flynt
+    "FURB",  # refurb
+    "I",     # isort
+    "ICN",   # flake8-import-conventions
+    "INP",   # flake8-no-pep420
+    "ISC",   # flake8-implicit-str-concat
+    "N",     # pep8-naming
+    "PERF",  # perflint
+    "PGH",   # pygrep-hooks
+    "PIE",   # flake8-pie
+    "PL",    # pylint
+    "PTH",   # flake8-use-pathlib
+    "RET",   # flake8-return
+    "RUF",   # ruff
+    "S",     # flake8-bandit
+    "SIM",   # flake8-simplify
+    "SLOT",  # flake8-slots
+    "T10",   # flake8-debugger
+    "T20",   # flake8-print
+    "TC",    # flake8-type-checking
+    "TID",   # flake8-tidy-imports
+    "TRY",   # tryceratops
+    "UP",    # pyupgrade
+    "W",     # pycodestyle-warnings
 ]
-ignore = ["E501"]
+ignore = [ "E501" ]
 flake8-tidy-imports.ban-relative-imports = "all"
 
-[tool.uv]
-required-environments = [
-    "sys_platform == 'linux' and platform_machine == 'x86_64'",
-    "sys_platform == 'linux' and platform_machine == 'aarch64'",
-]
+[tool.pyproject-fmt]
+indent = 4
+generate_python_version_classifiers = false
+table_format = "long"
+sub_table_spacing = "\n"

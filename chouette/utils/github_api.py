@@ -1,4 +1,5 @@
 from datetime import date
+from http import HTTPStatus
 
 from aiohttp import ClientSession
 
@@ -16,6 +17,6 @@ async def get_last_update(session: ClientSession) -> date:
         "https://api.github.com/repos/Zalk0/chouettebot-discord/commits/main"
     ) as response:
         commit_infos: dict = await response.json()
-        if response.status != 200:
+        if response.status != HTTPStatus.OK:
             raise Exception("Error while fetching commit info from GitHub API")
     return date.fromisoformat(commit_infos["commit"]["author"]["date"][:10])
