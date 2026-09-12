@@ -28,8 +28,11 @@ class ChouetteBot(discord.Client):
 
         # Define the bot debug log level
         self.bot_logger = logging.getLogger("bot")
-        log_level = logging.getLevelName(self.config.get("LOG_LEVEL", logging.INFO))
-        self.log_level = log_level if isinstance(log_level, int) else logging.INFO
+        try:
+            log_level = int(self.config.get("LOG_LEVEL", ""))
+        except ValueError:
+            log_level = logging.getLevelNamesMapping().get(self.config.get("LOG_LEVEL", ""))
+        self.log_level = logging.INFO if log_level is None else log_level
         self.bot_logger.setLevel(self.log_level)
 
         # Define the web logger
