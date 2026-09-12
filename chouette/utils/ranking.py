@@ -252,9 +252,7 @@ def generate_ranking_message(data: dict, category: str, old_data: dict) -> list[
     if category == "skill average":
         # Calcule le 'skill average' pour les anciennes données
         for player in old_data[category]:
-            total = []
-            for skill in skills_avg:
-                total.append(math.floor(old_data[skill]["level"][player]))
+            total = [math.floor(old_data[skill]["level"][player]) for skill in skills_avg]
             average = math.fsum(total) / len(total)
             old_data[category][player] = average
         # Trie le 'skill average'
@@ -263,9 +261,7 @@ def generate_ranking_message(data: dict, category: str, old_data: dict) -> list[
         )
         # Calcule le 'skill average' pour les nouvelles données
         for player in data[category]:
-            total = []
-            for skill in skills_avg:
-                total.append(math.floor(data[skill]["level"][player]))
+            total = [math.floor(data[skill]["level"][player]) for skill in skills_avg]
             average = math.fsum(total) / len(total)
             data[category][player] = average
         # Trie le 'skill average'

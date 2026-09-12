@@ -198,8 +198,8 @@ class ChouetteBot(discord.Client):
         site = web.TCPSite(runner, self.config["SERVER_HOST"], int(self.config["SERVER_PORT"]))
         try:
             await site.start()
-        except Exception as e:
-            self.web_logger.warning(f"Error while starting the webserver: \n{e}")
+        except Exception:
+            self.web_logger.exception("Error while starting the webserver")
         else:
             self.web_logger.info("The aiohttp web server has successfully started")
         return runner
