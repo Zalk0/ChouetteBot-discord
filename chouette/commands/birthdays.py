@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from typing import TYPE_CHECKING
 
 from discord import Interaction, app_commands
@@ -65,7 +65,7 @@ class Birthday(app_commands.Group):
             InvalidBirthdayDate: Si la date entrée n'est pas valide.
         """
         try:
-            birth_date = await check_date(day, month, year)
+            birth_date = check_date(day, month, year, datetime.now(interaction.client.TZ).year)
         except ValueError as e:
             raise InvalidBirthdayDate from e
         user_id = str(interaction.user.id)
@@ -105,7 +105,7 @@ class Birthday(app_commands.Group):
             InvalidBirthdayDate: Si la date entrée n'est pas valide.
         """
         try:
-            birth_date = await check_date(day, month, year)
+            birth_date = check_date(day, month, year, datetime.now(interaction.client.TZ).year)
         except ValueError as e:
             raise InvalidBirthdayDate from e
         user_id = str(interaction.user.id)
@@ -157,6 +157,7 @@ class Birthday(app_commands.Group):
         Args:
             interaction (Interaction[ChouetteBot]): L'interaction Discord.
         """
+        today = datetime.now(interaction.client.TZ).date()
         msg = f"Voici les anniversaires de {interaction.guild.name}\n"
         birthdays = sorted(
             (await load_birthdays(interaction.client.data_io)).items(),
@@ -169,8 +170,8 @@ class Birthday(app_commands.Group):
         next_birthday: date = None
         for user_id, info in birthdays:
             birthday: date = info.get("birthday")
-            if not next_birthday and date.today().replace(birthday.year) < birthday:
-                next_birthday = birthday.replace(date.today().year)
+            if not next_birthday and today.replace(birthday.year) < birthday:
+                next_birthday = birthday.replace(today.year)
             if (member := interaction.guild.get_member(int(user_id))) or (
                 member := interaction.client.get_user(int(user_id))
             ):
@@ -188,11 +189,11 @@ class Birthday(app_commands.Group):
                 and birthdays[0][1].get("birthday").month == 2
             ):
                 try:
-                    next_birthday = date(date.today().year + 1, 2, 29)
+                    next_birthday = date(today.year + 1, 2, 29)
                 except ValueError:
-                    next_birthday = date(date.today().year + 1, 3, 1)
+                    next_birthday = date(today.year + 1, 3, 1)
             else:
-                next_birthday = birthdays[0][1].get("birthday").replace(date.today().year + 1)
+                next_birthday = birthdays[0][1].get("birthday").replace(today.year + 1)
         msg += "```"
-        msg += f"Le prochain anniversaire est {await datetime_to_timestamp(next_birthday)}."
+        msg += f"Le prochain anniversaire est {datetime_to_timestamp(next_birthday)}."
         await interaction.response.send_message(msg)
