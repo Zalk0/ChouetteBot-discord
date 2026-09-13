@@ -40,8 +40,8 @@ async def commands(client: ChouetteBot) -> None:
     sb = Skyblock(client)
     try:
         await sb.sb_utils.mojang_api.set_minecraft_releases()
-    except MojangAPIError as e:
-        client.bot_logger.error(e.message)
+    except MojangAPIError:
+        client.bot_logger.exception("Couldn't get the list of Minecraft releases")
     client.tree.add_command(sb, guild=client.hypixel_guild)
 
     # Add the Birthday command group to my guild

@@ -59,7 +59,5 @@ class MojangAPI:
     async def update_minecraft_releases(self) -> None:
         try:
             await self.set_minecraft_releases()
-        except MojangAPIError as e:
-            self.client.bot_logger.error(
-                f"Error while updating cached Minecraft releases: {e.message}"
-            )
+        except MojangAPIError:
+            self.client.bot_logger.exception("Error while updating cached Minecraft releases")

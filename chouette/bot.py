@@ -1,6 +1,9 @@
 import logging
 import os
+from datetime import UTC, timezone
 from http import HTTPStatus
+from typing import Final, cast
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import discord
 from aiohttp import ClientSession, web
@@ -26,8 +29,11 @@ class ChouetteBot(discord.Client):
 
         # Define the bot debug log level
         self.bot_logger = logging.getLogger("bot")
-        log_level = logging.getLevelName(self.config.get("LOG_LEVEL", logging.INFO))
-        self.log_level = log_level if isinstance(log_level, int) else logging.INFO
+        try:
+            log_level = int(self.config.get("LOG_LEVEL", ""))
+        except ValueError:
+            log_level = logging.getLevelNamesMapping().get(self.config.get("LOG_LEVEL", ""))
+        self.log_level: Final[int] = logging.INFO if log_level is None else log_level
         self.bot_logger.setLevel(self.log_level)
 
         # Define the web logger
@@ -37,6 +43,12 @@ class ChouetteBot(discord.Client):
         logging.getLogger("discord.gateway").addFilter(
             lambda record: "successfully RESUMED session" not in record.msg
         )
+
+        # Get local timezone with fallback to UTC
+        try:
+            self.TZ: Final[ZoneInfo | timezone] = ZoneInfo(self.config.get("TZ", "localtime"))
+        except ZoneInfoNotFoundError:
+            self.TZ: Final[ZoneInfo | timezone] = UTC
 
         # Set intents for the bot
         intents = discord.Intents.all()
@@ -60,10 +72,16 @@ class ChouetteBot(discord.Client):
         self.tree = discord.app_commands.CommandTree(self)
 
         # First declaration to be able to add commands to the guild
-        self.hypixel_guild = discord.Object(int(self.config["HYPIXEL_GUILD_ID"]))
+        self.hypixel_guild = cast(
+            "discord.Guild",
+            discord.Object(int(self.config["HYPIXEL_GUILD_ID"]), type=discord.Guild),
+        )
 
         # First declaration to be able to add commands to the guild
-        self.my_guild = discord.Object(int(self.config["GUILD_ID"]))
+        self.my_guild = cast(
+            "discord.Guild",
+            discord.Object(int(self.config["GUILD_ID"]), type=discord.Guild),
+        )
 
         # Instantiate DataIO class
         self.data_io = DataIO()
@@ -90,10 +108,10 @@ class ChouetteBot(discord.Client):
         await self.wait_until_ready()
 
         # Hypixel guild with all information
-        self.hypixel_guild = self.get_guild(int(self.config["HYPIXEL_GUILD_ID"]))
+        self.hypixel_guild = self.get_guild(self.hypixel_guild.id) or self.hypixel_guild
 
         # My guild with all information
-        self.my_guild = self.get_guild(int(self.config["GUILD_ID"]))
+        self.my_guild = self.get_guild(self.my_guild.id) or self.my_guild
 
         # Log that the bot is ready and the number of guilds the bot is in
         self.bot_logger.info(f"{self.user} is now online and ready!")
@@ -131,7 +149,7 @@ class ChouetteBot(discord.Client):
                 await channel.send(response[0])
             self.bot_logger.info(f'{self.user} responded to {author}: "{response[0]}"')
 
-    async def is_team_member_or_owner(self, author: discord.User) -> bool:
+    async def is_team_member_or_owner(self, author: discord.User | discord.Member) -> bool:
         """Vérifie si l'auteur est membre de l'équipe ou le propriétaire de l'application.
 
         Args:
@@ -190,8 +208,8 @@ class ChouetteBot(discord.Client):
         site = web.TCPSite(runner, self.config["SERVER_HOST"], int(self.config["SERVER_PORT"]))
         try:
             await site.start()
-        except Exception as e:
-            self.web_logger.warning(f"Error while starting the webserver: \n{e}")
+        except Exception:
+            self.web_logger.exception("Error while starting the webserver")
         else:
             self.web_logger.info("The aiohttp web server has successfully started")
         return runner
