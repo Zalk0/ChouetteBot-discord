@@ -72,7 +72,7 @@ select = [
     "UP",    # pyupgrade
     "W",     # pycodestyle-warnings
 ]
-ignore = [ "E501" ]
+ignore = [ "E501", "PLR0911", "PLR0912", "PLR0915", "PLR2004" ]
 flake8-tidy-imports.ban-relative-imports = "all"
 
 [tool.pyproject-fmt]
