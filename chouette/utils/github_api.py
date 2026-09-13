@@ -4,6 +4,13 @@ from http import HTTPStatus
 from aiohttp import ClientSession
 
 
+class GitHubAPIError(Exception):
+    """Erreur de l'API GitHub."""
+
+    def __init__(self, status: int, cause: str | None = None) -> None:
+        self.message = f"HTTP Status code: {status}" + f", {cause}" if cause else ""
+
+
 async def get_last_update(session: ClientSession) -> date:
     """Récupère la date du dernier commit sur le dépôt principal de ChouetteBot.
 
@@ -18,5 +25,5 @@ async def get_last_update(session: ClientSession) -> date:
     ) as response:
         commit_infos: dict = await response.json()
         if response.status != HTTPStatus.OK:
-            raise Exception("Error while fetching commit info from GitHub API")
+            raise GitHubAPIError(response.status, commit_infos.get("message"))
     return date.fromisoformat(commit_infos["commit"]["author"]["date"][:10])

@@ -176,7 +176,7 @@ def parse_data(data: dict) -> dict:
                     "overflow": dict(category_data["overflow"].items()),
                 }
         else:
-            raise ValueError(f"Unknown category while sorting the ranking: {category}")
+            raise TypeError(f"Category {category} must be a dict")
     return sorted_ranking
 
 

@@ -60,10 +60,11 @@ async def responses(
                 await client.tree.sync()
                 for guild in client.guilds:
                     await client.tree.sync(guild=guild)
-                return "Les commandes slash ont été synchronisées avec succès !", True
             except discord.app_commands.CommandSyncFailure as e:
                 client.bot_logger.exception("There was a failure while syncing the commands")
                 return str(e), True
+            else:
+                return "Les commandes slash ont été synchronisées avec succès !", True
         client.bot_logger.info(f"{author}, who isn't authorized, tried to sync the commands")
 
     # Return empty string if no condition is checked
