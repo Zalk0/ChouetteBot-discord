@@ -2,6 +2,7 @@ import logging
 import os
 from datetime import UTC, timezone
 from http import HTTPStatus
+from typing import Final, cast
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import discord
@@ -32,7 +33,7 @@ class ChouetteBot(discord.Client):
             log_level = int(self.config.get("LOG_LEVEL", ""))
         except ValueError:
             log_level = logging.getLevelNamesMapping().get(self.config.get("LOG_LEVEL", ""))
-        self.log_level = logging.INFO if log_level is None else log_level
+        self.log_level: Final[int] = logging.INFO if log_level is None else log_level
         self.bot_logger.setLevel(self.log_level)
 
         # Define the web logger
@@ -45,9 +46,9 @@ class ChouetteBot(discord.Client):
 
         # Get local timezone with fallback to UTC
         try:
-            self.TZ: ZoneInfo | timezone = ZoneInfo(self.config.get("TZ", "localtime"))
+            self.TZ: Final[ZoneInfo | timezone] = ZoneInfo(self.config.get("TZ", "localtime"))
         except ZoneInfoNotFoundError:
-            self.TZ = UTC
+            self.TZ: Final[ZoneInfo | timezone] = UTC
 
         # Set intents for the bot
         intents = discord.Intents.all()
@@ -71,10 +72,16 @@ class ChouetteBot(discord.Client):
         self.tree = discord.app_commands.CommandTree(self)
 
         # First declaration to be able to add commands to the guild
-        self.hypixel_guild = discord.Object(int(self.config["HYPIXEL_GUILD_ID"]))
+        self.hypixel_guild = cast(
+            "discord.Guild",
+            discord.Object(int(self.config["HYPIXEL_GUILD_ID"]), type=discord.Guild),
+        )
 
         # First declaration to be able to add commands to the guild
-        self.my_guild = discord.Object(int(self.config["GUILD_ID"]))
+        self.my_guild = cast(
+            "discord.Guild",
+            discord.Object(int(self.config["GUILD_ID"]), type=discord.Guild),
+        )
 
         # Instantiate DataIO class
         self.data_io = DataIO()
@@ -101,10 +108,10 @@ class ChouetteBot(discord.Client):
         await self.wait_until_ready()
 
         # Hypixel guild with all information
-        self.hypixel_guild = self.get_guild(int(self.config["HYPIXEL_GUILD_ID"]))
+        self.hypixel_guild = self.get_guild(self.hypixel_guild.id) or self.hypixel_guild
 
         # My guild with all information
-        self.my_guild = self.get_guild(int(self.config["GUILD_ID"]))
+        self.my_guild = self.get_guild(self.my_guild.id) or self.my_guild
 
         # Log that the bot is ready and the number of guilds the bot is in
         self.bot_logger.info(f"{self.user} is now online and ready!")
@@ -142,7 +149,7 @@ class ChouetteBot(discord.Client):
                 await channel.send(response[0])
             self.bot_logger.info(f'{self.user} responded to {author}: "{response[0]}"')
 
-    async def is_team_member_or_owner(self, author: discord.User) -> bool:
+    async def is_team_member_or_owner(self, author: discord.User | discord.Member) -> bool:
         """Vérifie si l'auteur est membre de l'équipe ou le propriétaire de l'application.
 
         Args:

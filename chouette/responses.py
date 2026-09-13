@@ -16,7 +16,7 @@ async def responses(
     client: ChouetteBot,
     channel: Messageable,
     message: str,
-    author: discord.User,
+    author: discord.User | discord.Member,
 ) -> tuple[str, bool]:
     """Gère les réponses du bot en fonction du message de l'utilisateur.
 
