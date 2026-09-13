@@ -337,20 +337,20 @@ class Ranking:
         old_data = await self.sb_utils.load_skyblock()
         new_data = copy.deepcopy(old_data)
         self.client.bot_logger.info("Synchro des données de la guilde sur Hypixel Skyblock pour :")
-        for uuid in old_data:
-            pseudo = old_data.get(uuid).get("pseudo")
-            profile_name = old_data.get(uuid).get("profile")
+        for uuid, player_data in old_data.items():
+            pseudo = player_data.get("pseudo")
+            profile_name = player_data.get("profile")
             profile = await self.sb_utils.get_profile(uuid, profile_name)
             if not profile[0]:
                 raise Exception("Error while updating stats")
             profile = profile[1]
             player = await self.sb_utils.get_hypixel_player(uuid)
-            new_data.get(uuid).update(await self.sb_utils.get_stats(uuid, player, profile))
+            new_data[uuid].update(await self.sb_utils.get_stats(uuid, player, profile))
             self.client.bot_logger.info(f"- {pseudo} sur le profil {profile_name}")
 
             # In case we can't get networth properly, we keep the old value
-            if new_data.get(uuid).get("networth") == 0:
-                new_data.get(uuid).update({"networth": old_data.get(uuid).get("networth")})
+            if new_data[uuid].get("networth") == 0:
+                new_data[uuid].update({"networth": player_data.get("networth")})
 
         await self.sb_utils.save_skyblock(new_data)
         return parse_data(old_data)
@@ -414,7 +414,7 @@ class Ranking:
 
     async def guild_ranking(self, channel_id: int | None = None) -> None:
         client = self.client
-        guild = client.get_guild(int(client.config["HYPIXEL_GUILD_ID"]))
+        guild = client.hypixel_guild
         member = guild.get_role(int(client.config["HYPIXEL_GUILD_ROLE"]))
         old_ranking_data = await self.update_stats()
         if not guild.icon:

@@ -176,10 +176,11 @@ class SkyblockUtils:
                 profile.get("members").get(uuid), museum, bank_balance, session=self.session
             )
             networth = await calculator.get_non_cosmetic_networth(only_networth=True)
-            return networth.networth
         except (ItemsError, PricesError):
             self.client.bot_logger.exception("There was an error while getting the networth")
-            return 0
+        else:
+            return networth.networth
+        return 0
 
     async def get_stats(
         self, uuid: str, hypixel_player: dict, profile: dict
