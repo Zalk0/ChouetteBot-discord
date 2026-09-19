@@ -40,18 +40,16 @@ class SkyblockProfileError(Exception):
                 raise NotImplementedError(f"Unknown error: {error}")
 
 
-async def hypixel_discord(player: dict) -> tuple[bool, str]:
+async def hypixel_discord(player: dict) -> str:
     """Retourne le pseudo Discord lié à un compte Hypixel.
 
     Args:
         player (dict): Les données du joueur Hypixel.
 
     Returns:
-        tuple[bool, str]: `True` et le pseudo Discord si le compte est lié, `False` et un message d'erreur sinon.
+        str: le pseudo Discord si le compte est lié ou une chaine vide si il ne l'est pas.
     """
-    if not player.get("player").get("socialMedia", {}).get("links", {}).get("DISCORD", ""):
-        return False, "Vous n'avez pas associé votre compte Discord à Hypixel"
-    return True, player.get("player").get("socialMedia").get("links").get("DISCORD")
+    return player.get("player", {}).get("socialMedia", {}).get("links", {}).get("DISCORD", "")
 
 
 class SkyblockUtils:
@@ -286,11 +284,9 @@ class SkyblockUtils:
         self.client.bot_logger.debug(f"L'UUID de {pseudo} est {uuid}")
 
         player = await self.get_hypixel_player(uuid)
-        has_discord = await hypixel_discord(player)
-        if not has_discord[0]:
-            # TODO: better handling
-            return has_discord[1]
-        discord = has_discord[1]
+        discord = await hypixel_discord(player)
+        if not discord:
+            return "Vous n'avez pas associé votre compte Discord à Hypixel"
         if discord != discord_pseudo:
             if discord.lower() == discord_pseudo:
                 return (
