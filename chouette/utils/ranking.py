@@ -5,7 +5,7 @@ import json
 import math
 from datetime import datetime
 from itertools import chain
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import discord
 
@@ -79,7 +79,7 @@ def parse_data(data: dict) -> dict:
     Returns:
         dict: Les données parsées.
     """
-    ranking = {}
+    ranking: dict[str, dict[str, Any]] = {}
     skills = [
         "fishing",
         "alchemy",
@@ -157,26 +157,23 @@ def parse_data(data: dict) -> dict:
     # Trie les données du classement dans l'ordre décroissant
     sorted_ranking: dict = ranking.copy()
     for category, category_data in ranking.items():
-        if isinstance(category_data, dict):
-            # 'Level' et 'Networth'
-            if category in ["level", "networth"]:
-                sorted_ranking[category] = dict(
-                    sorted(category_data.items(), key=lambda item: item[1], reverse=True)
-                )
-            # 'Skills' et 'slayers'
-            if category in chain(skills, slayers):
-                sorted_ranking[category] = {
-                    "level": dict(
-                        sorted(
-                            category_data["level"].items(),
-                            key=lambda item: (item[1], category_data["overflow"][item[0]]),
-                            reverse=True,
-                        )
-                    ),
-                    "overflow": dict(category_data["overflow"].items()),
-                }
-        else:
-            raise TypeError(f"Category {category} must be a dict")
+        # 'Level' et 'Networth'
+        if category in ["level", "networth"]:
+            sorted_ranking[category] = dict(
+                sorted(category_data.items(), key=lambda item: item[1], reverse=True)
+            )
+        # 'Skills' et 'slayers'
+        if category in chain(skills, slayers):
+            sorted_ranking[category] = {
+                "level": dict(
+                    sorted(
+                        category_data["level"].items(),
+                        key=lambda item: (item[1], category_data["overflow"][item[0]]),
+                        reverse=True,
+                    )
+                ),
+                "overflow": dict(category_data["overflow"].items()),
+            }
     return sorted_ranking
 
 
@@ -341,9 +338,6 @@ class Ranking:
             pseudo = player_data.get("pseudo")
             profile_name = player_data.get("profile")
             profile = await self.sb_utils.get_profile(uuid, profile_name)
-            if not profile[0]:
-                raise Exception("Error while updating stats")
-            profile = profile[1]
             player = await self.sb_utils.get_hypixel_player(uuid)
             new_data[uuid].update(await self.sb_utils.get_stats(uuid, player, profile))
             self.client.bot_logger.info(f"- {pseudo} sur le profil {profile_name}")
