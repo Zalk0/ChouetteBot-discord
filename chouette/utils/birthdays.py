@@ -10,6 +10,11 @@ if TYPE_CHECKING:
 BIRTHDAY_FILE = Path("data", "birthdays.toml")
 
 
+class BirthdayYearError(Exception):
+    def __init__(self, year: int) -> None:
+        self.message = f"The year should be between 1900 and the current year, got {year}."
+
+
 async def load_birthdays(data_io: DataIO) -> dict:
     """Charge les anniversaires depuis un fichier TOML sur le disque.
 
@@ -50,7 +55,7 @@ def check_date(day: int, month: int, year: int | None, current_year: int) -> dat
     if not year:
         return date(4, month, day)
     if year < 1900 or year > current_year:
-        raise ValueError("L'année doit être comprise entre 1900 et l'année en cours.")
+        raise BirthdayYearError(year)
     return date(year, month, day)
 
 

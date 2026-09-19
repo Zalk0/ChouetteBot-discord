@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from http import HTTPStatus
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from skyhelper_networth import ItemsError, PricesError, ProfileNetworthCalculator
 
@@ -16,6 +16,28 @@ if TYPE_CHECKING:
 
 SKYBLOCK_FILE = Path("data", "skyblock.toml")
 HYPIXEL_API = "https://api.hypixel.net/v2/"
+
+
+class HypixelAPIError(Exception):
+    """Erreur de l'API Hypixel."""
+
+    def __init__(self, status: int, cause: str | None = None) -> None:
+        self.message = f"HTTP Status code: {status}" + f", {cause}" if cause else ""
+
+
+class SkyblockProfileError(Exception):
+    """Erreur de lors de la sélection du profil Skyblock du joueur."""
+
+    def __init__(self, error: int, profile_name: str | None = None) -> None:
+        match error:
+            case 0:
+                self.message = f"The profile {profile_name} is a Bingo profile."
+            case 1:
+                self.message = "The player does not have any Skyblock profile."
+            case 2:
+                self.message = f"The profile {profile_name} hasn't been found."
+            case _:
+                raise NotImplementedError(f"Unknown error: {error}")
 
 
 async def hypixel_discord(player: dict) -> tuple[bool, str]:
@@ -59,7 +81,7 @@ class SkyblockUtils:
         """
         await self.data_io.data_write(skyblock, SKYBLOCK_FILE)
 
-    async def selected_profile(self, uuid: str) -> tuple[bool, dict | str | None]:
+    async def selected_profile(self, uuid: str) -> dict:
         """Retourne le profil Skyblock sélectionné d'un joueur.
 
         Args:
@@ -75,16 +97,16 @@ class SkyblockUtils:
         ) as response:
             json: dict = await response.json()
             if response.status != HTTPStatus.OK:
-                return False, json.get("cause")
-            profiles = json.get("profiles")
+                raise HypixelAPIError(response.status, json.get("cause"))
+            profiles = json.get("profiles", {})
             for profile in profiles:
                 if profile.get("selected"):
                     if profile.get("game_mode") == "bingo":
-                        return False, "Bingo profile selected"
-                    return True, profile
-            return False, json.get("cause") if not json.get("success") else "No profile"
+                        raise SkyblockProfileError(0, profile.get("cute_name"))
+                    return profile
+            raise SkyblockProfileError(1)
 
-    async def get_profile(self, uuid: str, name: str) -> tuple[bool, dict | str | None]:
+    async def get_profile(self, uuid: str, name: str) -> dict:
         """Retourne le profil Skyblock d'un joueur avec un nom spécifique.
 
         Args:
@@ -101,12 +123,14 @@ class SkyblockUtils:
         ) as response:
             json: dict = await response.json()
             if response.status != HTTPStatus.OK:
-                return False, json.get("cause")
-            profiles = json.get("profiles")
+                raise HypixelAPIError(response.status, json.get("cause"))
+            profiles = json.get("profiles", {})
             for profile in profiles:
                 if profile.get("cute_name") == name:
-                    return True, profile
-            return False, "No profile with this name"
+                    if profile.get("game_mode") == "bingo":
+                        raise SkyblockProfileError(0, profile.get("cute_name"))
+                    return profile
+            raise SkyblockProfileError(2, name)
 
     async def get_hypixel_player(self, uuid: str) -> dict:
         """Retourne les informations d'un joueur Hypixel.
@@ -125,7 +149,7 @@ class SkyblockUtils:
         ) as response:
             json: dict = await response.json()
             if response.status != HTTPStatus.OK:
-                raise Exception("Error while fetching Hypixel player info")
+                raise HypixelAPIError(response.status, json.get("cause"))
             return json
 
     async def get_museum(self, uuid: str, profile_id: str) -> Museum:
@@ -148,10 +172,7 @@ class SkyblockUtils:
         ) as response:
             json: dict = await response.json()
             if response.status != HTTPStatus.OK:
-                raise Exception(
-                    f"Error while fetching Skyblock museum info, status: {response.status}"
-                    + (f", cause: {json.get('cause')}" if json.get("cause") else "")
-                )
+                raise HypixelAPIError(response.status, json.get("cause"))
             return json.get("members").get(uuid)
 
     async def get_player_networth(self, uuid: str, profile: dict, bank_balance: int) -> float:
@@ -247,7 +268,7 @@ class SkyblockUtils:
 
     async def pseudo_to_profile(
         self, discord_pseudo: str, pseudo: str, profile_name: str | None
-    ) -> dict | str | None:
+    ) -> dict | str:
         """Retourne le profil d'un joueur Skyblock avec l'API.
 
         Args:
@@ -285,17 +306,15 @@ class SkyblockUtils:
             profile = await self.get_profile(uuid, profile_name)
         else:
             profile = await self.selected_profile(uuid)
-        if not profile[0]:
-            # TODO: better handling
-            return profile[1]
-        profile = profile[1]
         self.client.bot_logger.debug(f"Le profil {profile.get('cute_name')} a été trouvé")
 
-        info = {uuid: {"discord": discord, "pseudo": pseudo, "profile": profile.get("cute_name")}}
-        info.get(uuid).update(await self.get_stats(uuid, player, profile))
+        info: dict[str, dict[str, Any]] = {
+            uuid: {"discord": discord, "pseudo": pseudo, "profile": profile.get("cute_name")}
+        }
+        info[uuid].update(await self.get_stats(uuid, player, profile))
         self.client.bot_logger.debug("Les stats ont bien été calculées")
         file_content = await self.load_skyblock()
         if file_content.get(uuid, {}).get("profile", "") != profile.get("cute_name"):
             file_content.update(info)
             await self.save_skyblock(file_content)
-        return info.get(uuid)
+        return info[uuid]
