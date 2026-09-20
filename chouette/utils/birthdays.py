@@ -10,9 +10,9 @@ if TYPE_CHECKING:
 BIRTHDAY_FILE = Path("data", "birthdays.toml")
 
 
-class BirthdayYearError(Exception):
+class BirthdayYearError(ValueError):
     def __init__(self, year: int) -> None:
-        self.message = f"The year should be between 1900 and the current year, got {year}."
+        super().__init__(f"year must be in range 1900..current year, not {year}.")
 
 
 async def load_birthdays(data_io: DataIO) -> dict:
