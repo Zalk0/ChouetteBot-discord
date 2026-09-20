@@ -22,7 +22,7 @@ class HypixelAPIError(Exception):
     """Erreur de l'API Hypixel."""
 
     def __init__(self, status: int, cause: str | None = None) -> None:
-        self.message = f"HTTP Status code: {status}" + f", {cause}" if cause else ""
+        super().__init__(f"HTTP Status code: {status}" + f", {cause}" if cause else "")
 
 
 class SkyblockProfileError(Exception):
@@ -31,11 +31,11 @@ class SkyblockProfileError(Exception):
     def __init__(self, error: int, profile_name: str | None = None) -> None:
         match error:
             case 0:
-                self.message = f"The profile {profile_name} is a Bingo profile."
+                super().__init__(f"The profile {profile_name} is a Bingo profile.")
             case 1:
-                self.message = "The player does not have any Skyblock profile."
+                super().__init__("The player does not have any Skyblock profile.")
             case 2:
-                self.message = f"The profile {profile_name} hasn't been found."
+                super().__init__(f"The profile {profile_name} hasn't been found.")
             case _:
                 raise NotImplementedError(f"Unknown error: {error}")
 
@@ -280,7 +280,7 @@ class SkyblockUtils:
         try:
             uuid = await self.mojang_api.pseudo_to_uuid(pseudo)
         except MojangAPIError as e:
-            return e.message
+            return repr(e)
         self.client.bot_logger.debug(f"L'UUID de {pseudo} est {uuid}")
 
         player = await self.get_hypixel_player(uuid)

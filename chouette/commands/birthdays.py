@@ -17,10 +17,6 @@ if TYPE_CHECKING:
     from chouette.bot import ChouetteBot
 
 
-class InvalidBirthdayDate(app_commands.AppCommandError):
-    pass
-
-
 class Birthday(app_commands.Group):
     """Classe qui permet de gérer les anniversaires"""
 
@@ -37,9 +33,11 @@ class Birthday(app_commands.Group):
             interaction (Interaction[ChouetteBot]): L'interaction Discord.
             error (app_commands.AppCommandError): L'erreur à gérer.
         """
-        if isinstance(error, InvalidBirthdayDate):
+        if isinstance(error, app_commands.CommandInvokeError) and isinstance(
+            error.original, ValueError
+        ):
             interaction.client.bot_logger.info(
-                f"{interaction.user} entered an invalid date as his birthday"
+                f"{interaction.user} entered an invalid date as his birthday: {error.original}"
             )
             await interaction.response.send_message(
                 "Vous n'avez pas entré une date d'anniversaire valide", ephemeral=True
@@ -64,10 +62,7 @@ class Birthday(app_commands.Group):
         Raises:
             InvalidBirthdayDate: Si la date entrée n'est pas valide.
         """
-        try:
-            birth_date = check_date(day, month, year, datetime.now(interaction.client.TZ).year)
-        except ValueError as e:
-            raise InvalidBirthdayDate from e
+        birth_date = check_date(day, month, year, datetime.now(interaction.client.TZ).year)
         user_id = str(interaction.user.id)
         birthdays = await load_birthdays(interaction.client.data_io)
         if user_id not in birthdays:
@@ -104,10 +99,7 @@ class Birthday(app_commands.Group):
         Raises:
             InvalidBirthdayDate: Si la date entrée n'est pas valide.
         """
-        try:
-            birth_date = check_date(day, month, year, datetime.now(interaction.client.TZ).year)
-        except ValueError as e:
-            raise InvalidBirthdayDate from e
+        birth_date = check_date(day, month, year, datetime.now(interaction.client.TZ).year)
         user_id = str(interaction.user.id)
         birthdays = await load_birthdays(interaction.client.data_io)
         if user_id in birthdays:

@@ -8,7 +8,7 @@ class GitHubAPIError(Exception):
     """Erreur de l'API GitHub."""
 
     def __init__(self, status: int, cause: str | None = None) -> None:
-        self.message = f"HTTP Status code: {status}" + f", {cause}" if cause else ""
+        super().__init__(f"HTTP Status code: {status}" + f", {cause}" if cause else "")
 
 
 async def get_last_update(session: ClientSession) -> date:

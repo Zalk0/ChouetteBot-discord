@@ -14,7 +14,7 @@ class MojangAPIError(Exception):
     """Erreur de l'API Mojang."""
 
     def __init__(self, status: int, cause: str | None = None) -> None:
-        self.message = f"HTTP Status code: {status}" + f", {cause}" if cause else ""
+        super().__init__(f"HTTP Status code: {status}" + f", {cause}" if cause else "")
 
 
 class MojangAPI:
