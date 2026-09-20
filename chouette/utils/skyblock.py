@@ -57,7 +57,7 @@ class SkyblockUtils:
         self.client = client
         self.data_io = client.data_io
         self.session = client.session
-        self.api_key = client.config.get("HYPIXEL_KEY")
+        self.api_key = client.config.get("HYPIXEL_KEY", "")
         if not self.api_key:
             self.client.bot_logger.error("La clé API Hypixel n'est pas configurée.")
         self.ranking = Ranking(client, self)
@@ -171,7 +171,7 @@ class SkyblockUtils:
             json: dict = await response.json()
             if response.status != HTTPStatus.OK:
                 raise HypixelAPIError(response.status, json.get("cause"))
-            return json.get("members").get(uuid)
+            return json.get("members", {}).get(uuid)
 
     async def get_player_networth(self, uuid: str, profile: dict, bank_balance: int) -> float:
         """Retourne la fortune d'un joueur Skyblock avec le package `skyhelper-networth`.
@@ -185,14 +185,14 @@ class SkyblockUtils:
             float: La fortune du joueur.
         """
         try:
-            museum = await self.get_museum(uuid, profile.get("profile_id"))
+            museum = await self.get_museum(uuid, profile.get("profile_id", ""))
         except Exception:
             self.client.bot_logger.exception("There was an error while getting the networth")
             museum = None
 
         try:
             calculator = ProfileNetworthCalculator(
-                profile.get("members").get(uuid), museum, bank_balance, session=self.session
+                profile.get("members", {}).get(uuid), museum, bank_balance, session=self.session
             )
             networth = await calculator.get_non_cosmetic_networth(only_networth=True)
         except (ItemsError, PricesError):
