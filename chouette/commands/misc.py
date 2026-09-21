@@ -32,7 +32,7 @@ async def die_roll(interaction: discord.Interaction[ChouetteBot]) -> None:
     Args:
         interaction (discord.Interaction[ChouetteBot]): L'interaction Discord.
     """
-    await interaction.response.send_message(f"{random.randint(1, 6)} \N{GAME DIE}")
+    await interaction.response.send_message(f"{random.randint(1, 6)} \N{GAME DIE}")  # noqa: S311
 
 
 @app_commands.command(name="ping", description="Test la latence du bot")
