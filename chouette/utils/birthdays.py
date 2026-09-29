@@ -2,10 +2,17 @@ from __future__ import annotations
 
 from datetime import date, datetime, time
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from chouette.utils.data_io import DataIO
+if TYPE_CHECKING:
+    from chouette.utils.data_io import DataIO
 
 BIRTHDAY_FILE = Path("data", "birthdays.toml")
+
+
+class BirthdayYearError(ValueError):
+    def __init__(self, year: int) -> None:
+        super().__init__(f"year must be in range 1900..current year, not {year}.")
 
 
 async def load_birthdays(data_io: DataIO) -> dict:
@@ -30,13 +37,14 @@ async def save_birthdays(data_io: DataIO, birthdays: dict) -> None:
     await data_io.data_write(birthdays, BIRTHDAY_FILE)
 
 
-async def check_date(day: int, month: int, year: int) -> date:
+def check_date(day: int, month: int, year: int | None, current_year: int) -> date:
     """Vérifie si la date est valide et la retourne.
 
     Args:
         day (int): Le jour de la date.
         month (int): Le mois de la date.
         year (int): L'année de la date.
+        current_year (int): L'année en cours
 
     Raises:
         ValueError: Si la date n'est pas valide.
@@ -46,24 +54,25 @@ async def check_date(day: int, month: int, year: int) -> date:
     """
     if not year:
         return date(4, month, day)
-    if year < 1900 or year > date.today().year:
-        raise ValueError("L'année doit être comprise entre 1900 et l'année en cours.")
+    if year < 1900 or year > current_year:
+        raise BirthdayYearError(year)
     return date(year, month, day)
 
 
-async def calculate_age(year: int) -> int | None:
+def calculate_age(year: int, current_year: int) -> int | None:
     """Calcule l'âge de la personne en fonction de son année de naissance.
 
     Args:
         year (int): L'année de naissance de la personne.
+        current_year (int): L'année en cours
 
     Returns:
         int | None: L'âge de la personne ou `None` si l'année est invalide.
     """
-    return date.today().year - year if year != 4 else None
+    return current_year - year if year != 4 else None
 
 
-async def datetime_to_timestamp(birthday: date) -> str:
+def datetime_to_timestamp(birthday: date) -> str:
     """Convertit une date en timestamp Discord.
 
     Args:
@@ -77,7 +86,7 @@ async def datetime_to_timestamp(birthday: date) -> str:
     return f"<t:{int(unix_timestamp)}:R>"
 
 
-async def month_to_str(month: int) -> str:
+def month_to_str(month: int) -> str:
     """Convertit un numéro de mois en français.
 
     Args:

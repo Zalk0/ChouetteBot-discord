@@ -3,11 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import discord
-from discord.abc import Messageable
 
 from chouette.utils.latex_render import latex_process
 
 if TYPE_CHECKING:
+    from discord.abc import Messageable
+
     from chouette.bot import ChouetteBot
 
 
@@ -15,7 +16,7 @@ async def responses(
     client: ChouetteBot,
     channel: Messageable,
     message: str,
-    author: discord.User,
+    author: discord.User | discord.Member,
 ) -> tuple[str, bool]:
     """Gère les réponses du bot en fonction du message de l'utilisateur.
 
@@ -37,16 +38,16 @@ async def responses(
         return "**FEUR**", False
 
     # Checks if a message contains $$ to signify LaTeX expression
-    if message.count("$") > 1:
+    if message.count("$") > 1 and not (message.count("$") == 2 and "$$" in message):
         if (message.count("$") % 2) == 0:
-            if message.count("$") == 2 and "$$" in message:
-                return "", False
             await channel.send(file=await latex_process(client.session, message))
             client.bot_logger.info(f'{client.user} responded to {author}: "equation.png"')
             return "", False
         return (
-            "Nombre de $ impair, "
-            "veuillez en mettre un nombre pair pour que je puisse afficher les équations LaTeX !",
+            (
+                "Nombre de $ impair, "
+                "veuillez en mettre un nombre pair pour que je puisse afficher les équations LaTeX !"
+            ),
             False,
         )
 
@@ -57,10 +58,11 @@ async def responses(
                 await client.tree.sync()
                 for guild in client.guilds:
                     await client.tree.sync(guild=guild)
-                return "Les commandes slash ont été synchronisées avec succès !", True
             except discord.app_commands.CommandSyncFailure as e:
-                client.bot_logger.error(e)
+                client.bot_logger.exception("There was a failure while syncing the commands")
                 return str(e), True
+            else:
+                return "Les commandes slash ont été synchronisées avec succès !", True
         client.bot_logger.info(f"{author}, who isn't authorized, tried to sync the commands")
 
     # Return empty string if no condition is checked

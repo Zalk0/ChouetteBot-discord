@@ -42,14 +42,14 @@ async def latex_process(session: ClientSession, message: str) -> discord.File:
         if parts[i] != "":
             if i % 2:  # It's maths, so nothing to do
                 equation += f" {parts[i]}"
-            else:  # It's text
-                if parts[i].count("\n") > 0:
-                    linebreak = r"} \\ \textrm{".join(parts[i].split("\n"))
-                    # Not using splitlines method
-                    # Because I need to keep linebreaks at the end of the text
-                    equation += rf" \textrm{{{linebreak}}}"
-                else:
-                    equation += rf" \textrm{{{parts[i]}}}"
+            # It's text
+            elif parts[i].count("\n") > 0:
+                linebreak = r"} \\ \textrm{".join(parts[i].split("\n"))
+                # Not using splitlines method
+                # Because I need to keep linebreaks at the end of the text
+                equation += rf" \textrm{{{linebreak}}}"
+            else:
+                equation += rf" \textrm{{{parts[i]}}}"
     return await latex_render(session, equation.replace(r" \textrm{}", ""))
 
 

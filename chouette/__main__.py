@@ -1,4 +1,4 @@
-import logging.handlers as handlers
+from logging import handlers
 from pathlib import Path
 
 from dotenv import load_dotenv
