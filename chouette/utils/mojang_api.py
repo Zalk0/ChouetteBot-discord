@@ -14,7 +14,7 @@ class MojangAPIError(Exception):
     """Erreur de l'API Mojang."""
 
     def __init__(self, status: int, cause: str | None = None) -> None:
-        self.message = f"HTTP Status code: {status}" + f", {cause}" if cause else ""
+        super().__init__(f"HTTP Status code: {status}" + f", {cause}" if cause else "")
 
 
 class MojangAPI:
@@ -59,7 +59,5 @@ class MojangAPI:
     async def update_minecraft_releases(self) -> None:
         try:
             await self.set_minecraft_releases()
-        except MojangAPIError as e:
-            self.client.bot_logger.error(
-                f"Error while updating cached Minecraft releases: {e.message}"
-            )
+        except MojangAPIError:
+            self.client.bot_logger.exception("Error while updating cached Minecraft releases")

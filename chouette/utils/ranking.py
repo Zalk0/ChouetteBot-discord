@@ -3,9 +3,9 @@ from __future__ import annotations
 import copy
 import json
 import math
-from datetime import date
+from datetime import datetime
 from itertools import chain
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import discord
 
@@ -79,7 +79,7 @@ def parse_data(data: dict) -> dict:
     Returns:
         dict: Les données parsées.
     """
-    ranking = {}
+    ranking: dict[str, dict[str, Any]] = {}
     skills = [
         "fishing",
         "alchemy",
@@ -96,13 +96,13 @@ def parse_data(data: dict) -> dict:
     slayers = ["zombie", "spider", "wolf", "enderman", "blaze", "vampire"]
     level_cap = [[], [], []]
 
-    for player in data:
-        for key, value in data[player].items():
+    for player_data in data.values():
+        for key, value in player_data.items():
             # Gère 'level' et 'networth'
-            if key == "level" or key == "networth":
+            if key in {"level", "networth"}:
                 if key not in ranking:
                     ranking[key] = {}
-                ranking[key][data[player]["pseudo"]] = value
+                ranking[key][player_data["pseudo"]] = value
             # Gère 'skills'
             if key == "skills":
                 for skill in skills:
@@ -110,7 +110,7 @@ def parse_data(data: dict) -> dict:
                         ranking[skill] = {"level": {}, "overflow": {}}
                 if "skill average" not in ranking:
                     ranking["skill average"] = {}
-                ranking["skill average"][data[player]["pseudo"]] = None
+                ranking["skill average"][player_data["pseudo"]] = None
             # Gère 'slayers'
             if key == "slayers":
                 for slayer in slayers:
@@ -122,7 +122,7 @@ def parse_data(data: dict) -> dict:
                     level_cap[cap].append(value[cap])
 
     # Calcule les niveaux et overflows des joueurs
-    for player_index, player in enumerate(data):
+    for player_index, player_data in enumerate(data.values()):
         for skill in chain(skills, slayers):
             type_xp = "skill"
             category = "skills"
@@ -150,35 +150,30 @@ def parse_data(data: dict) -> dict:
 
             index = skill_list.index(skill)
 
-            level, overflow = experience_to_level(
-                type_xp, data[player][category][index], max_level
-            )
-            ranking[skill]["level"][data[player]["pseudo"]] = level
-            ranking[skill]["overflow"][data[player]["pseudo"]] = overflow
+            level, overflow = experience_to_level(type_xp, player_data[category][index], max_level)
+            ranking[skill]["level"][player_data["pseudo"]] = level
+            ranking[skill]["overflow"][player_data["pseudo"]] = overflow
 
     # Trie les données du classement dans l'ordre décroissant
     sorted_ranking: dict = ranking.copy()
-    for category in ranking:
-        if isinstance(ranking[category], dict):
-            # 'Level' et 'Networth'
-            if category in ["level", "networth"]:
-                sorted_ranking[category] = dict(
-                    sorted(ranking[category].items(), key=lambda item: item[1], reverse=True)
-                )
-            # 'Skills' et 'slayers'
-            if category in chain(skills, slayers):
-                sorted_ranking[category] = {
-                    "level": dict(
-                        sorted(
-                            ranking[category]["level"].items(),
-                            key=lambda item: (item[1], ranking[category]["overflow"][item[0]]),
-                            reverse=True,
-                        )
-                    ),
-                    "overflow": dict(ranking[category]["overflow"].items()),
-                }
-        else:
-            raise ValueError(f"Unknown category while sorting the ranking: {category}")
+    for category, category_data in ranking.items():
+        # 'Level' et 'Networth'
+        if category in ["level", "networth"]:
+            sorted_ranking[category] = dict(
+                sorted(category_data.items(), key=lambda item: item[1], reverse=True)
+            )
+        # 'Skills' et 'slayers'
+        if category in chain(skills, slayers):
+            sorted_ranking[category] = {
+                "level": dict(
+                    sorted(
+                        category_data["level"].items(),
+                        key=lambda item: (item[1], category_data["overflow"][item[0]]),
+                        reverse=True,
+                    )
+                ),
+                "overflow": dict(category_data["overflow"].items()),
+            }
     return sorted_ranking
 
 
@@ -218,17 +213,23 @@ def generate_ranking_message(data: dict, category: str, old_data: dict) -> list[
     # 'Level'
     if category == "level":
         for i, (player, value) in enumerate(data[category].items()):
-            value = f"{value:.2f}"
+            rounded_value = f"{value:.2f}"
             message = format_ranking_message(
-                player, value, i, calculate_player_position(old_data, data, category, player)
+                player,
+                rounded_value,
+                i,
+                calculate_player_position(old_data, data, category, player),
             )
             messages.append(message)
     # 'Networth'
     if category == "networth":
         for i, (player, value) in enumerate(data[category].items()):
-            value = format_number(value)
+            rounded_value = format_number(value)
             message = format_ranking_message(
-                player, value, i, calculate_player_position(old_data, data, category, player)
+                player,
+                rounded_value,
+                i,
+                calculate_player_position(old_data, data, category, player),
             )
             messages.append(message)
     # 'Skills' et 'slayers'
@@ -236,12 +237,15 @@ def generate_ranking_message(data: dict, category: str, old_data: dict) -> list[
         for i, (player, value) in enumerate(data[category]["level"].items()):
             overflow = data[category]["overflow"][player]
             if overflow:
-                value = f"{value:.0f}"
+                rounded_value = f"{value:.0f}"
                 overflow = math.floor(overflow)
             else:
-                value = f"{value:.2f}"
+                rounded_value = f"{value:.2f}"
             message = format_ranking_message(
-                player, value, i, calculate_player_position(old_data, data, category, player)
+                player,
+                rounded_value,
+                i,
+                calculate_player_position(old_data, data, category, player),
             )
             if overflow:
                 message += f" (*{overflow:,}*)".replace(",", " ")
@@ -252,9 +256,7 @@ def generate_ranking_message(data: dict, category: str, old_data: dict) -> list[
     if category == "skill average":
         # Calcule le 'skill average' pour les anciennes données
         for player in old_data[category]:
-            total = []
-            for skill in skills_avg:
-                total.append(math.floor(old_data[skill]["level"][player]))
+            total = [math.floor(old_data[skill]["level"][player]) for skill in skills_avg]
             average = math.fsum(total) / len(total)
             old_data[category][player] = average
         # Trie le 'skill average'
@@ -263,9 +265,7 @@ def generate_ranking_message(data: dict, category: str, old_data: dict) -> list[
         )
         # Calcule le 'skill average' pour les nouvelles données
         for player in data[category]:
-            total = []
-            for skill in skills_avg:
-                total.append(math.floor(data[skill]["level"][player]))
+            total = [math.floor(data[skill]["level"][player]) for skill in skills_avg]
             average = math.fsum(total) / len(total)
             data[category][player] = average
         # Trie le 'skill average'
@@ -273,9 +273,12 @@ def generate_ranking_message(data: dict, category: str, old_data: dict) -> list[
             sorted(data[category].items(), key=lambda item: item[1], reverse=True)
         )
         for i, (player, value) in enumerate(data[category].items()):
-            value = f"{value:.2f}"
+            rounded_value = f"{value:.2f}"
             message = format_ranking_message(
-                player, value, i, calculate_player_position(old_data, data, category, player)
+                player,
+                rounded_value,
+                i,
+                calculate_player_position(old_data, data, category, player),
             )
             messages.append(message)
     return messages
@@ -331,20 +334,17 @@ class Ranking:
         old_data = await self.sb_utils.load_skyblock()
         new_data = copy.deepcopy(old_data)
         self.client.bot_logger.info("Synchro des données de la guilde sur Hypixel Skyblock pour :")
-        for uuid in old_data:
-            pseudo = old_data.get(uuid).get("pseudo")
-            profile_name = old_data.get(uuid).get("profile")
+        for uuid, player_data in old_data.items():
+            pseudo = player_data.get("pseudo")
+            profile_name = player_data.get("profile")
             profile = await self.sb_utils.get_profile(uuid, profile_name)
-            if not profile[0]:
-                raise Exception("Error while updating stats")
-            profile = profile[1]
             player = await self.sb_utils.get_hypixel_player(uuid)
-            new_data.get(uuid).update(await self.sb_utils.get_stats(uuid, player, profile))
+            new_data[uuid].update(await self.sb_utils.get_stats(uuid, player, profile))
             self.client.bot_logger.info(f"- {pseudo} sur le profil {profile_name}")
 
             # In case we can't get networth properly, we keep the old value
-            if new_data.get(uuid).get("networth") == 0:
-                new_data.get(uuid).update({"networth": old_data.get(uuid).get("networth")})
+            if new_data[uuid].get("networth") == 0:
+                new_data[uuid].update({"networth": player_data.get("networth")})
 
         await self.sb_utils.save_skyblock(new_data)
         return parse_data(old_data)
@@ -360,8 +360,9 @@ class Ranking:
         Returns:
             list[discord.Embed]: La liste des embeds à afficher.
         """
-        month = await month_to_str(date.today().month)
-        year = date.today().year
+        today = datetime.now(self.client.TZ)
+        month = month_to_str(today.month)
+        year = today.year
 
         embeds_ranking = []
         ranking = discord.Embed(
@@ -407,7 +408,7 @@ class Ranking:
 
     async def guild_ranking(self, channel_id: int | None = None) -> None:
         client = self.client
-        guild = client.get_guild(int(client.config["HYPIXEL_GUILD_ID"]))
+        guild = client.hypixel_guild
         member = guild.get_role(int(client.config["HYPIXEL_GUILD_ROLE"]))
         old_ranking_data = await self.update_stats()
         if not guild.icon:

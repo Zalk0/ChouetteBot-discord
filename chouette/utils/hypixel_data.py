@@ -192,7 +192,7 @@ def experience_to_level(
     elif type_xp == "slayer_vampire":
         xp_data = slayer_xp_data[3]
     else:
-        raise ValueError(f"Unknown type of XP: {type_xp}")
+        raise NotImplementedError(f"Unknown type of XP: {type_xp}")
 
     for level, xp in enumerate(xp_data):
         if max_level and level == max_level and xp_amount > xp:
