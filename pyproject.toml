@@ -77,6 +77,7 @@ flake8-tidy-imports.ban-relative-imports = "all"
 
 [tool.pyproject-fmt]
 indent = 4
+keep_full_version = true
 generate_python_version_classifiers = false
 table_format = "long"
 sub_table_spacing = "\n"
