@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, time, timedelta
-from os import getenv
+from datetime import date, datetime, time, timedelta
 from typing import TYPE_CHECKING
 
 from discord.errors import DiscordServerError
@@ -12,17 +11,6 @@ from chouette.utils.skyblock import SkyblockUtils
 
 if TYPE_CHECKING:
     from chouette.bot import ChouetteBot
-
-# Get local timezone for tasks
-try:
-    from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
-
-    TIMEZONE = ZoneInfo(getenv("TZ", "localtime"))
-# Use timezone UTC as a fallback
-except ZoneInfoNotFoundError:
-    from datetime import UTC
-
-    TIMEZONE = UTC
 
 
 async def tasks_list(client: ChouetteBot) -> None:
@@ -40,23 +28,24 @@ async def tasks_list(client: ChouetteBot) -> None:
         await client.get_channel(int(client.config["POKE_CHANNEL"])).send(msg_poke)
 
     # Check if it's someone's birthday every day at 8am in local time
-    @tasks.loop(time=time(8, tzinfo=TIMEZONE))
+    @tasks.loop(time=time(8, tzinfo=client.TZ))
     async def check_birthdays() -> None:
         """Vérifie si c'est l'anniversaire de quelqu'un."""
         guild = client.get_guild(int(client.config["GUILD_ID"]))
         role = guild.get_role(int(client.config["BIRTHDAY_ROLE"]))
+        today = datetime.now(client.TZ).date()
         for member in role.members:
             await member.remove_roles(role, reason="Birthday ended")
         for user_id, info in (await load_birthdays(client.data_io)).items():
             birthday: date = info.get("birthday")
-            if (birthday.day == date.today().day and birthday.month == date.today().month) or (
+            if (birthday.day == today.day and birthday.month == today.month) or (
                 birthday.day == 29
                 and birthday.month == 2
-                and date.today() - timedelta(days=1) == date(date.today().year, 2, 28)
+                and today - timedelta(days=1) == date(today.year, 2, 28)
             ):
                 user = guild.get_member(int(user_id))
                 await user.add_roles(role, reason="Birthday")
-                age = await calculate_age(birthday.year)
+                age = calculate_age(birthday.year, today.year)
                 if age:
                     msg_birthday = (
                         f"\N{PARTY POPPER} {user.display_name} a maintenant un an de plus !\n"
@@ -71,10 +60,10 @@ async def tasks_list(client: ChouetteBot) -> None:
                 await client.get_channel(int(client.config["BIRTHDAY_CHANNEL"])).send(msg_birthday)
 
     # Display the ranking for Hypixel Skyblock guild every month on the 1st at 8am in local time
-    @tasks.loop(time=time(8, tzinfo=TIMEZONE))
+    @tasks.loop(time=time(8, tzinfo=client.TZ))
     async def skyblock_guild_ranking() -> None:
         """Affiche le classement de la guilde Hypixel Skyblock."""
-        if date.today().day == 1:
+        if datetime.now(client.TZ).day == 1:
             await sb_utils.ranking.guild_ranking()
 
     poke_ping.start()

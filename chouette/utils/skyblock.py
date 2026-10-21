@@ -1,33 +1,55 @@
 from __future__ import annotations
 
+from http import HTTPStatus
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from skyhelper_networth import ItemsError, PricesError, ProfileNetworthCalculator
-from skyhelper_networth.types import Museum
 
 from chouette.utils.mojang_api import MojangAPI, MojangAPIError
 from chouette.utils.ranking import Ranking
 
 if TYPE_CHECKING:
+    from skyhelper_networth.types import Museum
+
     from chouette.bot import ChouetteBot
 
 SKYBLOCK_FILE = Path("data", "skyblock.toml")
 HYPIXEL_API = "https://api.hypixel.net/v2/"
 
 
-async def hypixel_discord(player: dict) -> tuple[bool, str]:
+class HypixelAPIError(Exception):
+    """Erreur de l'API Hypixel."""
+
+    def __init__(self, status: int, cause: str | None = None) -> None:
+        super().__init__(f"HTTP Status code: {status}" + f", {cause}" if cause else "")
+
+
+class SkyblockProfileError(Exception):
+    """Erreur de lors de la sélection du profil Skyblock du joueur."""
+
+    def __init__(self, error: int, profile_name: str | None = None) -> None:
+        match error:
+            case 0:
+                super().__init__(f"The profile {profile_name} is a Bingo profile.")
+            case 1:
+                super().__init__("The player does not have any Skyblock profile.")
+            case 2:
+                super().__init__(f"The profile {profile_name} hasn't been found.")
+            case _:
+                raise NotImplementedError(f"Unknown error: {error}")
+
+
+async def hypixel_discord(player: dict) -> str:
     """Retourne le pseudo Discord lié à un compte Hypixel.
 
     Args:
         player (dict): Les données du joueur Hypixel.
 
     Returns:
-        tuple[bool, str]: `True` et le pseudo Discord si le compte est lié, `False` et un message d'erreur sinon.
+        str: le pseudo Discord si le compte est lié ou une chaine vide si il ne l'est pas.
     """
-    if not player.get("player").get("socialMedia", {}).get("links", {}).get("DISCORD", ""):
-        return False, "Vous n'avez pas associé votre compte Discord à Hypixel"
-    return True, player.get("player").get("socialMedia").get("links").get("DISCORD")
+    return player.get("player", {}).get("socialMedia", {}).get("links", {}).get("DISCORD", "")
 
 
 class SkyblockUtils:
@@ -35,7 +57,7 @@ class SkyblockUtils:
         self.client = client
         self.data_io = client.data_io
         self.session = client.session
-        self.api_key = client.config.get("HYPIXEL_KEY")
+        self.api_key = client.config.get("HYPIXEL_KEY", "")
         if not self.api_key:
             self.client.bot_logger.error("La clé API Hypixel n'est pas configurée.")
         self.ranking = Ranking(client, self)
@@ -57,7 +79,7 @@ class SkyblockUtils:
         """
         await self.data_io.data_write(skyblock, SKYBLOCK_FILE)
 
-    async def selected_profile(self, uuid: str) -> tuple[bool, dict | str | None]:
+    async def selected_profile(self, uuid: str) -> dict:
         """Retourne le profil Skyblock sélectionné d'un joueur.
 
         Args:
@@ -72,17 +94,17 @@ class SkyblockUtils:
             params={"uuid": uuid},
         ) as response:
             json: dict = await response.json()
-            if response.status != 200:
-                return False, json.get("cause")
-            profiles = json.get("profiles")
+            if response.status != HTTPStatus.OK:
+                raise HypixelAPIError(response.status, json.get("cause"))
+            profiles = json.get("profiles", {})
             for profile in profiles:
                 if profile.get("selected"):
                     if profile.get("game_mode") == "bingo":
-                        return False, "Bingo profile selected"
-                    return True, profile
-            return False, json.get("cause") if not json.get("success") else "No profile"
+                        raise SkyblockProfileError(0, profile.get("cute_name"))
+                    return profile
+            raise SkyblockProfileError(1)
 
-    async def get_profile(self, uuid: str, name: str) -> tuple[bool, dict | str | None]:
+    async def get_profile(self, uuid: str, name: str) -> dict:
         """Retourne le profil Skyblock d'un joueur avec un nom spécifique.
 
         Args:
@@ -98,13 +120,15 @@ class SkyblockUtils:
             params={"uuid": uuid},
         ) as response:
             json: dict = await response.json()
-            if response.status != 200:
-                return False, json.get("cause")
-            profiles = json.get("profiles")
+            if response.status != HTTPStatus.OK:
+                raise HypixelAPIError(response.status, json.get("cause"))
+            profiles = json.get("profiles", {})
             for profile in profiles:
                 if profile.get("cute_name") == name:
-                    return True, profile
-            return False, "No profile with this name"
+                    if profile.get("game_mode") == "bingo":
+                        raise SkyblockProfileError(0, profile.get("cute_name"))
+                    return profile
+            raise SkyblockProfileError(2, name)
 
     async def get_hypixel_player(self, uuid: str) -> dict:
         """Retourne les informations d'un joueur Hypixel.
@@ -122,8 +146,8 @@ class SkyblockUtils:
             f"{HYPIXEL_API}player", headers={"API-Key": self.api_key}, params={"uuid": uuid}
         ) as response:
             json: dict = await response.json()
-            if response.status != 200:
-                raise Exception("Error while fetching Hypixel player info")
+            if response.status != HTTPStatus.OK:
+                raise HypixelAPIError(response.status, json.get("cause"))
             return json
 
     async def get_museum(self, uuid: str, profile_id: str) -> Museum:
@@ -145,12 +169,9 @@ class SkyblockUtils:
             params={"profile": profile_id},
         ) as response:
             json: dict = await response.json()
-            if response.status != 200:
-                raise Exception(
-                    f"Error while fetching Skyblock museum info, status: {response.status}"
-                    + (f", cause: {json.get('cause')}" if json.get("cause") else "")
-                )
-            return json.get("members").get(uuid)
+            if response.status != HTTPStatus.OK:
+                raise HypixelAPIError(response.status, json.get("cause"))
+            return json.get("members", {}).get(uuid)
 
     async def get_player_networth(self, uuid: str, profile: dict, bank_balance: int) -> float:
         """Retourne la fortune d'un joueur Skyblock avec le package `skyhelper-networth`.
@@ -164,20 +185,21 @@ class SkyblockUtils:
             float: La fortune du joueur.
         """
         try:
-            museum = await self.get_museum(uuid, profile.get("profile_id"))
-        except Exception as e:
-            self.client.bot_logger.error(e)
+            museum = await self.get_museum(uuid, profile.get("profile_id", ""))
+        except Exception:
+            self.client.bot_logger.exception("There was an error while getting the networth")
             museum = None
 
         try:
             calculator = ProfileNetworthCalculator(
-                profile.get("members").get(uuid), museum, bank_balance, session=self.session
+                profile.get("members", {}).get(uuid), museum, bank_balance, session=self.session
             )
             networth = await calculator.get_non_cosmetic_networth(only_networth=True)
+        except (ItemsError, PricesError):
+            self.client.bot_logger.exception("There was an error while getting the networth")
+        else:
             return networth.networth
-        except (ItemsError, PricesError) as e:
-            self.client.bot_logger.error(e)
-            return 0
+        return 0
 
     async def get_stats(
         self, uuid: str, hypixel_player: dict, profile: dict
@@ -244,7 +266,7 @@ class SkyblockUtils:
 
     async def pseudo_to_profile(
         self, discord_pseudo: str, pseudo: str, profile_name: str | None
-    ) -> dict | str | None:
+    ) -> dict | str:
         """Retourne le profil d'un joueur Skyblock avec l'API.
 
         Args:
@@ -258,15 +280,13 @@ class SkyblockUtils:
         try:
             uuid = await self.mojang_api.pseudo_to_uuid(pseudo)
         except MojangAPIError as e:
-            return e.message
+            return repr(e)
         self.client.bot_logger.debug(f"L'UUID de {pseudo} est {uuid}")
 
         player = await self.get_hypixel_player(uuid)
-        has_discord = await hypixel_discord(player)
-        if not has_discord[0]:
-            # TODO: better handling
-            return has_discord[1]
-        discord = has_discord[1]
+        discord = await hypixel_discord(player)
+        if not discord:
+            return "Vous n'avez pas associé votre compte Discord à Hypixel"
         if discord != discord_pseudo:
             if discord.lower() == discord_pseudo:
                 return (
@@ -282,17 +302,15 @@ class SkyblockUtils:
             profile = await self.get_profile(uuid, profile_name)
         else:
             profile = await self.selected_profile(uuid)
-        if not profile[0]:
-            # TODO: better handling
-            return profile[1]
-        profile = profile[1]
         self.client.bot_logger.debug(f"Le profil {profile.get('cute_name')} a été trouvé")
 
-        info = {uuid: {"discord": discord, "pseudo": pseudo, "profile": profile.get("cute_name")}}
-        info.get(uuid).update(await self.get_stats(uuid, player, profile))
+        info: dict[str, dict[str, Any]] = {
+            uuid: {"discord": discord, "pseudo": pseudo, "profile": profile.get("cute_name")}
+        }
+        info[uuid].update(await self.get_stats(uuid, player, profile))
         self.client.bot_logger.debug("Les stats ont bien été calculées")
         file_content = await self.load_skyblock()
         if file_content.get(uuid, {}).get("profile", "") != profile.get("cute_name"):
             file_content.update(info)
             await self.save_skyblock(file_content)
-        return info.get(uuid)
+        return info[uuid]
