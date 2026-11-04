@@ -19,6 +19,12 @@
       "matchDepNames": [ "ruff", "astral-sh/ruff-pre-commit" ],
       "groupName": "Ruff",
       "automerge": true
+    },
+    {
+      "matchManagers": [ "github-actions" ],
+      "groupName": "GitHub Actions",
+      "commitMessageExtra": null,
+      "automerge": true
     }
   ],
   "lockFileMaintenance": {
